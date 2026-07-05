@@ -6,7 +6,7 @@ export interface RawExport {
   exportXml: string | null;
 }
 
-const WANTED = /(workout-routes\/[^/]+\.gpx|(^|\/)export\.xml)$/;
+const WANTED = /((^|\/)workout-routes\/[^/]+\.gpx|(^|\/)export\.xml)$/;
 
 export function readExportZip(data: Uint8Array): Promise<RawExport> {
   return new Promise((resolve, reject) => {

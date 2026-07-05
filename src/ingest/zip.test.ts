@@ -31,4 +31,15 @@ describe("readExportZip", () => {
   it("rejects on garbage bytes", async () => {
     await expect(readExportZip(new Uint8Array([1, 2, 3]))).rejects.toThrow();
   });
+
+  it("rejects lookalike paths outside a real workout-routes segment", async () => {
+    const raw = await readExportZip(
+      zipSync({
+        "fake-workout-routes/x.gpx": strToU8("<gpx>nope</gpx>"),
+        "export/not-workout-routes/y.gpx": strToU8("<gpx>nope</gpx>"),
+        "apple_health_export/workout-routes/real.gpx": strToU8("<gpx>yes</gpx>"),
+      }),
+    );
+    expect([...raw.gpxFiles.keys()]).toEqual(["real.gpx"]);
+  });
 });
