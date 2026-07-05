@@ -88,4 +88,30 @@ describe("buildYear", () => {
     expect(year.places).toEqual([]);
     expect(year.span).toEqual({ firstUtc: 0, lastUtc: 0 });
   });
+
+  it("picks the best-overlap workout when several qualify", () => {
+    const track = gpx(
+      Array.from({ length: 31 }, (_, i) => [
+        19.0969 + i * 0.0005,
+        72.9197,
+        new Date(Date.parse("2024-08-01T04:30:00Z") + i * 60_000)
+          .toISOString()
+          .replace(".000", ""),
+      ]),
+    );
+    const xml = `<HealthData>
+<Workout workoutActivityType="HKWorkoutActivityTypeRunning" duration="16.0" durationUnit="min" startDate="2024-08-01 10:00:00 +0530" endDate="2024-08-01 10:16:00 +0530">
+  <WorkoutStatistics type="HKQuantityTypeIdentifierDistanceWalkingRunning" sum="1.0" unit="km"/>
+</Workout>
+<Workout workoutActivityType="HKWorkoutActivityTypeRunning" duration="28.0" durationUnit="min" startDate="2024-08-01 10:02:00 +0530" endDate="2024-08-01 10:30:00 +0530">
+  <WorkoutStatistics type="HKQuantityTypeIdentifierDistanceWalkingRunning" sum="2.5" unit="km"/>
+</Workout>
+</HealthData>`;
+    const year = buildYear({
+      gpxFiles: new Map([["route_c.gpx", track]]),
+      exportXml: xml,
+    });
+    const gpsRun = year.runs.find((r) => r.track)!;
+    expect(gpsRun.km).toBe(2.5); // best overlap (28 min) wins over first-in-scan-order (16 min)
+  });
 });

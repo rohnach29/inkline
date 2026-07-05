@@ -71,16 +71,19 @@ export function buildYear(raw: RawExport): Year {
     const t0 = tr.points[0]!.t;
     const t1 = tr.points[tr.points.length - 1]!.t;
     let match: WorkoutRecord | undefined;
+    let matchIdx = -1;
+    let bestOverlap = 0.5 * (t1 - t0); // threshold: must beat half the track duration
     for (let i = 0; i < workouts.length; i++) {
       if (used.has(i)) continue;
       const w = workouts[i]!;
       const overlap = Math.min(t1, w.endUtc) - Math.max(t0, w.startUtc);
-      if (overlap > 0.5 * (t1 - t0)) {
+      if (overlap > bestOverlap) {
         match = w;
-        used.add(i);
-        break;
+        matchIdx = i;
+        bestOverlap = overlap;
       }
     }
+    if (matchIdx !== -1) used.add(matchIdx);
     const stats = trackStats(tr.points); // raw track: real elevation
     const clock = runClock(t0, tr.points[0]!);
     runs.push({
