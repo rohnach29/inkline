@@ -25,14 +25,14 @@ export const HILL_MOUNT_WORDS: readonly string[] = [
 export const HILL_THE_ADJ_WORDS: readonly string[] = [
   "Unreasonable",
   "Ungrateful",
-  "Uncalled-For",
+  "Smug",
   "Unnecessary",
   "Unbothered",
   "Unforgiving",
   "Unspoken",
   "Unhurried",
-  "Undecided",
-  "Unimpressed",
+  "Petty",
+  "Merciless",
 ] as const;
 
 /** Nouns describing what a hill does, for "The Hill That ___" pattern. */
@@ -58,8 +58,8 @@ export const ROUTE_ADJ_WORDS: readonly string[] = [
   "Wrong Turn",
   "Same Old",
   "Grey",
-  "Half-Hearted",
-  "No-Excuses",
+  "Reluctant",
+  "Cranky",
   "Backward",
 ] as const;
 
@@ -131,10 +131,10 @@ export const TITLE_PHRASES: readonly string[] = [
   "The Hill I Complained About",
   "A Year of Almost Quitting",
   "The Long Way Home, Every Time",
-  "Where the Sidewalk Gave Up",
-  "The Book of Small Victories",
+  "Nobody Made Me Do This",
+  "Proof I Went Outside",
   "Everything I Ran From",
-  "The Places My Feet Remember",
+  "The Year I Blamed the Wind",
   "Uphill, Both Ways, Actually",
   "The Year the Quiet Won",
 ] as const;

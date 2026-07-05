@@ -8,6 +8,7 @@ import {
   nameNightBeast,
   bookTitle,
 } from "./names";
+import { QUIET_SHORT_WORDS, QUIET_VAST_WORDS } from "./lexicon";
 
 const KEYS10 = [
   "hill-a",
@@ -122,6 +123,40 @@ describe("nameQuiet", () => {
     for (const k of FUZZ_KEYS) {
       expect(nameQuiet(rng, k, 30).length).toBeGreaterThan(0);
     }
+  });
+
+  it("days=99 stays under the boundary: short-quiet bank, no vast wording, no day count", () => {
+    const rng = new Rng(42);
+    const result = nameQuiet(rng, "boundary", 99);
+
+    // Must not fall back to exact-day wording or the vast-quiet bank.
+    expect(result).not.toContain("99");
+    for (const vastWord of QUIET_VAST_WORDS) {
+      expect(result).not.toBe(`The ${vastWord} Quiet`);
+    }
+
+    // Must be drawn from the short-quiet bank.
+    const isShortBank = QUIET_SHORT_WORDS.some(
+      (w) => result === `The ${w} Quiet`,
+    );
+    expect(isShortBank).toBe(true);
+  });
+
+  it("days=100 crosses the boundary: exact-day count or vast-quiet bank, never short-quiet", () => {
+    const rng = new Rng(42);
+    const result = nameQuiet(rng, "boundary", 100);
+
+    const isExactDays = result === "The 100-Day Quiet";
+    const isVastBank = QUIET_VAST_WORDS.some(
+      (w) => result === `The ${w} Quiet`,
+    );
+    expect(isExactDays || isVastBank).toBe(true);
+
+    // Must never fall back to the short-quiet bank once >= 100.
+    const isShortBank = QUIET_SHORT_WORDS.some(
+      (w) => result === `The ${w} Quiet`,
+    );
+    expect(isShortBank).toBe(false);
   });
 });
 
