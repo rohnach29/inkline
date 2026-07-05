@@ -141,7 +141,71 @@ body {
   fill: var(--pencil);
 }
 
-/* 6. Print ------------------------------------------------------------------ */
+/* 6. SVG & layout sizing ------------------------------------------------------
+ * Inline SVGs carry only a viewBox (no width/height attrs), so unconstrained
+ * they default to width:100% — these rules pin every placement to its
+ * intended size. (.cover-doodle svg is sized in app/shell.css at 140px.) */
+
+/* flightSvg's root class is "ink-flight" (see svg.ts), so it needs the
+ * same constraint as the route maps — both are 400x300 viewBox. */
+.ink-map,
+.ink-flight {
+  display: block;
+  width: min(100%, 440px);
+  height: auto;
+  margin: 2.5rem auto;
+}
+
+.map-area .ink-doodle {
+  display: block;
+  width: 150px;
+  height: auto;
+  margin: 2.5rem auto;
+}
+
+.doodle-strip {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.doodle-strip .ink-doodle {
+  width: 64px;
+  height: auto;
+}
+
+.beast-entry {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.beast-entry .ink-doodle {
+  width: 72px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+/* pages.ts emits <dl class="stats"> with direct dt/dd children (no inner
+ * dl), so the layout goes on .stats itself — a wrapping handwriting
+ * margin-note of label/value pairs. */
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 2rem;
+}
+
+.stats dt {
+  color: var(--ink-faint);
+}
+
+.stats dd {
+  margin: 0;
+}
+
+/* 7. Print ------------------------------------------------------------------ */
 
 @media print {
   :root {
