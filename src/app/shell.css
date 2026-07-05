@@ -13,19 +13,6 @@
   margin: 3rem auto;
 }
 
-.doodle-strip {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  align-items: center;
-  justify-content: center;
-}
-
-.doodle-strip svg {
-  width: 64px;
-  height: 64px;
-}
-
 .cover-doodle {
   width: 140px;
   margin: 1.5rem auto;

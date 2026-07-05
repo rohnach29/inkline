@@ -10,7 +10,7 @@ There's a demo book on the landing page if you want to see what comes out the ot
 
 ## What it makes
 
-Inkline turns a year of runs into a small book. It finds your first run, your last one, the fastest, the longest, the ones that happened at 2am for no defensible reason — and gives each its own chapter, with a title, a kicker, a few stats, and six lines of verse.
+Inkline turns a year of runs into a small book. It finds your first run, your last one, the fastest, the longest, the ones that happened at 2am for no defensible reason — and gives each its own chapter, with a title, a kicker, a few stats, and up to six lines of verse.
 
 It also collects **beasts**: recurring patterns worth naming, like a hill you keep losing to, or a stretch of forty quiet days. Here's one chapter's verse, in full:
 
