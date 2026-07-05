@@ -2,10 +2,17 @@ export const TICK_MS = 1000 / 120;
 export const RUN_SPEED_M_S = 4.2; // runner auto-run speed (game-meters/s)
 export const QUIET_BASE_M_S = 3.6; // fog base speed
 // NOTE: the name suggests a landing-idle rule, but that is NOT what happens.
-// The normative rule lives in step() below: the fog rubber-bands between
-// QUIET_BASE_M_S and QUIET_CATCHUP_M_S purely on the gap (xM - quietXM) —
-// engage when gap > 120, disengage back to base once gap <= 120.
+// The normative rule lives in step() below: the rubber band keys purely on
+// the gap (xM - quietXM) — while gap > 120 the fog runs at the faster of
+// QUIET_CATCHUP_M_S and the time-ramped base speed; at gap <= 120 it drops
+// back to the ramped base.
 export const QUIET_CATCHUP_M_S = 5.4;
+// The Quiet accelerates: base fog speed ramps up with elapsed game time so
+// every run ends and the score card (the shareable payoff) always appears.
+// Without the ramp an unstumbled runner (4.2) outruns the fog (3.6) forever.
+// base(t) crosses RUN_SPEED_M_S at t = (4.2 - 3.6) / 0.008 = 75s.
+export const QUIET_RAMP_M_S2 = 0.008; // fog acceleration (m/s per second of game time)
+export const QUIET_MAX_M_S = 6.0; // fog speed ceiling
 export const JUMP_V = 7.2; // m/s upward
 export const GRAVITY = 22; // m/s^2 downward
 
@@ -72,11 +79,14 @@ export function step(s: GameState, input: GameInput): GameState {
     grounded = true;
   }
 
-  // Quiet (fog): rubber-bands to keep tension. Base speed unless the gap
-  // between the runner and the fog exceeds the threshold, in which case the
-  // fog catches up faster until the gap closes back to the threshold.
+  // Quiet (fog): base speed ramps with elapsed game time (capped), so the
+  // fog eventually outpaces the runner and every game ends. The rubber band
+  // stays layered on top: when the gap exceeds the threshold the fog moves
+  // at the FASTER of catch-up and the ramped base until the gap closes.
+  const elapsedS = (s.tick * TICK_MS) / 1000;
+  const base = Math.min(QUIET_BASE_M_S + QUIET_RAMP_M_S2 * elapsedS, QUIET_MAX_M_S);
   const gap = xM - s.quietXM;
-  const quietSpeed = gap > RUBBER_BAND_GAP_M ? QUIET_CATCHUP_M_S : QUIET_BASE_M_S;
+  const quietSpeed = gap > RUBBER_BAND_GAP_M ? Math.max(QUIET_CATCHUP_M_S, base) : base;
   const quietXM = s.quietXM + quietSpeed * dt;
 
   const alive = quietXM < xM;

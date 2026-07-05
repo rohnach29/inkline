@@ -4,6 +4,8 @@ import {
   RUN_SPEED_M_S,
   QUIET_BASE_M_S,
   QUIET_CATCHUP_M_S,
+  QUIET_RAMP_M_S2,
+  QUIET_MAX_M_S,
   JUMP_V,
   GRAVITY,
   initialState,
@@ -127,6 +129,63 @@ describe("step: quiet (fog)", () => {
     const s: GameState = { ...initialState(), xM: 150, quietXM: 100 };
     const result = step(s, NO_JUMP);
     expect(result.quietXM).toBeCloseTo(100 + QUIET_BASE_M_S * DT, 10);
+  });
+});
+
+describe("step: quiet acceleration (the Quiet ramps up)", () => {
+  it("base fog speed at tick 0 is exactly QUIET_BASE_M_S", () => {
+    const s = initialState();
+    const result = step(s, NO_JUMP);
+    expect(result.quietXM).toBe(QUIET_BASE_M_S * DT);
+  });
+
+  it("fog base speed reaches RUN_SPEED_M_S (4.2) at t = 75s", () => {
+    // (RUN_SPEED - QUIET_BASE) / QUIET_RAMP = (4.2 - 3.6) / 0.008 = 75s.
+    const tick75s = Math.round(75_000 / TICK_MS); // 9000 ticks at 120Hz
+    expect(tick75s * TICK_MS).toBeCloseTo(75_000, 6);
+    // Keep the gap small so the rubber band stays out of the picture.
+    const s: GameState = { ...initialState(), tick: tick75s, xM: 400, quietXM: 350 };
+    const result = step(s, NO_JUMP);
+    const advance = result.quietXM - s.quietXM;
+    expect(advance / DT).toBeCloseTo(RUN_SPEED_M_S, 10);
+  });
+
+  it("fog base speed is capped at QUIET_MAX_M_S for large t", () => {
+    // t = 400s: uncapped ramp would give 3.6 + 0.008*400 = 6.8 > 6.0 cap.
+    const tick400s = Math.round(400_000 / TICK_MS); // 48000 ticks
+    const s: GameState = { ...initialState(), tick: tick400s, xM: 2000, quietXM: 1950 };
+    const result = step(s, NO_JUMP);
+    const advance = result.quietXM - s.quietXM;
+    expect(advance / DT).toBeCloseTo(QUIET_MAX_M_S, 10);
+  });
+
+  it("rubber band takes the max of catch-up and ramped base when gap > 120", () => {
+    // Late game: base(400s) = QUIET_MAX (6.0) > QUIET_CATCHUP (5.4). With a
+    // gap over 120 the fog must use the FASTER of the two, not drop to 5.4.
+    const tick400s = Math.round(400_000 / TICK_MS);
+    const s: GameState = { ...initialState(), tick: tick400s, xM: 2000, quietXM: 1000 };
+    const result = step(s, NO_JUMP);
+    const advance = result.quietXM - s.quietXM;
+    expect(advance / DT).toBeCloseTo(Math.max(QUIET_CATCHUP_M_S, QUIET_MAX_M_S), 10);
+    // Early game with a big gap: base(0) = 3.6 < 5.4, catch-up wins.
+    const early: GameState = { ...initialState(), xM: 300, quietXM: 100 };
+    const earlyResult = step(early, NO_JUMP);
+    expect((earlyResult.quietXM - early.quietXM) / DT).toBeCloseTo(QUIET_CATCHUP_M_S, 10);
+  });
+
+  it("every game ends: an unstumbled 40000-tick run finishes with alive === false", () => {
+    // Pre-amendment the fog (3.6) could never catch the runner (4.2) without
+    // stumbles -- the game was immortal and the score card never appeared.
+    // With the ramp, fog speed passes 4.2 at 75s; analytically the gap
+    // gap(t) = 40 + 0.6t - 0.004t^2 closes at t = 200s (24000 ticks), well
+    // inside 40000 ticks (~333s).
+    const script: GameInput[] = new Array<GameInput>(40_000).fill(NO_JUMP);
+    const final = simulate(initialState(), script);
+    expect(final.alive).toBe(false);
+    // Death freeze pins the state at the death tick -- confirm it happened
+    // in the analytically expected neighborhood, not at the 40000 cutoff.
+    expect(final.tick).toBeGreaterThan(20_000);
+    expect(final.tick).toBeLessThan(28_000);
   });
 });
 
