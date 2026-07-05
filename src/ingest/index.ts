@@ -3,5 +3,6 @@ export { readExportZip } from "./zip";
 export type { RawExport } from "./zip";
 export { parseGpx } from "./gpx";
 export { haversineM } from "./stats";
+export { downsample } from "./downsample";
 export { runClock } from "./clock";
 export type { Run, Place, Year, TrackPoint } from "./types";
