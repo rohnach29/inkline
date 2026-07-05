@@ -27,4 +27,9 @@ describe("trackStats", () => {
   it("returns zeros for fewer than 2 points", () => {
     expect(trackStats([])).toEqual({ km: 0, minutes: 0, elevationGain: 0 });
   });
+
+  it("returns zeros for a single point", () => {
+    const pts: TrackPoint[] = [{ lat: 19.0, lon: 72.9, ele: 10, t: 0 }];
+    expect(trackStats(pts)).toEqual({ km: 0, minutes: 0, elevationGain: 0 });
+  });
 });
