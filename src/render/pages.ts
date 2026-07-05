@@ -53,13 +53,20 @@ function tiltSpan(text: string): string {
 // Doodle fallback helpers
 // -------------------------------------------------------------------------
 
+interface DoodlePick {
+  html: string;
+  /** Index into `tags` of the tag that was rendered, or -1 when the ultimate
+   *  "shoes" fallback was used (no listed tag was consumed). */
+  usedTagIndex: number;
+}
+
 /** First tag (in order) that resolves to a non-empty doodle; "shoes" if none do. */
-function firstDoodle(tags: readonly string[]): string {
-  for (const tag of tags) {
-    const svg = doodleFor(tag);
-    if (svg) return svg;
+function firstDoodle(tags: readonly string[]): DoodlePick {
+  for (let i = 0; i < tags.length; i++) {
+    const svg = doodleFor(tags[i]!);
+    if (svg) return { html: svg, usedTagIndex: i };
   }
-  return doodleFor(FALLBACK_DOODLE_TAG);
+  return { html: doodleFor(FALLBACK_DOODLE_TAG), usedTagIndex: -1 };
 }
 
 // -------------------------------------------------------------------------
@@ -68,16 +75,24 @@ function firstDoodle(tags: readonly string[]): string {
 // chapter's first doodle tag (or "shoes" if that's empty/unknown too).
 // -------------------------------------------------------------------------
 
-function renderMapArea(mapSpec: MapSpec | null, doodleTags: readonly string[], year: Year): string {
+interface MapArea {
+  html: string;
+  /** Index of the doodleTag the map area consumed as its fallback, or -1
+   *  when a real route/flight svg (or the ultimate "shoes" fallback) was
+   *  rendered — i.e. when no listed tag was used up by the map area. */
+  usedTagIndex: number;
+}
+
+function renderMapArea(mapSpec: MapSpec | null, doodleTags: readonly string[], year: Year): MapArea {
   if (mapSpec) {
     if (mapSpec.kind === "route") {
       const run = year.runs.find((r) => r.id === mapSpec.runId);
       if (run?.track && run.track.length > 0) {
         const svg = routeSvg(run.track, run.id);
-        if (svg) return svg;
+        if (svg) return { html: svg, usedTagIndex: -1 };
       }
     } else {
-      return flightSvg(mapSpec.from, mapSpec.to, mapSpec.km);
+      return { html: flightSvg(mapSpec.from, mapSpec.to, mapSpec.km), usedTagIndex: -1 };
     }
   }
   return firstDoodle(doodleTags);
@@ -111,8 +126,11 @@ function renderChapter(chapter: Chapter, index: number, year: Year): string {
   const statsRows = chapter.stats
     .map((s) => `<dt>${esc(s.label)}</dt><dd>${esc(s.value)}</dd>`)
     .join("");
+  // Strip = every doodleTag EXCEPT the one the map area actually consumed as
+  // its fallback. When the map rendered a real route/flight svg (no doodle
+  // consumed, usedTagIndex -1), ALL tags render in the strip.
   const strip = chapter.doodleTags
-    .slice(1)
+    .filter((_, i) => i !== mapArea.usedTagIndex)
     .map((t) => doodleFor(t))
     .filter((svg) => svg.length > 0)
     .join("");
@@ -122,7 +140,7 @@ function renderChapter(chapter: Chapter, index: number, year: Year): string {
     `<div class="kicker">${esc(chapter.kicker)}</div>`,
     `<h2 class="chapter-title">${tiltSpan(chapter.title)}</h2>`,
     verseHtml,
-    `<div class="map-area">${mapArea}</div>`,
+    `<div class="map-area">${mapArea.html}</div>`,
     `<dl class="stats">${statsRows}</dl>`,
     strip ? `<div class="doodle-strip">${strip}</div>` : "",
     `</section>`,
@@ -145,7 +163,7 @@ function renderBeasts(book: Book): string {
     .map((b) =>
       [
         `<div class="beast-entry">`,
-        firstDoodle([b.doodleTag]),
+        firstDoodle([b.doodleTag]).html,
         `<div class="beast-name">${esc(b.name)}</div>`,
         `<div class="beast-desc">${esc(b.description)}</div>`,
         `</div>`,

@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { renderBook } from "./pages";
 import { esc } from "./svg";
+import { doodleFor } from "./doodles";
 import { makeSyntheticYear } from "../fixtures/synthetic";
 import { analyzeYear } from "../analyze";
 import { buildBook } from "../storytell";
-import type { Book } from "../storytell";
+import type { Book, Chapter } from "../storytell";
 import type { Year } from "../ingest";
 
 const year = makeSyntheticYear();
@@ -19,6 +20,77 @@ function emptyYear(): Year {
  *  spaces that pages.ts emits between tilt spans). */
 function stripTags(html: string): string {
   return html.replace(/<[^>]+>/g, "");
+}
+
+/** The full <section>…</section> substring whose opening tag carries the
+ *  given data-page value. Sections never nest, so lastIndexOf/indexOf around
+ *  the marker is exact. */
+function sectionFor(html: string, dataPage: string): string {
+  const at = html.indexOf(`data-page="${dataPage}"`);
+  expect(at).toBeGreaterThan(-1);
+  const start = html.lastIndexOf("<section", at);
+  const end = html.indexOf("</section>", start);
+  return html.slice(start, end);
+}
+
+function countOccurrences(haystack: string, needle: string): number {
+  let count = 0;
+  let at = haystack.indexOf(needle);
+  while (at !== -1) {
+    count++;
+    at = haystack.indexOf(needle, at + needle.length);
+  }
+  return count;
+}
+
+/** Minimal single-chapter Book for doodle-strip pinning tests. */
+function oneChapterBook(chapter: Chapter): Book {
+  return {
+    seed: 1,
+    title: "Strip Test",
+    subtitle: "a very short book of running",
+    dedication: ["for testing"],
+    chapters: [chapter],
+    beasts: [],
+    colophon: { runCount: 1, gpsRunCount: 1, totalKm: 5, places: [], note: "note" },
+  };
+}
+
+function baseChapter(overrides: Partial<Chapter>): Chapter {
+  return {
+    id: "test:1",
+    kicker: "in which we test",
+    title: "Plain Title",
+    verse: ["one", "two", "three", "four"],
+    stats: [{ label: "distance", value: "5.0 km" }],
+    mapSpec: null,
+    doodleTags: [],
+    atmosphereTags: [],
+    eventType: "first-run",
+    ...overrides,
+  };
+}
+
+/** Year with a single tracked run "r1" (3 GPS points, enough for routeSvg). */
+function trackedYear(): Year {
+  const run = {
+    id: "r1",
+    startUtc: 1_000_000,
+    startLocal: "2025-06-01T07:00:00",
+    tz: "Asia/Kolkata",
+    timezoneUncertain: false,
+    km: 5,
+    minutes: 30,
+    elevationGain: 10,
+    indoor: false,
+    track: [
+      { lat: 19.07, lon: 72.87, ele: 5, t: 0 },
+      { lat: 19.08, lon: 72.88, ele: 6, t: 60_000 },
+      { lat: 19.09, lon: 72.87, ele: 5, t: 120_000 },
+    ],
+    placeId: null,
+  };
+  return { runs: [run], places: [], span: { firstUtc: run.startUtc, lastUtc: run.startUtc } };
 }
 
 /** Reverse of svg.ts's esc(), for reconstructing original text from
@@ -155,5 +227,58 @@ describe("renderBook", () => {
     }).not.toThrow();
     expect(html).toContain('class="ink-doodle"');
     expect(html).not.toContain('class="ink-map"');
+  });
+
+  it("keeps a lone doodleTag in the strip when the map rendered a real routeSvg", () => {
+    const chapter = baseChapter({
+      mapSpec: { kind: "route", runId: "r1" },
+      doodleTags: ["trophy"],
+      eventType: "longest-run",
+    });
+    const html = renderBook(oneChapterBook(chapter), trackedYear());
+    const section = sectionFor(html, "ch-1");
+    expect(section).toContain('class="ink-map"'); // real route rendered, no doodle consumed
+    expect(section).toContain(doodleFor("trophy")); // trophy survives in the strip
+  });
+
+  it("keeps ALL doodleTags in the strip for a flight-map (journey) chapter", () => {
+    const chapter = baseChapter({
+      mapSpec: {
+        kind: "flight",
+        from: { lat: 19.08, lon: 72.88, name: "Mumbai" },
+        to: { lat: 40.42, lon: -86.92, name: "Lafayette" },
+        km: 12842,
+      },
+      doodleTags: ["plane", "globe"],
+      eventType: "journey",
+    });
+    const html = renderBook(oneChapterBook(chapter), trackedYear());
+    const section = sectionFor(html, "ch-1");
+    expect(section).toContain("ink-arc"); // real flight svg rendered
+    expect(section).toContain(doodleFor("plane"));
+    expect(section).toContain(doodleFor("globe"));
+  });
+
+  it("renders a trackless chapter's lone doodleTag exactly once (map fallback, empty strip)", () => {
+    const chapter = baseChapter({
+      mapSpec: null,
+      doodleTags: ["shoes"],
+    });
+    const html = renderBook(oneChapterBook(chapter), trackedYear());
+    const section = sectionFor(html, "ch-1");
+    expect(countOccurrences(section, doodleFor("shoes"))).toBe(1);
+    expect(countOccurrences(section, 'class="ink-doodle"')).toBe(1);
+  });
+
+  it("renders every fixture chapter's every doodleTag somewhere in its own section", () => {
+    const html = renderBook(book, year);
+    book.chapters.forEach((chapter, i) => {
+      const section = sectionFor(html, `ch-${i + 1}`);
+      for (const tag of chapter.doodleTags) {
+        const doodle = doodleFor(tag);
+        expect(doodle.length).toBeGreaterThan(0); // fixture tags are all known
+        expect(section).toContain(doodle);
+      }
+    });
   });
 });
