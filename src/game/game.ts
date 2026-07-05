@@ -1,7 +1,7 @@
 import type { GameInput, GameState } from "./physics";
 import { TICK_MS, initialState, step } from "./physics";
 import type { Obstacle } from "./spawn";
-import { alive, hitTest } from "./spawn";
+import { hitTest } from "./spawn";
 import type { ScoreFacts } from "./scorecard";
 import { cardLine, scoreCardSvg } from "./scorecard";
 import type { Rng } from "../storytell";
@@ -20,6 +20,16 @@ const MAX_STEPS_PER_FRAME = 5;
 const STUMBLE_TICKS = 90;
 
 const BEAST_FLASH_MS = 1400;
+
+/** How far ahead of the runner render() needs obstacles: the camera shows
+ *  (CANVAS_W * 0.7)/PX_PER_M ≈ 93m ahead of the runner, plus slack for the
+ *  widest glyph's half-width (hill draws 140px ≈ 23m wide). */
+const VISIBLE_AHEAD_M = 110;
+
+/** How far ahead collision needs obstacles: an obstacle can only overlap the
+ *  runner once its left edge is within the runner's half-width (0.3m); 2m
+ *  comfortably covers that plus the sub-tick advance. */
+const COLLISION_AHEAD_M = 2;
 const CARD_EXPORT_SCALE = 2;
 const CARD_W = 480;
 const CARD_H = 300;
@@ -40,8 +50,9 @@ export interface GameEngineDeps {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   terrain: readonly TerrainPoint[];
-  /** The deterministic spawn layout — reused verbatim on "run it back" (same
-   *  seed, same obstacles), never mutated: each tick derives a filtered copy. */
+  /** The deterministic spawn layout, xM-sorted — reused verbatim on "run it
+   *  back" (same seed, same obstacles) and never mutated or copied: the
+   *  engine windows into it with a fog cursor + hit set (see below). */
   obstacles: readonly Obstacle[];
   tokens: Tokens;
   realKm: number;
@@ -77,7 +88,14 @@ export function createGameEngine(deps: GameEngineDeps): GameEngine {
   const originalObstacles = deps.obstacles;
   const [elevMin, elevMax] = terrainElevRange(terrain);
 
-  let obstacles: readonly Obstacle[] = originalObstacles;
+  // Obstacle bookkeeping is windowed, not filtered: `originalObstacles` is
+  // never copied or reallocated (a real export's year can spawn thousands).
+  // `fogIdx` is a monotonic cursor past everything The Quiet has swallowed
+  // (same right-edge rule as spawn.ts's alive()), and hit obstacles go into
+  // `removedObstacles` — so each frame/tick touches only the O(visible)
+  // slice, never the whole array.
+  let fogIdx = 0;
+  const removedObstacles = new Set<Obstacle>();
   let state: GameState = initialState();
   let started = false;
   let dead = false;
@@ -87,6 +105,11 @@ export function createGameEngine(deps: GameEngineDeps): GameEngine {
   let lastTimeMs = 0;
   let accumulatorMs = 0;
   let flashTimer = 0;
+  /** Pending "keep the card" object-URL revocation (id + its URL) so
+   *  destroy() can settle it instead of leaving a timer aimed at a
+   *  torn-down game. */
+  let revokeTimer = 0;
+  let revokeUrl: string | null = null;
   let attractStart = performance.now();
   let destroyed = false;
 
@@ -110,15 +133,35 @@ export function createGameEngine(deps: GameEngineDeps): GameEngine {
     }, BEAST_FLASH_MS);
   }
 
+  /** The obstacles that currently matter, up to `aheadM` past the runner:
+   *  advances the fog cursor (right edge <= quietXM ⇒ swallowed, gone for
+   *  good — fog never retreats, so the cursor only moves forward and the
+   *  total advancement over a whole run is O(n) amortized), then collects
+   *  the not-yet-hit slice. Cost per call is O(returned slice). */
+  function windowObstacles(aheadM: number): Obstacle[] {
+    while (
+      fogIdx < originalObstacles.length &&
+      originalObstacles[fogIdx]!.xM + originalObstacles[fogIdx]!.widthM / 2 <= state.quietXM
+    ) {
+      fogIdx++;
+    }
+    const out: Obstacle[] = [];
+    for (let i = fogIdx; i < originalObstacles.length; i++) {
+      const o = originalObstacles[i]!;
+      if (o.xM - o.widthM / 2 > state.xM + aheadM) break;
+      if (!removedObstacles.has(o)) out.push(o);
+    }
+    return out;
+  }
+
   function handleCollisions(): void {
-    const hit = hitTest(state.xM, state.yM, obstacles);
+    const hit = hitTest(state.xM, state.yM, windowObstacles(COLLISION_AHEAD_M));
     if (hit) {
       state = { ...state, stumbleUntilTick: state.tick + STUMBLE_TICKS };
-      obstacles = obstacles.filter((o) => o !== hit);
+      removedObstacles.add(hit);
       beastHits += 1;
       flashBeast(hit.name);
     }
-    obstacles = alive(obstacles, state.quietXM);
   }
 
   function showDeathOverlay(): void {
@@ -158,7 +201,15 @@ export function createGameEngine(deps: GameEngineDeps): GameEngine {
     }
 
     if (dead) {
-      render(ctx, { terrain, elevMin, elevMax, obstacles, state, tokens, reducedMotion });
+      render(ctx, {
+        terrain,
+        elevMin,
+        elevMax,
+        obstacles: windowObstacles(VISIBLE_AHEAD_M),
+        state,
+        tokens,
+        reducedMotion,
+      });
       return;
     }
 
@@ -178,7 +229,15 @@ export function createGameEngine(deps: GameEngineDeps): GameEngine {
     if (steps === MAX_STEPS_PER_FRAME) accumulatorMs = 0; // drop backlog, don't spiral
 
     updateHud();
-    render(ctx, { terrain, elevMin, elevMax, obstacles, state, tokens, reducedMotion });
+    render(ctx, {
+      terrain,
+      elevMin,
+      elevMax,
+      obstacles: windowObstacles(VISIBLE_AHEAD_M),
+      state,
+      tokens,
+      reducedMotion,
+    });
   }
 
   function onJumpInput(): void {
@@ -212,7 +271,8 @@ export function createGameEngine(deps: GameEngineDeps): GameEngine {
 
   function restart(): void {
     state = initialState();
-    obstacles = originalObstacles; // same seed, same layout
+    fogIdx = 0; // same seed, same layout — just rewind the window
+    removedObstacles.clear();
     beastHits = 0;
     dead = false;
     started = false;
@@ -258,7 +318,11 @@ export function createGameEngine(deps: GameEngineDeps): GameEngine {
       a.href = url;
       a.download = KEEP_CARD_FILENAME;
       a.click();
-      window.setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
+      revokeUrl = url;
+      revokeTimer = window.setTimeout(() => {
+        URL.revokeObjectURL(url);
+        if (revokeUrl === url) revokeUrl = null;
+      }, REVOKE_DELAY_MS);
     } catch (err) {
       console.error(err);
     }
@@ -283,6 +347,15 @@ export function createGameEngine(deps: GameEngineDeps): GameEngine {
       destroyed = true;
       cancelAnimationFrame(rafId);
       window.clearTimeout(flashTimer);
+      // Settle any pending score-card revocation now: clear the timer and
+      // revoke its URL immediately rather than leaking it forever. (The
+      // download's fetch of the blob URL began at .click(); by teardown
+      // time — a user gesture later — that's comfortably underway.)
+      window.clearTimeout(revokeTimer);
+      if (revokeUrl !== null) {
+        URL.revokeObjectURL(revokeUrl);
+        revokeUrl = null;
+      }
       window.removeEventListener("keydown", onKeydown);
       canvas.removeEventListener("pointerdown", onPointerdown);
       document.removeEventListener("visibilitychange", onVisibilityChange);

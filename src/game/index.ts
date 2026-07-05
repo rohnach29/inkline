@@ -95,7 +95,21 @@ export function initGame(container: HTMLElement, year: Year, book: Book): GameHa
   canvas.height = CANVAS_H * dpr;
   ctx.scale(dpr, dpr);
 
+  // Shared mutable token box: the engine (and every draw call under it)
+  // holds this ONE object and reads its properties per frame, so refreshing
+  // the colors is just an in-place overwrite. A MutationObserver on the
+  // root element's data-theme attribute (same pattern as
+  // living/atmosphere.ts) re-resolves the custom properties whenever the
+  // toolbar's theme toggle flips — without it, a mid-game theme change
+  // would leave the canvas painting stale colors forever.
   const tokens = readTokens(container);
+  const themeObserver = new MutationObserver(() => {
+    Object.assign(tokens, readTokens(container));
+  });
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
 
   const engine = createGameEngine({
     canvas,
@@ -113,6 +127,7 @@ export function initGame(container: HTMLElement, year: Year, book: Book): GameHa
 
   return {
     teardown(): void {
+      themeObserver.disconnect();
       engine.destroy();
       container.innerHTML = "";
     },

@@ -111,12 +111,26 @@ describe("renderBook", () => {
     expect(matches.length).toBe(1);
   });
 
-  it("emits one <section> per cover + dedication + game + colophon + chapters + beasts(optional)", () => {
+  it("emits one <section> per cover + dedication + game + colophon + chapters/empty-page + beasts(optional)", () => {
     const html = renderBook(book, year);
     const sectionCount = (html.match(/<section/g) ?? []).length;
-    const expected = book.chapters.length + 4 + (book.beasts.length > 0 ? 1 : 0);
+    // A zero-chapter book still renders exactly one body section (the
+    // authored empty-year page), hence max(chapters, 1) rather than a bare
+    // chapters term.
+    const expected =
+      4 + Math.max(book.chapters.length, 1) + (book.beasts.length > 0 ? 1 : 0);
     expect(book.beasts.length).toBeGreaterThan(0); // fixture guard: beasts page must be exercised
     expect(sectionCount).toBe(expected);
+  });
+
+  it("emits exactly 5 sections for an empty-year book (cover, dedication, empty page, game, colophon)", () => {
+    const y = emptyYear();
+    const s = analyzeYear(y);
+    const emptyBook = buildBook(y, s);
+    expect(emptyBook.chapters.length).toBe(0); // fixture guard
+    expect(emptyBook.beasts.length).toBe(0); // fixture guard: no beasts page
+    const html = renderBook(emptyBook, y);
+    expect((html.match(/<section/g) ?? []).length).toBe(5);
   });
 
   it("renders the game page between the beasts index and the colophon, with its kicker, title, how-to line, and mount div", () => {

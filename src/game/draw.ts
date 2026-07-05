@@ -21,10 +21,12 @@ export const RUNNER_SCREEN_X = CANVAS_W * 0.3;
  *  band described below. */
 const GROUND_BASE_Y = CANVAS_H * 0.78;
 
-/** Half of the "lower 40% of canvas" elevation budget (40% of 360 = 144px;
- *  elevation swings +/- around the baseline, so each side gets 120px — see
- *  the vertical-scale doc comment for how this caps exaggeration). */
-const ELEV_BAND_HALF_PX = 120;
+/** The spec's fixed 120px vertical budget the FULL elevation range maps
+ *  into: verticalScale = min(3, 120/(elevMax-elevMin || 1)), so the ground
+ *  line rises at most 120px above GROUND_BASE_Y — keeping it inside the
+ *  lower ~40% of the 360px canvas (band [~161, ~281]) — with exaggeration
+ *  capped at 3 px/m (see verticalScale's doc comment). */
+const ELEV_BAND_PX = 120;
 
 const VERTICAL_SCALE_CAP = 3;
 
@@ -64,10 +66,12 @@ const ATTRACT_BOB_PERIOD_MS = 1400;
 
 const HAND_FONT = '"Bradley Hand", "Segoe Print", "Comic Sans MS", cursive';
 
-/** The six CSS custom properties every ink stroke in the book is drawn
- *  from, read via getComputedStyle at init (and on theme change) by the
- *  caller — canvas has no equivalent of `var(--ink)`, so the resolved
- *  literal strings are threaded through every draw call instead. */
+/** The CSS custom-property colors every ink stroke in the book is drawn
+ *  from, resolved via getComputedStyle by the caller (index.ts reads them
+ *  at init and re-reads on `data-theme` mutations, updating one shared
+ *  mutable Tokens object in place) — canvas has no equivalent of
+ *  `var(--ink)`, so the resolved literal strings are threaded through
+ *  every draw call instead. */
 export interface Tokens {
   paper: string;
   ink: string;
@@ -90,7 +94,7 @@ interface Camera {
  */
 export function verticalScale(elevMin: number, elevMax: number): number {
   const range = elevMax - elevMin;
-  return Math.min(VERTICAL_SCALE_CAP, ELEV_BAND_HALF_PX / (range || 1));
+  return Math.min(VERTICAL_SCALE_CAP, ELEV_BAND_PX / (range || 1));
 }
 
 /** min/max elevation across a terrain — a manual loop (not
