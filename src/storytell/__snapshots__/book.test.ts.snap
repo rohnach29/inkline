@@ -1,0 +1,486 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`buildBook > matches the golden snapshot 1`] = `
+{
+  "beasts": [
+    {
+      "description": "2 runs after the dark had already signed off, latest at 00:45.",
+      "doodleTag": "moon",
+      "kind": "night",
+      "name": "The 00:45",
+    },
+    {
+      "description": "40 days without a single footfall.",
+      "doodleTag": "empty-shoes",
+      "kind": "quiet",
+      "name": "The Small Quiet",
+    },
+    {
+      "description": "A 60 m climb, met 4 times, and never once forgiven.",
+      "doodleTag": "hills",
+      "kind": "hill",
+      "name": "Mount Second Thoughts",
+    },
+    {
+      "description": "300 m of climb the ground never actually had.",
+      "doodleTag": "ghost",
+      "kind": "ghost",
+      "name": "The Turnaround",
+    },
+  ],
+  "chapters": [
+    {
+      "atmosphereTags": [],
+      "doodleTags": [
+        "shoes",
+      ],
+      "eventType": "first-run",
+      "id": "first-run:1735865100000",
+      "kicker": "in which the year begins",
+      "mapSpec": null,
+      "stats": [
+        {
+          "label": "distance",
+          "value": "3.0 km",
+        },
+        {
+          "label": "when",
+          "value": "January 3, 06:15",
+        },
+      ],
+      "title": "Day One, More or Less",
+      "verse": [
+        "The morning laced its shoes before the sun,",
+        "and asked the road what needed to be done.",
+        "3.0 kilometers — measured, mapped, and true,",
+        "and every single one of them by you.",
+        "The first step's small — that's all a first step knows —",
+        "but this is where the whole long distance grows.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [],
+      "eventType": "latest-run",
+      "id": "latest-run:1737395100000",
+      "kicker": "in which the day gets away first",
+      "mapSpec": null,
+      "stats": [
+        {
+          "label": "time",
+          "value": "23:15",
+        },
+        {
+          "label": "when",
+          "value": "January 20, 23:15",
+        },
+      ],
+      "title": "Later Than Planned",
+      "verse": [
+        "The moon came out to check on who was out.",
+        "It found you, and it had its lamp about.",
+        "The clock said 23:15 in a doubtful tone,",
+        "as if the dark had left you all alone.",
+        "The dark and you have got an understanding:",
+        "you keep it company; it keeps you landing.",
+      ],
+    },
+    {
+      "atmosphereTags": [
+        "fireflies",
+      ],
+      "doodleTags": [
+        "moon",
+        "stars",
+      ],
+      "eventType": "night-runs",
+      "id": "night-runs:1737395100000",
+      "kicker": "in which the dark keeps you company",
+      "mapSpec": null,
+      "stats": [
+        {
+          "label": "nights",
+          "value": "2 nights",
+        },
+        {
+          "label": "latest",
+          "value": "00:45",
+        },
+      ],
+      "title": "The 00:45",
+      "verse": [
+        "The streetlights stood in one long yellow row,",
+        "and watched a person run where none should go.",
+        "The clock said 00:45 in a doubtful tone,",
+        "as if the dark had left you all alone.",
+        "The dark and you have got an understanding:",
+        "you keep it company; it keeps you landing.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [],
+      "eventType": "earliest-run",
+      "id": "earliest-run:1737400500000",
+      "kicker": "in which the dawn is beaten to the punch",
+      "mapSpec": null,
+      "stats": [
+        {
+          "label": "time",
+          "value": "00:45",
+        },
+        {
+          "label": "when",
+          "value": "January 21, 00:45",
+        },
+      ],
+      "title": "Before the Rooster",
+      "verse": [
+        "You met the morning while it was still gray,",
+        "before it brushed its teeth and named the day.",
+        "The clock said 00:45 in a doubtful tone,",
+        "as if the dark had left you all alone.",
+        "You caught the day before it was awake,",
+        "and that's a quiet kind of gift to take.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [
+        "chain",
+      ],
+      "eventType": "streak",
+      "id": "streak:1738373400000",
+      "kicker": "in which the mornings pile up",
+      "mapSpec": null,
+      "stats": [
+        {
+          "label": "length",
+          "value": "6 days",
+        },
+        {
+          "label": "from",
+          "value": "February 1",
+        },
+      ],
+      "title": "The Stubborn Streak",
+      "verse": [
+        "A streak is just a stubbornness of days,",
+        "a habit wearing all its stubborn ways.",
+        "For 6 days running you refused to break,",
+        "a chain of dawns you strung for its own sake.",
+        "So count the chain, then let the counting rest —",
+        "your shoes did all the math; they know it best.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [
+        "empty-shoes",
+      ],
+      "eventType": "quiet",
+      "id": "quiet:1738805400000",
+      "kicker": "in which nothing happens, loudly",
+      "mapSpec": {
+        "kind": "route",
+        "runId": "r12-quiet-end-fastest",
+      },
+      "stats": [
+        {
+          "label": "silence",
+          "value": "40 days",
+        },
+        {
+          "label": "from",
+          "value": "February 6, 07:00",
+        },
+      ],
+      "title": "The Small Quiet",
+      "verse": [
+        "The last run tiptoed out and shut the gate,",
+        "and left the year to sit alone and wait.",
+        "For 40 whole days the pavement went unread,",
+        "and grass grew tall on every word it said.",
+        "But quiet isn't empty — ask the snow.",
+        "It's just the road rehearsing where you'll go.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [
+        "wind",
+      ],
+      "eventType": "fastest-run",
+      "id": "fastest-run:1742261400000",
+      "kicker": "in which the wind gives up first",
+      "mapSpec": {
+        "kind": "route",
+        "runId": "r12-quiet-end-fastest",
+      },
+      "stats": [
+        {
+          "label": "pace",
+          "value": "4:24 /km",
+        },
+        {
+          "label": "distance",
+          "value": "5.0 km",
+        },
+      ],
+      "title": "Faster Than the Excuse",
+      "verse": [
+        "There is a speed that files the world to line,",
+        "where trees go blur and everything is fine.",
+        "5.0 kilometers — measured, mapped, and true,",
+        "and every single one of them by you.",
+        "The neighbors' dogs have given up the chase —",
+        "they just nod now, and let you have the place.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [
+        "plane",
+        "globe",
+      ],
+      "eventType": "journey",
+      "id": "journey:1743508800000",
+      "kicker": "in which the map gets crowded",
+      "mapSpec": {
+        "from": {
+          "lat": 19.08,
+          "lon": 72.88,
+          "name": "Mumbai",
+        },
+        "kind": "flight",
+        "km": 13077.115645908163,
+        "to": {
+          "lat": 40.415,
+          "lon": -86.925,
+          "name": "Lafayette (Indiana)",
+        },
+      },
+      "stats": [
+        {
+          "label": "distance",
+          "value": "13077.1 km",
+        },
+        {
+          "label": "when",
+          "value": "April 1, 08:00",
+        },
+      ],
+      "title": "A Very Large Commute",
+      "verse": [
+        "Your feet signed on to be a moving van,",
+        "and drove you further than you had a plan.",
+        "13077.1 kilometers — measured, mapped, and true,",
+        "and every single one of them by you.",
+        "You went so far the map ran out of ink,",
+        "and had to stop and take a breath, and think.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [
+        "hills",
+      ],
+      "eventType": "hill-beast",
+      "id": "hill-beast:1744284600000",
+      "kicker": "in which a hill becomes a rival",
+      "mapSpec": {
+        "kind": "route",
+        "runId": "r17-hillroute-4",
+      },
+      "stats": [
+        {
+          "label": "climb",
+          "value": "60 m",
+        },
+        {
+          "label": "grade",
+          "value": "6.6%",
+        },
+        {
+          "label": "times",
+          "value": "4 times",
+        },
+      ],
+      "title": "Mount Second Thoughts",
+      "verse": [
+        "The mountain thought that no one would attend.",
+        "You climbed it, rude and cheerful, to the end.",
+        "60 meters of climb, collected like a debt,",
+        "and not one summit ready to forget.",
+        "You gave the sky some meters it forgot,",
+        "and pocketed the summit like a thought.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [],
+      "eventType": "route-champion",
+      "id": "route-champion:1744284600000",
+      "kicker": "in which one road becomes a habit",
+      "mapSpec": {
+        "kind": "route",
+        "runId": "r17-hillroute-4",
+      },
+      "stats": [
+        {
+          "label": "runs",
+          "value": "4 times",
+        },
+        {
+          "label": "distance",
+          "value": "3.2 km",
+        },
+      ],
+      "title": "The Short Way",
+      "verse": [
+        "You ran one route until it knew your face,",
+        "until the pavement kept you like a place.",
+        "3.2 kilometers — measured, mapped, and true,",
+        "and every single one of them by you.",
+        "You wore that route so smooth it knew your stride,",
+        "and took you in the way a home takes pride.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [
+        "ghost",
+      ],
+      "eventType": "ghost-elevation",
+      "id": "ghost-elevation:1749123000000",
+      "kicker": "in which the watch imagines things",
+      "mapSpec": {
+        "kind": "route",
+        "runId": "r18-ghost-hilliest",
+      },
+      "stats": [
+        {
+          "label": "climb",
+          "value": "300 m",
+        },
+        {
+          "label": "when",
+          "value": "June 5, 07:30",
+        },
+      ],
+      "title": "The Turnaround",
+      "verse": [
+        "The satellites got dreamy overhead,",
+        "and penciled mountains on the flat instead.",
+        "300 meters of climb, collected like a debt,",
+        "and not one summit ready to forget.",
+        "So thank your watch for hills it kindly threw.",
+        "Some gifts are made of nothing — good ones, too.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [],
+      "eventType": "hilliest-run",
+      "id": "hilliest-run:1749123000000",
+      "kicker": "in which the ground gets ideas",
+      "mapSpec": {
+        "kind": "route",
+        "runId": "r18-ghost-hilliest",
+      },
+      "stats": [
+        {
+          "label": "climb",
+          "value": "300 m",
+        },
+        {
+          "label": "when",
+          "value": "June 5, 07:30",
+        },
+      ],
+      "title": "The Argument With Gravity",
+      "verse": [
+        "The mountain thought that no one would attend.",
+        "You climbed it, rude and cheerful, to the end.",
+        "300 meters of climb, collected like a debt,",
+        "and not one summit ready to forget.",
+        "You gave the sky some meters it forgot,",
+        "and pocketed the summit like a thought.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [],
+      "eventType": "last-run",
+      "id": "last-run:1750417200000",
+      "kicker": "in which the year comes home",
+      "mapSpec": null,
+      "stats": [
+        {
+          "label": "distance",
+          "value": "21.1 km",
+        },
+        {
+          "label": "when",
+          "value": "June 20, 07:00",
+        },
+      ],
+      "title": "One More, For the Road",
+      "verse": [
+        "The very first step doesn't know its name.",
+        "It thinks that every morning runs the same.",
+        "21.1 kilometers — measured, mapped, and true,",
+        "and every single one of them by you.",
+        "So close the year the way you'd close a book —",
+        "with one last fond, unhurried, backward look.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [
+        "trophy",
+      ],
+      "eventType": "longest-run",
+      "id": "longest-run:1750417200000",
+      "kicker": "in which the distance gets away from you",
+      "mapSpec": null,
+      "stats": [
+        {
+          "label": "distance",
+          "value": "21.1 km",
+        },
+        {
+          "label": "when",
+          "value": "June 20, 07:00",
+        },
+      ],
+      "title": "A Distance With No Ending",
+      "verse": [
+        "Some runs go long the way a river goes,",
+        "past every reason anybody knows.",
+        "21.1 kilometers — measured, mapped, and true,",
+        "and every single one of them by you.",
+        "The long ones teach a patience of the feet,",
+        "a lesson only distance can complete.",
+      ],
+    },
+  ],
+  "colophon": {
+    "gpsRunCount": 7,
+    "note": "made entirely in your browser; your data never left this page",
+    "places": [
+      "Mumbai",
+      "Lafayette (Indiana)",
+    ],
+    "runCount": 19,
+    "totalKm": 88,
+  },
+  "dedication": [
+    "for the roads of Mumbai and Lafayette (Indiana)",
+    "and the 19 runs that drew them",
+  ],
+  "seed": 1059468397,
+  "subtitle": "a year of running, drawn in ink",
+  "title": "The Hill I Complained About",
+}
+`;
