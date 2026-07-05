@@ -42,7 +42,7 @@ const FAMILY_WORDS: Record<string, readonly string[]> = {
   OH: [
     "go", "so", "no", "snow", "know", "grow", "low", "slow", "glow", "flow",
     "show", "throw", "though", "toe", "ago", "below", "owe", "sew", "although",
-    "window", "shadow", "tomorrow", "sorrow", "hello",
+    "window", "shadow", "tomorrow", "sorrow", "hello", "row", "rainbow",
   ],
   // /ɛd/
   ED: [
@@ -86,6 +86,7 @@ const FAMILY_WORDS: Record<string, readonly string[]> = {
   OWN: [
     "own", "known", "grown", "stone", "alone", "bone", "phone", "zone",
     "thrown", "shown", "groan", "moan", "loan", "unknown", "overgrown",
+    "tone", "postpone", "cologne", "cyclone", "backbone",
   ],
   // /aɪnd/
   IND: [
@@ -117,7 +118,8 @@ const FAMILY_WORDS: Record<string, readonly string[]> = {
   AIN: [
     "rain", "plain", "plane", "train", "gain", "pain", "main", "chain",
     "remain", "explain", "terrain", "brain", "lane", "vain", "vein",
-    "reign", "contain", "sustain", "campaign", "again",
+    "reign", "contain", "sustain", "campaign", "again", "complain",
+    "refrain", "maintain", "obtain", "champagne", "domain",
   ],
   // /eɪm/
   AME: [
@@ -217,7 +219,7 @@ const FAMILY_WORDS: Record<string, readonly string[]> = {
     "air", "care", "there", "where", "share", "stare", "bear", "wear",
     "pair", "fair", "hair", "chair", "spare", "aware", "prepare",
     "everywhere", "despair", "compare", "repair", "elsewhere", "unaware",
-    "declare", "swear", "beware",
+    "declare", "swear", "beware", "somewhere", "nowhere", "anywhere",
   ],
   // /aɪ/
   EYE: [
@@ -255,6 +257,47 @@ const FAMILY_WORDS: Record<string, readonly string[]> = {
     "ground", "sound", "found", "round", "bound", "around", "pound",
     "wound", "mound", "profound", "surround", "astound", "background",
     "underground", "unbound",
+  ],
+  // /eɪt/
+  ATE: [
+    "gate", "wait", "late", "date", "fate", "state", "plate", "weight",
+    "straight", "create", "relate", "debate", "celebrate", "hesitate",
+    "contemplate", "eight", "freight", "await", "gait", "translate",
+    "estate", "irate", "innate", "narrate",
+  ],
+  // /ɛt/
+  ET: [
+    "set", "yet", "let", "met", "wet", "bet", "get", "forget", "regret",
+    "jet", "net", "pet", "vet", "upset", "sunset", "threat", "sweat",
+    "debt", "silhouette", "alphabet", "duet", "quartet", "cassette",
+    "cadet", "offset", "reset",
+  ],
+  // /iːn/
+  EEN: [
+    "green", "seen", "been", "scene", "between", "clean", "mean", "lean",
+    "keen", "machine", "screen", "teen", "queen", "routine", "thirteen",
+    "evergreen", "unseen", "sardine", "gasoline", "canteen", "serene",
+    "marine", "tangerine", "fifteen",
+  ],
+  // /ɒt/, /ɔt/
+  OT: [
+    "thought", "forgot", "got", "not", "spot", "shot", "knot", "lot",
+    "plot", "dot", "rot", "caught", "bought", "taught", "fought", "ought",
+    "sought", "brought", "hot", "pot", "cot", "slot", "jot", "robot",
+    "distraught", "onslaught", "forgot",
+  ],
+  // /ɛnd/
+  END: [
+    "end", "friend", "attend", "bend", "send", "mend", "spend", "blend",
+    "lend", "defend", "pretend", "extend", "weekend", "comprehend",
+    "recommend", "amend", "transcend", "ascend", "tend", "trend",
+  ],
+  // /ɛnt/
+  ENT: [
+    "meant", "ascent", "sent", "went", "bent", "tent", "rent", "spent",
+    "event", "content", "present", "cement", "descent", "consent",
+    "invent", "prevent", "resent", "dent", "lent", "torment", "extent",
+    "represent", "discontent",
   ],
 };
 
