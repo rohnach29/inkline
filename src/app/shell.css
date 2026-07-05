@@ -170,3 +170,101 @@
   pointer-events: none;
   z-index: 5;
 }
+
+/* 8. Share-a-page button (living-book, share.ts) — never printed --------- */
+
+.share-btn {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  font-family: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--paper);
+  color: var(--ink-faint);
+  border: 1px solid var(--ink-faint);
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.share-btn:hover,
+.share-btn:focus-visible {
+  opacity: 1;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+/* 9. Table-of-contents ribbon (living-book, toc.ts) — never printed ------ */
+
+.toc-ribbon {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  width: 10px;
+  overflow: hidden;
+  background: var(--ink);
+  transition: width 0.15s ease;
+}
+
+.toc-ribbon:hover,
+.toc-ribbon:focus-within {
+  width: 260px;
+}
+
+.toc-spine {
+  flex: none;
+  width: 10px;
+  height: 100%;
+  background: var(--ink);
+}
+
+.toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem 0;
+  overflow-y: auto;
+  background: var(--paper);
+  border-right: 1px solid var(--ink-faint);
+  flex: 1 1 auto;
+  min-width: 250px;
+}
+
+.toc-entry {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  padding: 0.5rem 1rem;
+  background: none;
+  color: var(--ink);
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toc-entry:hover,
+.toc-entry:focus-visible {
+  background: var(--desk);
+}
+
+.toc-entry.is-current {
+  border-left-color: var(--ink);
+  color: var(--ink);
+  font-weight: bold;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-ribbon {
+    transition: none;
+  }
+}
