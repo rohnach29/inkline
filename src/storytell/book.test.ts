@@ -77,6 +77,16 @@ describe("buildBook", () => {
     }
   });
 
+  it("lets type weight strictly dominate: false-starts in, month out", () => {
+    // The fixture yields 14 events of distinct types with weight >= 25 plus
+    // 6 month events (weight 10). Under strict weight dominance the months
+    // can never displace a higher-weight type, so the 14 slots are exactly
+    // the 14 higher-weight types — false-starts (weight 30) included.
+    const book = buildBook(year, story);
+    expect(book.chapters.some((c) => c.eventType === "false-starts")).toBe(true);
+    expect(book.chapters.some((c) => c.eventType === "month")).toBe(false);
+  });
+
   it("produces beasts, including a quiet beast", () => {
     const book = buildBook(year, story);
     expect(book.beasts.length).toBeGreaterThan(0);

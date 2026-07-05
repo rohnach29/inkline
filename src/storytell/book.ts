@@ -84,17 +84,20 @@ function monthName(monthKey: string): string {
 }
 
 // -------------------------------------------------------------------------
-// Selection & scoring
+// Selection — strict weight dominance
 // -------------------------------------------------------------------------
 
-function scoreOf(event: StoryEvent): number {
-  return TYPE_WEIGHT[event.type] * (1 + Math.log1p(event.magnitude));
-}
-
-function compareByScoreDesc(a: StoryEvent, b: StoryEvent): number {
-  const sa = scoreOf(a);
-  const sb = scoreOf(b);
-  if (sa !== sb) return sb - sa;
+/**
+ * Type weight is editorial priority and strictly dominates: a lower-weight
+ * type can never outrank a higher-weight one, no matter its magnitude.
+ * Magnitude only ranks events WITHIN a type (which quiets/months make the
+ * cut); atUtc asc is the final deterministic tie-break.
+ */
+function compareByPriority(a: StoryEvent, b: StoryEvent): number {
+  const wa = TYPE_WEIGHT[a.type];
+  const wb = TYPE_WEIGHT[b.type];
+  if (wa !== wb) return wb - wa;
+  if (a.magnitude !== b.magnitude) return b.magnitude - a.magnitude;
   if (a.atUtc !== b.atUtc) return a.atUtc - b.atUtc;
   if (a.type !== b.type) return a.type < b.type ? -1 : 1;
   return 0;
@@ -107,23 +110,22 @@ function compareByAtUtc(a: StoryEvent, b: StoryEvent): number {
 }
 
 /**
- * first-run/last-run are always forced in (their weight of 100/90 makes
- * this true anyway, short of a pathological year with 12+ higher-weighted
- * events, but forcing them keeps the guarantee explicit and cheap). Month
- * events are capped at the 3 highest-scoring (== highest-km, since every
- * month shares the same weight) before joining the general pool. The
- * combined pool is then cut to the overall 14-chapter cap by score, and
+ * first-run/last-run are always forced in (their weights of 100/90 make
+ * this true anyway under strict weight dominance, but forcing them keeps
+ * the guarantee explicit and cheap). Month events are capped at the 3
+ * highest-magnitude (== highest-km) before joining the general pool. The
+ * combined pool is then cut to the overall 14-chapter cap by priority, and
  * the final selection is re-sorted chronologically.
  */
 function selectEvents(events: StoryEvent[]): StoryEvent[] {
   const forced = events.filter((e) => e.type === "first-run" || e.type === "last-run");
   const rest = events.filter((e) => e.type !== "first-run" && e.type !== "last-run");
 
-  const monthEvents = rest.filter((e) => e.type === "month").sort(compareByScoreDesc);
+  const monthEvents = rest.filter((e) => e.type === "month").sort(compareByPriority);
   const nonMonth = rest.filter((e) => e.type !== "month");
   const topMonths = monthEvents.slice(0, MAX_MONTH_CHAPTERS);
 
-  const pool = [...nonMonth, ...topMonths].sort(compareByScoreDesc);
+  const pool = [...nonMonth, ...topMonths].sort(compareByPriority);
   const remainingSlots = Math.max(0, MAX_CHAPTERS - forced.length);
   const chosenFromPool = pool.slice(0, remainingSlots);
 
@@ -228,6 +230,11 @@ function lastTrackedRunId(event: StoryEvent, runById: Map<string, Run>): string 
   return null;
 }
 
+/**
+ * Multi-run aggregate events resolve to the LAST evidence run with a track —
+ * intentionally: for a quiet, that's the run that ended the silence; for
+ * night-runs/false-starts/streaks/champions it's the most recent sighting.
+ */
 function computeMapSpec(event: StoryEvent, runById: Map<string, Run>): MapSpec | null {
   if (event.type === "journey") {
     const fromLat = num(event.data.fromLat ?? 0);

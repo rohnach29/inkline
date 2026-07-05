@@ -4,6 +4,12 @@ exports[`buildBook > matches the golden snapshot 1`] = `
 {
   "beasts": [
     {
+      "description": "2 runs that quit before a kilometer, shortest just 0.40 km.",
+      "doodleTag": "banana",
+      "kind": "false-start",
+      "name": "Two Steps and a Shrug",
+    },
+    {
       "description": "2 runs after the dark had already signed off, latest at 00:45.",
       "doodleTag": "moon",
       "kind": "night",
@@ -56,6 +62,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "and every single one of them by you.",
         "The first step's small — that's all a first step knows —",
         "but this is where the whole long distance grows.",
+      ],
+    },
+    {
+      "atmosphereTags": [],
+      "doodleTags": [
+        "banana",
+      ],
+      "eventType": "false-starts",
+      "id": "false-starts:1735951800000",
+      "kicker": "in which the shoes get put back on",
+      "mapSpec": null,
+      "stats": [
+        {
+          "label": "count",
+          "value": "2 runs",
+        },
+        {
+          "label": "shortest",
+          "value": "0.4 km",
+        },
+      ],
+      "title": "Two Steps and a Shrug",
+      "verse": [
+        "The bed brought up a very solid case,",
+        "and dawn slipped by without a second's grace.",
+        "2 runs that ended long before they should,",
+        "like pencils snapped while writing something good.",
+        "A false start's still a start; the shoes were there —",
+        "you laced them up; you carried them somewhere.",
       ],
     },
     {
@@ -376,36 +411,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "and not one summit ready to forget.",
         "So thank your watch for hills it kindly threw.",
         "Some gifts are made of nothing — good ones, too.",
-      ],
-    },
-    {
-      "atmosphereTags": [],
-      "doodleTags": [],
-      "eventType": "hilliest-run",
-      "id": "hilliest-run:1749123000000",
-      "kicker": "in which the ground gets ideas",
-      "mapSpec": {
-        "kind": "route",
-        "runId": "r18-ghost-hilliest",
-      },
-      "stats": [
-        {
-          "label": "climb",
-          "value": "300 m",
-        },
-        {
-          "label": "when",
-          "value": "June 5, 07:30",
-        },
-      ],
-      "title": "The Argument With Gravity",
-      "verse": [
-        "The mountain thought that no one would attend.",
-        "You climbed it, rude and cheerful, to the end.",
-        "300 meters of climb, collected like a debt,",
-        "and not one summit ready to forget.",
-        "You gave the sky some meters it forgot,",
-        "and pocketed the summit like a thought.",
       ],
     },
     {
