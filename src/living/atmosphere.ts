@@ -4,6 +4,13 @@ import type { P, ParticleSpec } from "./particles";
 const CHAPTER_SELECTOR = ".page-chapter";
 const CROSSFADE_MS = 600;
 const DEFAULT_INK = "#26211a";
+/** Hard ceiling on a single frame's delta-time. OS sleep/wake, a long main-
+ *  thread stall, or a background tab resuming without a `visibilitychange`
+ *  firing in time can all produce a multi-second `dtMs`; without a clamp
+ *  `step()` would move every particle that many (simulated) seconds in one
+ *  jump, i.e. a visible teleport. Clamping means the frame just renders a
+ *  little slow rather than skipping ahead. */
+const MAX_DT_MS = 100;
 
 /** `specFor`'s tag is derived from a chapter's `data-atmosphere` attribute —
  *  space-separated (a chapter can carry more than one, e.g. "monsoon
@@ -32,6 +39,26 @@ function mostVisibleChapter(sections: HTMLElement[]): HTMLElement | undefined {
     }
   }
   return best;
+}
+
+/** Pure crossfade-alpha computation for the two-generation particle
+ *  crossfade. `fadeT` is how far (0..1) into the current `CROSSFADE_MS`
+ *  window we are; `carry` is the outgoing ("prev") system's own alpha
+ *  multiplier at the exact moment it was demoted from active to prev.
+ *
+ *  The incoming ("active") system always fades in linearly 0 -> 1 — a fresh
+ *  system never has anywhere else to fade in from. The outgoing system
+ *  fades out from `carry` -> 0 over the same window: at `fadeT === 0` its
+ *  multiplier is exactly `carry`, so if a tag switch lands mid-fade and the
+ *  caller passes in the just-interrupted active alpha as the new `carry`,
+ *  the visible opacity is continuous across the switch instead of snapping
+ *  up to full (or down to zero). */
+export function crossfadeAlpha(fadeT: number, carry: number): { prevAlpha: number; activeAlpha: number } {
+  const t = Math.min(1, Math.max(0, fadeT));
+  return {
+    prevAlpha: carry * (1 - t),
+    activeAlpha: t,
+  };
 }
 
 function readInk(): string {
@@ -94,7 +121,10 @@ function drawParticles(
  *  to have already gated on `prefers-reduced-motion` before reaching here
  *  (see `index.ts`), same as the rest of the living-book layer. */
 export function initAtmosphere(root: ParentNode): (() => void) | undefined {
-  if (typeof navigator !== "undefined" && navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 2) {
+  // `?? 4` guards against a `0` reading (some browsers/privacy modes report
+  // it instead of omitting the property) — treat that as low-power too,
+  // rather than "0 <= 2 is true but let's not skip" falling through.
+  if (typeof navigator !== "undefined" && (navigator.hardwareConcurrency ?? 4) <= 2) {
     return undefined;
   }
 
@@ -146,12 +176,23 @@ export function initAtmosphere(root: ParentNode): (() => void) | undefined {
   let prevTag = "";
   let prevSpec: ParticleSpec | null = null;
   let prevParticles: P[] = [];
+  let prevCarry = 1; // outgoing system's alpha multiplier at time of demotion
   let fadeStart = performance.now() - CROSSFADE_MS; // no fade pending at start
 
   function switchTag(tag: string): void {
+    // How far the CURRENT fade had progressed when this switch landed. If a
+    // tag change arrives mid-fade (fadeT < 1), the system being demoted to
+    // "prev" was only partially faded in — carry that exact multiplier into
+    // its outgoing fade so it continues smoothly from wherever it was
+    // instead of resetting to full opacity (see crossfadeAlpha). The
+    // previous "prev" generation (already fading out) is simply dropped —
+    // only two generations are ever tracked.
+    const interruptedAlpha = Math.min(1, Math.max(0, (performance.now() - fadeStart) / CROSSFADE_MS));
+
     prevTag = activeTag;
     prevSpec = spec;
     prevParticles = particles;
+    prevCarry = interruptedAlpha;
 
     activeTag = tag;
     spec = specFor(tag);
@@ -176,7 +217,7 @@ export function initAtmosphere(root: ParentNode): (() => void) | undefined {
 
   function frame(now: number): void {
     if (paused) return;
-    const dtMs = now - last;
+    const dtMs = Math.min(now - last, MAX_DT_MS);
     last = now;
 
     const chapter = mostVisibleChapter(sections);
@@ -189,11 +230,12 @@ export function initAtmosphere(root: ParentNode): (() => void) | undefined {
     if (prevSpec) step(prevParticles, prevSpec, w, h, dtMs);
 
     const fadeT = Math.min(1, (now - fadeStart) / CROSSFADE_MS);
+    const { prevAlpha, activeAlpha } = crossfadeAlpha(fadeT, prevCarry);
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    if (prevSpec && fadeT < 1) drawParticles(ctx, prevParticles, prevTag, ink, 1 - fadeT);
-    if (spec) drawParticles(ctx, particles, activeTag, ink, fadeT);
+    if (prevSpec && fadeT < 1) drawParticles(ctx, prevParticles, prevTag, ink, prevAlpha);
+    if (spec) drawParticles(ctx, particles, activeTag, ink, activeAlpha);
     if (fadeT >= 1) {
       prevSpec = null;
       prevParticles = [];
