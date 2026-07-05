@@ -24,7 +24,9 @@ const REST_DAY_BRIDGE_M = 200;
  * run's final elevation (the rest day). Elevation is re-based per run: the
  * run's own first ele maps onto the previous segment's end elevation (no
  * cliffs between Mumbai sea level and Indiana). Runs without a track or with
- * fewer than 2 points are skipped entirely (no bridge is spent on them).
+ * fewer than 2 points are skipped entirely (no bridge is spent on them), as
+ * are runs that collapse to a single distinct position once zero-distance
+ * duplicate GPS fixes are dropped.
  * Empty input, or input where every run is skipped, yields the flat default
  * segment. Output x is strictly increasing.
  */
@@ -39,12 +41,26 @@ export function stitchTerrain(runs: readonly Run[]): TerrainPoint[] {
     if (!run.track || run.track.length < 2) continue;
 
     const ds = downsample(run.track, 8);
-    if (ds.length < 2) continue;
+
+    // Collapse zero-distance steps (duplicate GPS fixes from stuck/indoor
+    // recordings) BEFORE emitting anything: a duplicate fix would otherwise
+    // repeat the previous xM and break the strictly-increasing contract.
+    const steps: Array<{ d: number; ele: number }> = [];
+    for (let i = 1; i < ds.length; i++) {
+      const d = haversineM(ds[i - 1]!, ds[i]!);
+      if (d === 0) continue;
+      steps.push({ d, ele: ds[i]!.ele });
+    }
+    // A run that collapses to a single distinct point (fully stationary) is
+    // skippable, exactly like a trackless run: no points, no bridge spent.
+    if (steps.length === 0) continue;
 
     const isFirstIncluded: boolean = prevEndEle === null;
 
     if (!isFirstIncluded) {
       // Rest-day bridge: flat 200m at the previous segment's final elevation.
+      // The bridge advances xM by a strictly positive amount, so this run's
+      // first emitted point can never duplicate the previous emitted xM.
       xM += REST_DAY_BRIDGE_M;
       points.push({ xM, elevM: prevEndEle! });
     } else {
@@ -56,14 +72,12 @@ export function stitchTerrain(runs: readonly Run[]): TerrainPoint[] {
     // very first included run).
     const offset: number = isFirstIncluded ? 0 : prevEndEle! - ds[0]!.ele;
 
-    for (let i = 1; i < ds.length; i++) {
-      const prev = ds[i - 1]!;
-      const cur = ds[i]!;
-      xM += haversineM(prev, cur);
-      points.push({ xM, elevM: cur.ele + offset });
+    for (const stepPt of steps) {
+      xM += stepPt.d;
+      points.push({ xM, elevM: stepPt.ele + offset });
     }
 
-    prevEndEle = ds[ds.length - 1]!.ele + offset;
+    prevEndEle = steps[steps.length - 1]!.ele + offset;
   }
 
   if (points.length === 0) {

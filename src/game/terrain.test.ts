@@ -170,6 +170,79 @@ describe("stitchTerrain", () => {
     ]);
   });
 
+  it("returns the flat default for a 2-point run whose points are identical coords (stuck GPS)", () => {
+    // Duplicate fixes: two consecutive points at the exact same lat/lon.
+    // Zero horizontal distance means nothing stitchable -- without a guard
+    // this produced [{xM:0},{xM:0}], violating strict monotonicity.
+    const stuck = mkRun({
+      id: "stuck",
+      startLocal: "2025-01-01T08:00:00",
+      track: mkTrack(
+        [
+          [5, 5, 100],
+          [5, 5, 100],
+        ],
+        0,
+      ),
+    });
+    expect(stitchTerrain([stuck])).toEqual([
+      { xM: 0, elevM: 0 },
+      { xM: 2000, elevM: 0 },
+    ]);
+  });
+
+  it("keeps x strictly increasing when a fully-stationary run follows a real run", () => {
+    const good = mkRun({
+      id: "good",
+      startLocal: "2025-01-01T08:00:00",
+      track: mkTrack(
+        [
+          [0, 0, 10],
+          [0, metersLat(500), 60],
+        ],
+        0,
+      ),
+    });
+    const stationary = mkRun({
+      id: "stationary",
+      startLocal: "2025-01-02T08:00:00",
+      track: mkTrack(
+        [
+          [5, 5, 100],
+          [5, 5, 100],
+          [5, 5, 100],
+        ],
+        0,
+      ),
+    });
+    const terrain = stitchTerrain([good, stationary]);
+    for (let i = 1; i < terrain.length; i++) {
+      expect(terrain[i]!.xM).toBeGreaterThan(terrain[i - 1]!.xM);
+    }
+    // The stationary run contributes nothing -- not even a bridge.
+    expect(terrain).toEqual(stitchTerrain([good]));
+  });
+
+  it("drops duplicate GPS fixes inside a run without breaking monotonicity", () => {
+    const run = mkRun({
+      id: "dupes",
+      startLocal: "2025-01-01T08:00:00",
+      track: mkTrack(
+        [
+          [0, 0, 10],
+          [0, 0, 10], // duplicate fix -- zero distance, must not emit a point
+          [0, metersLat(500), 60],
+        ],
+        0,
+      ),
+    });
+    const terrain = stitchTerrain([run]);
+    for (let i = 1; i < terrain.length; i++) {
+      expect(terrain[i]!.xM).toBeGreaterThan(terrain[i - 1]!.xM);
+    }
+    expect(terrain[terrain.length - 1]!.elevM).toBeCloseTo(60, 5);
+  });
+
   it("returns the exact flat default segment when every run is skipped", () => {
     const onlyTrackless = mkRun({ id: "no-track", startLocal: "2025-01-01T08:00:00" });
     expect(stitchTerrain([onlyTrackless])).toEqual([
