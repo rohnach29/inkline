@@ -97,17 +97,30 @@ function offsetsToTrack(
   }));
 }
 
-/** Riverside curve: 26 points drifting north along a shore, the lon
- *  wobbling like a river bank, with a gentle hook at the far end. */
+/** L-shaped riverside out-and-back: 28 points — north along the shore,
+ *  a corner, then east along a creek; the return legs swing ~25 m to the
+ *  side so both strands render. Lon spread is ~70% of lat span, so the
+ *  aspect-preserving map projection gives the stroke real width
+ *  (the previous curve was ~13:1 and rendered as a thin vertical line). */
 function riversideOffsets(): OffsetM[] {
-  const n = 26;
   const out: OffsetM[] = [];
-  for (let i = 0; i < n; i++) {
-    const u = i / (n - 1);
-    out.push({
-      dLatM: i * 70,
-      dLonM: 65 * Math.sin(u * Math.PI * 1.6 + 0.3) + 28 * Math.sin(u * Math.PI * 4.0) + u * 60,
-    });
+  // out, north along the shore (8 points)
+  for (let i = 0; i < 8; i++) {
+    const u = i / 7;
+    out.push({ dLatM: i * 65, dLonM: 18 * Math.sin(u * Math.PI * 1.2) });
+  }
+  // out, east along the creek (6 points)
+  for (let j = 1; j <= 6; j++) {
+    out.push({ dLatM: 455 + 14 * Math.sin((j * Math.PI) / 6), dLonM: j * 55 });
+  }
+  // back, east leg shifted ~25 m south (6 points)
+  for (let j = 5; j >= 0; j--) {
+    out.push({ dLatM: 430 + 14 * Math.sin((j * Math.PI) / 6), dLonM: j * 55 + 25 });
+  }
+  // back, north leg shifted ~25 m east (8 points)
+  for (let i = 7; i >= 0; i--) {
+    const u = i / 7;
+    out.push({ dLatM: i * 65 - 25, dLonM: 18 * Math.sin(u * Math.PI * 1.2) + 25 });
   }
   return out;
 }

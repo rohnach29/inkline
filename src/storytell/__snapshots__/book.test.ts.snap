@@ -284,11 +284,11 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "mapSpec": {
         "from": {
           "lat": 19.08,
-          "lon": 72.88018389100549,
+          "lon": 72.88,
           "name": "Mumbai",
         },
         "kind": "flight",
-        "km": 13077.121377540552,
+        "km": 13077.115645908163,
         "to": {
           "lat": 40.415,
           "lon": -86.925,
