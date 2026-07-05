@@ -43,17 +43,22 @@ function readDrawMs(svg: SVGSVGElement): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : drawDurationMs(null);
 }
 
-/** Draws a chapter's route/flight path in over its `data-draw-ms` duration,
- *  with a tiny runner tracing the path via requestAnimationFrame. No-ops
- *  (returns undefined) when the section has no map path to animate — the
- *  doodle-fallback map area, which carries neither `.ink-route`/`.ink-arc`
- *  nor `data-draw-ms`. Returns a cancel function that stops the rAF loop,
- *  clears the fade timer, and removes the runner immediately — used for
- *  teardown when the living-book layer is torn down mid-draw. */
+/** Draws a chapter's route path in over its `data-draw-ms` duration, with a
+ *  tiny runner tracing the path via requestAnimationFrame. Route maps ONLY
+ *  — flight maps (`.ink-flight`/`.ink-arc`) get their own dedicated reveal
+ *  (globe/graticule fade-in, fixed-duration arc draw, traveling dot; a
+ *  stick-figure runner tracing a flight arc doesn't read as intended) via
+ *  `flight.ts`'s `revealFlight`, registered alongside this one in
+ *  `index.ts`'s per-chapter callback registry. No-ops (returns undefined)
+ *  when the section has no route path to animate — a flight chapter, or the
+ *  doodle-fallback map area, neither of which carry `.ink-map`/`.ink-route`.
+ *  Returns a cancel function that stops the rAF loop, clears the fade
+ *  timer, and removes the runner immediately — used for teardown when the
+ *  living-book layer is torn down mid-draw. */
 export function revealChapter(section: HTMLElement): (() => void) | undefined {
-  const svg = section.querySelector<SVGSVGElement>(".ink-map, .ink-flight");
+  const svg = section.querySelector<SVGSVGElement>(".ink-map");
   if (!svg) return undefined;
-  const path = svg.querySelector<SVGPathElement>(".ink-route, .ink-arc");
+  const path = svg.querySelector<SVGPathElement>(".ink-route");
   if (!path) return undefined;
 
   const ms = readDrawMs(svg);

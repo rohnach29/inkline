@@ -172,7 +172,12 @@ const DOODLES: Record<DoodleTag, string> = {
 };
 
 /** Inline <svg> (viewBox "0 0 120 120", class "ink-doodle", stroke-only
- *  paths, filter="url(#wobble)") or "" for unknown tags. */
+ *  paths, filter="url(#wobble)") or "" for unknown tags. The svg root also
+ *  carries `data-tag="{tag}"` — the living-book layer (src/living/beasts.ts)
+ *  reads it to pick ghost doodles out for their extra drift animation
+ *  without needing its own tag lookup. */
 export function doodleFor(tag: string): string {
-  return (DOODLES as Record<string, string>)[tag] ?? "";
+  const svg = (DOODLES as Record<string, string>)[tag];
+  if (!svg) return "";
+  return svg.replace("<svg ", `<svg data-tag="${tag}" `);
 }

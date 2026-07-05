@@ -37,6 +37,7 @@ describe("doodleFor", () => {
       expect(svg).toContain('class="ink-doodle"');
       expect(svg).toContain('viewBox="0 0 120 120"');
       expect(svg).toContain('filter="url(#wobble)"');
+      expect(svg).toContain(`data-tag="${tag}"`);
       expect(svg).not.toContain("<text");
 
       const count = countElements(svg);

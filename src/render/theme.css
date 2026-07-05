@@ -335,3 +335,76 @@ body {
     transition: none !important;
   }
 }
+
+/* 9. Living book — beast doodles + flight arc -------------------------------
+ * Beasts (beasts.ts): hovering/tapping an .ink-doodle inside .page-beasts or
+ * .doodle-strip adds .is-alive for 1400ms, triggering a subtle wiggle. Ghost
+ * doodles (data-tag="ghost", emitted by render/doodles.ts) get their own
+ * richer keyframes instead — same wiggle curve plus an extra float and an
+ * opacity dip — via the higher-specificity attribute-selector rule below.
+ *
+ * Flight (flight.ts): the globe/graticule rims fade in via inline
+ * transition-* styles JS sets before flipping opacity (mirrors the
+ * .ink-route/.ink-arc dasharray trick above); only the shared .ink-arc
+ * dasharray transition-property rule is needed here since that's already
+ * covered by the .ink-arc.is-drawing rule above. The traveling dot fades out
+ * once it reaches the end of the arc. */
+
+@keyframes doodle-wiggle {
+  0% {
+    transform: rotate(-2deg) translateY(0);
+  }
+  50% {
+    transform: rotate(2.5deg) translateY(-3px);
+  }
+  100% {
+    transform: rotate(-1deg) translateY(0);
+  }
+}
+
+.ink-doodle {
+  transform-origin: center bottom;
+}
+
+.ink-doodle.is-alive {
+  animation: doodle-wiggle 1.4s ease-in-out;
+}
+
+@keyframes ghost-drift {
+  0% {
+    transform: rotate(-2deg) translateY(0);
+    opacity: 0.8;
+  }
+  50% {
+    transform: rotate(2.5deg) translateY(-4px);
+    opacity: 0.5;
+  }
+  100% {
+    transform: rotate(-1deg) translateY(0);
+    opacity: 0.8;
+  }
+}
+
+.ink-doodle[data-tag="ghost"].is-alive {
+  animation: ghost-drift 1.4s ease-in-out;
+}
+
+.ink-flight-dot {
+  fill: var(--ink);
+  transition: opacity 300ms ease;
+}
+
+.ink-flight-dot.is-fading {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-doodle.is-alive,
+  .ink-doodle[data-tag="ghost"].is-alive {
+    animation: none !important;
+  }
+
+  .ink-flight-dot.is-fading {
+    transition: none !important;
+  }
+}

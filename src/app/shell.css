@@ -32,16 +32,38 @@
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   border: 2px dashed transparent;
+  transform-origin: left center;
+  transform-style: preserve-3d;
 }
 
 .cover-card:hover {
   border-color: var(--ink-faint);
 }
 
-.cover-card.drag-over {
+/* Living-book cover (cover3d.ts): dragover lifts the card toward the
+ * viewer; drop swings it open (page-turn feel) over 500ms before the app
+ * swaps to the progress screen. Neither class is ever applied under
+ * prefers-reduced-motion (cover3d.ts gates that in JS) — the media query
+ * below is belt-and-suspenders, same pattern as render/theme.css. */
+.cover-card.lift {
   border-color: var(--ink);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px var(--shadow);
+  transform: perspective(1200px) rotateX(4deg) translateY(-6px);
+  box-shadow: 0 16px 44px var(--shadow);
+}
+
+.cover-card.open {
+  border-color: var(--ink);
+  transition-duration: 0.5s;
+  transform: perspective(1200px) rotateY(-24deg) translateY(-6px);
+  box-shadow: 0 24px 60px var(--shadow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-card.lift,
+  .cover-card.open {
+    transition: none !important;
+    transform: none !important;
+  }
 }
 
 .cover-title {

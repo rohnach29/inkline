@@ -9,7 +9,7 @@ import { renderBook, esc, doodleFor } from "../render";
 import { makeSyntheticYear } from "../fixtures/synthetic";
 import { routeFiles, gpxToRaw } from "./files";
 import { rejectionPage, brokenZipPage, stuckPage } from "./errors";
-import { initLivingBook } from "../living";
+import { initLivingBook, wireCover3d } from "../living";
 import type { LivingBookHandle } from "../living";
 
 // ---------------------------------------------------------------------
@@ -115,17 +115,22 @@ function renderCover(): void {
     void handleFiles(Array.from(fileInput.files ?? []));
   });
 
+  // Living-book cover: lifts on dragover, swings open on drop (500ms, then
+  // held before the screen swaps away) — installs nothing under reduced
+  // motion, see cover3d.ts.
+  const cover3d = wireCover3d(dropZone);
+
   dropZone.addEventListener("dragover", (e) => {
     e.preventDefault();
-    dropZone.classList.add("drag-over");
+    cover3d.onDragOver();
   });
   dropZone.addEventListener("dragleave", () => {
-    dropZone.classList.remove("drag-over");
+    cover3d.onDragLeave();
   });
   dropZone.addEventListener("drop", (e) => {
     e.preventDefault();
-    dropZone.classList.remove("drag-over");
-    void handleFiles(Array.from(e.dataTransfer?.files ?? []));
+    const files = Array.from(e.dataTransfer?.files ?? []);
+    void cover3d.onDrop().then(() => handleFiles(files));
   });
 
   demoLink.addEventListener("click", (e) => {
