@@ -43,9 +43,15 @@ describe("scoreCardSvg", () => {
     expect(svg).not.toContain("Fear & Doubt");
   });
 
-  it("includes the wobble-card filter id exactly once", () => {
-    const matches = svg.match(/wobble-card/g) ?? [];
+  it("declares the wobble-card filter id exactly once", () => {
+    // Anchor on the id ATTRIBUTE (established pattern: pages.test.ts,
+    // share.test.ts) so url(#wobble-card) references don't count as defs.
+    const matches = svg.match(/id="wobble-card"/g) ?? [];
     expect(matches).toHaveLength(1);
+  });
+
+  it("applies the wobble-card filter to the border", () => {
+    expect(svg).toContain('filter="url(#wobble-card)"');
   });
 
   it("has no leftover template braces", () => {

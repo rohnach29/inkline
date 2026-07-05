@@ -86,7 +86,10 @@ export function hitTest(xM: number, yM: number, obstacles: readonly Obstacle[]):
 
 /** Obstacles the fog front has already swallowed are gone for good — once The
  *  Quiet has passed an obstacle's position there is no double jeopardy from
- *  something the fog already erased. */
+ *  something the fog already erased.
+ *  Deliberate: keyed on the obstacle's RIGHT EDGE (xM + widthM/2), not its
+ *  center, consistent with hitTest geometry — an obstacle stays alive while
+ *  any part of it is still ahead of the fog (it shouldn't vanish half-drawn). */
 export function alive(obstacles: readonly Obstacle[], quietXM: number): Obstacle[] {
   return obstacles.filter((o) => o.xM + o.widthM / 2 > quietXM);
 }

@@ -29,14 +29,14 @@ const CARD_LINES: readonly string[] = [
   "You outran it for a while. That counts. It always counted.",
   "The Quiet always wins the last mile. You won every mile before it.",
   "Nightfall isn't a defeat. It's just the day, done being polite about ending.",
-  "The fog caught you gently, the way a blanket catches somebody already tired.",
+  "The fog caught up the way bedtime does: not angry, just done asking.",
   "You got past the pebble, the hill, and the ghost. The dark was always going to be the one that got you.",
   "Every run ends in The Quiet eventually. Yours ended with a very respectable head start.",
   "That's not losing. That's just what it looks like when the day finally sits down.",
   "The beasts you left behind are still back there, arguing about how far you got.",
-  "You didn't beat The Quiet. You made it wait a good long while. That's its own kind of winning.",
-  "Somewhere behind you, the dark is nodding. It only chases the ones worth chasing.",
-  "The Quiet isn't cruel — it's just patient, and tonight you were fast enough to matter.",
+  "You didn't beat The Quiet. You made it wait. It is not used to waiting.",
+  "The fog finished first. It cheated: it never has to breathe.",
+  "You stopped where everybody stops. The good part was all the road before it.",
   "You ran until the day ran out. That was the whole job, and you did it.",
 ];
 
@@ -87,11 +87,7 @@ export function scoreCardSvg(facts: ScoreFacts, line: string): string {
     `<svg viewBox="0 0 480 300" width="480" height="300" class="ink-scorecard" xmlns="http://www.w3.org/2000/svg">`,
     `<defs>${WOBBLE_FILTER}</defs>`,
     `<rect x="0" y="0" width="480" height="300" fill="${PAPER}" />`,
-    // Hand-drawn already via its own jittered curve coordinates — the wobble
-    // filter def above is scoped ("wobble-card") for embedding alongside the
-    // book's page filter (id "wobble") without colliding; it is kept
-    // available but not re-applied here so the id appears exactly once.
-    `<path d="${BORDER_PATH}" fill="none" stroke="${INK}" stroke-width="3" />`,
+    `<path d="${BORDER_PATH}" fill="none" stroke="${INK}" stroke-width="3" filter="url(#wobble-card)" />`,
     `<text x="240" y="52" text-anchor="middle" class="ink-card-title" fill="${INK}">${esc("OUTRUN THE QUIET")}</text>`,
     `<text x="240" y="110" text-anchor="middle" class="ink-card-stat" fill="${INK}">${esc(outranLine)}</text>`,
     `<text x="240" y="140" text-anchor="middle" class="ink-card-stat" fill="${PENCIL}">${esc(realLine)}</text>`,

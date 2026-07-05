@@ -106,6 +106,20 @@ describe("hitTest", () => {
   it("returns null when the runner does not overlap horizontally", () => {
     expect(hitTest(500, 0, [obstacle])).toBeNull();
   });
+
+  it("returns null when yM equals heightM exactly (jump clears at the boundary)", () => {
+    // hitTest requires yM < heightM strictly; yM === heightM is a clean clear.
+    expect(hitTest(200, 16, [obstacle])).toBeNull();
+  });
+
+  it("returns null when the runner's right edge exactly touches the obstacle's left edge", () => {
+    // Strict inequalities in hitTest: edge-touching (runnerRight === obstacleLeft)
+    // does NOT count as overlap. Runner half-width 3, obstacle left edge at
+    // 200 - 26/2 = 187, so a runner at xM 184 touches without hitting.
+    expect(hitTest(184, 0, [obstacle])).toBeNull();
+    // one hair further along and it IS a hit
+    expect(hitTest(184.01, 0, [obstacle])).toBe(obstacle);
+  });
 });
 
 describe("alive", () => {
@@ -117,5 +131,14 @@ describe("alive", () => {
     const survivors = alive(obstacles, 200);
     expect(survivors).toHaveLength(1);
     expect(survivors[0]!.name).toBe("B");
+  });
+
+  it("keeps an obstacle whose center is behind the fog but whose right edge is still ahead", () => {
+    // Pins the deliberate right-edge rule (vs the center-point reading):
+    // center 195 < quietXM 200, but right edge 195 + 20/2 = 205 > 200 → alive.
+    const halfSwallowed = { xM: 195, kind: "hill" as const, widthM: 20, heightM: 16, name: "H" };
+    expect(alive([halfSwallowed], 200)).toEqual([halfSwallowed]);
+    // fully swallowed once the fog passes the right edge
+    expect(alive([halfSwallowed], 205)).toEqual([]);
   });
 });
