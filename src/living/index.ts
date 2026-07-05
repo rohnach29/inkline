@@ -1,4 +1,5 @@
 import { revealChapter } from "./reveal";
+import { initAtmosphere } from "./atmosphere";
 
 const CHAPTER_SELECTOR = ".page-chapter";
 const INTERSECTION_THRESHOLD = 0.35;
@@ -58,11 +59,14 @@ export function initLivingBook(root: ParentNode): LivingBookHandle {
 
   sections.forEach((section) => observer.observe(section));
 
+  const atmosphereTeardown = initAtmosphere(root);
+
   return {
     teardown(): void {
       observer.disconnect();
       for (const cancel of cancels) cancel();
       cancels.clear();
+      if (atmosphereTeardown) atmosphereTeardown();
     },
   };
 }

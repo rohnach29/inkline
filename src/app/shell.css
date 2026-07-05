@@ -139,3 +139,12 @@
 .toolbar button:hover {
   border-color: var(--ink);
 }
+
+/* 7. Atmosphere overlay (living-book weather) — never printed ------------ */
+
+.atmosphere-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
