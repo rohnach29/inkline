@@ -25,6 +25,7 @@ export function downsample(points: TrackPoint[], toleranceM = 8): TrackPoint[] {
     for (let i = s + 1; i < e; i++) {
       const px = xs[i]!, py = ys[i]!;
       let d: number;
+      // point-to-SEGMENT distance (t clamped), a deliberate variant of textbook DP point-to-line
       if (len2 === 0) {
         d = Math.hypot(px - ax, py - ay);
       } else {
@@ -36,7 +37,7 @@ export function downsample(points: TrackPoint[], toleranceM = 8): TrackPoint[] {
         idx = i;
       }
     }
-    if (maxD > toleranceM && idx > 0) {
+    if (maxD > toleranceM && idx !== -1) {
       keep[idx] = 1;
       stack.push([s, idx], [idx, e]);
     }

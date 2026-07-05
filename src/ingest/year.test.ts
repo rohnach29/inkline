@@ -114,4 +114,14 @@ describe("buildYear", () => {
     const gpsRun = year.runs.find((r) => r.track)!;
     expect(gpsRun.km).toBe(2.5); // best overlap (28 min) wins over first-in-scan-order (16 min)
   });
+
+  it("gives colliding-start workouts distinct ids", () => {
+    const xml = `<HealthData>
+<Workout workoutActivityType="HKWorkoutActivityTypeRunning" duration="30.0" durationUnit="min" startDate="2025-02-01 08:00:00 +0530" endDate="2025-02-01 08:30:00 +0530"><MetadataEntry key="HKIndoorWorkout" value="1"/></Workout>
+<Workout workoutActivityType="HKWorkoutActivityTypeRunning" duration="20.0" durationUnit="min" startDate="2025-02-01 08:00:00 +0530" endDate="2025-02-01 08:20:00 +0530"><MetadataEntry key="HKIndoorWorkout" value="1"/></Workout>
+</HealthData>`;
+    const year = buildYear({ gpxFiles: new Map(), exportXml: xml });
+    expect(year.runs).toHaveLength(2);
+    expect(new Set(year.runs.map((r) => r.id)).size).toBe(2);
+  });
 });

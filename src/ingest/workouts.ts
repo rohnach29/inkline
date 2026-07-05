@@ -31,6 +31,7 @@ export function parseWorkoutElement(el: string): WorkoutRecord | null {
 
   const duration = attr(el, "duration");
   let km: number | null = null;
+  // relies on Apple's stable attribute order (sum before unit / key before value)
   const dist = el.match(
     /<WorkoutStatistics[^>]*DistanceWalkingRunning[^>]*\bsum="([\d.]+)"[^>]*\bunit="(km|mi)"/,
   );
@@ -49,6 +50,7 @@ export function parseWorkoutElement(el: string): WorkoutRecord | null {
     endUtc,
     durationMin: duration ? parseFloat(duration) : null,
     km,
+    // relies on Apple's stable attribute order (sum before unit / key before value)
     indoor: /key="HKIndoorWorkout" value="1"/.test(el),
   };
 }

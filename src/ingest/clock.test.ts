@@ -29,4 +29,10 @@ describe("runClock (timezone law)", () => {
     expect(c.startLocal).toBe("2025-01-01T17:30:00");
     expect(c.timezoneUncertain).toBe(true);
   });
+
+  it("formats local midnight as 00, not 24", () => {
+    // 2025-06-14T18:30:00Z = exactly 00:00:00 on June 15 in Asia/Kolkata
+    const c = runClock(Date.parse("2025-06-14T18:30:00Z"), { lat: 19.0969, lon: 72.9197 });
+    expect(c.startLocal).toBe("2025-06-15T00:00:00");
+  });
 });

@@ -6,6 +6,7 @@ import { downsample } from "./downsample";
 import { runClock } from "./clock";
 import { WorkoutScanner, type WorkoutRecord } from "./workouts";
 
+// tracks with fewer points are GPS noise; their workouts still surface as GPS-less runs
 const MIN_TRACK_POINTS = 10;
 const SCAN_CHUNK = 1_000_000;
 const PLACE_RADIUS_M = 50_000;
@@ -39,6 +40,7 @@ function majorityTz(runs: Run[]): string {
   return best;
 }
 
+/** Clusters run start points within 50 km. Mutates each run's placeId in place. Anchors on the cluster's first run, not a centroid. */
 export function assignPlaces(runs: Run[]): Place[] {
   const places: Place[] = [];
   for (const run of runs) {
@@ -107,7 +109,7 @@ export function buildYear(raw: RawExport): Year {
     const w = workouts[i]!;
     const clock = runClock(w.startUtc, undefined, fallbackTz);
     runs.push({
-      id: `workout-${w.startUtc}`,
+      id: `workout-${i}-${w.startUtc}`,
       startUtc: w.startUtc,
       startLocal: clock.startLocal,
       tz: clock.tz,

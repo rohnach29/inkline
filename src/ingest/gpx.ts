@@ -17,8 +17,9 @@ export function parseGpx(xml: string): TrackPoint[] {
     const lon = numAttr(attrs, "lon");
     const time = body.match(/<time>([^<]+)<\/time>/);
     if (lat === null || lon === null || !time) continue;
-    if (!HAS_TZ_RE.test(time[1]!.trim())) continue; // no tz designator → local-time parse → nondeterministic
-    const t = Date.parse(time[1]!);
+    const timeStr = time[1]!.trim();
+    if (!HAS_TZ_RE.test(timeStr)) continue; // no tz designator → local-time parse → nondeterministic
+    const t = Date.parse(timeStr);
     if (Number.isNaN(t)) continue;
     const ele = body.match(/<ele>(-?[\d.eE+]+)<\/ele>/);
     points.push({ lat, lon, ele: ele ? parseFloat(ele[1]!) : 0, t });
