@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildBook, selectEvents, dedupName } from "./book";
+import { Rng, seedFromYear } from "./rng";
 import { analyzeYear } from "../analyze";
 import { makeSyntheticYear } from "../fixtures/synthetic";
 import type { Year } from "../ingest";
@@ -284,17 +285,55 @@ describe("buildBook", () => {
     expect(used.has("The Small Quiet (Again)")).toBe(true);
   });
 
-  it("never emits duplicate entity names across chapters and beasts", () => {
+  it("never emits duplicate titles across chapters, nor duplicate beast names", () => {
     const book = buildBook(year, story);
-    const entityTitles = book.chapters
-      .filter((c) => ["quiet", "hill-beast", "route-champion", "night-runs", "ghost-elevation"].includes(c.eventType))
-      .map((c) => c.title);
-    expect(new Set(entityTitles).size).toBe(entityTitles.length);
+    // ALL chapter titles unique — fixed-bank titles are de-duplicated too,
+    // not just named-entity titles.
+    const titles = book.chapters.map((c) => c.title);
+    expect(new Set(titles).size).toBe(titles.length);
     const beastKeys = book.beasts.map((b) => `${b.name}::${b.kind}`);
     expect(new Set(beastKeys).size).toBe(beastKeys.length);
     // beasts inherit their chapter's (de-duplicated) title
     for (const beast of book.beasts) {
       expect(book.chapters.some((c) => c.title === beast.name)).toBe(true);
     }
+  });
+
+  it("de-duplicates fixed-bank titles when two same-type chapters collide", () => {
+    // Pinned collision: under tinyYear()'s seed (638724748), journey events
+    // at atUtc 1002 and 1003 both first-draw "The Long Way Somewhere Else"
+    // from the 3-entry journey bank (probed over atUtc 1000..1015). Pre-fix,
+    // both chapters carried that identical title; post-fix the second is
+    // redrawn with a suffixed fork key. The guard below re-derives both
+    // first draws so the test fails loudly (rather than passing vacuously)
+    // if the seed, bank contents, or fork-key scheme ever shift.
+    const A = 1002;
+    const B = 1003;
+    const y = tinyYear();
+    const mkJourney = (atUtc: number): StoryEvent => ({
+      type: "journey",
+      runIds: [],
+      atUtc,
+      magnitude: 600,
+      data: { km: 600, fromCity: "Here", toCity: "There", fromLat: 0, fromLon: 0, toLat: 1, toLon: 1 },
+    });
+
+    const book = buildBook(y, { events: [mkJourney(A), mkJourney(B)] });
+    const titles = book.chapters.filter((c) => c.eventType === "journey").map((c) => c.title);
+    expect(titles.length).toBe(2); // both under the journey cap of 2
+
+    // Guard: the underlying FIRST draws really do collide.
+    const JOURNEY_BANK = ["The Long Way Somewhere Else", "A Very Large Commute", "Halfway Around, Give or Take"]; // mirror of TITLE_BANKS.journey
+    const seedRng = new Rng(seedFromYear(y));
+    const firstDraw = (atUtc: number) => seedRng.fork(`title:journey:${atUtc}`).pick(JOURNEY_BANK);
+    expect(firstDraw(A)).toBe(firstDraw(B));
+
+    // First chapter keeps the historical first-draw title; second differs.
+    expect(titles[0]).toBe(firstDraw(A));
+    expect(titles[1]).not.toBe(titles[0]);
+
+    // Deterministic: an identical rebuild yields the identical pair.
+    const again = buildBook(y, { events: [mkJourney(A), mkJourney(B)] });
+    expect(again.chapters.filter((c) => c.eventType === "journey").map((c) => c.title)).toEqual(titles);
   });
 });

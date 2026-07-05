@@ -443,9 +443,12 @@ function titleFor(event: StoryEvent, chapterId: string, rng: Rng, usedNames: Set
       // over every StoryEventType not handled above, so this can't be
       // undefined — no fallback needed, and a new type left off TITLE_BANKS
       // fails to compile instead of failing silently at runtime.
+      // Routed through dedupName because banks are small (3-4 entries):
+      // two same-type chapters collide often. The first draw keeps the
+      // exact historical fork key `title:${chapterId}`, so books without
+      // collisions are byte-identical to before; only redraws suffix the key.
       const bank = TITLE_BANKS[event.type];
-      const r = rng.fork(`title:${chapterId}`);
-      return r.pick(bank);
+      return dedupName(usedNames, (k) => rng.fork(`title:${k}`).pick(bank), chapterId);
     }
   }
 }
