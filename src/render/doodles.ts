@@ -32,15 +32,17 @@ const SHOES = shell(
   ].join(""),
 );
 
-/** a pair of shoes, laces limp, tiny motion-less lines beside them */
+/** a pair of shoes, laces limp, tiny motion-less lines beside them —
+ *  second shoe is its own drawing: blunter toe, tipped forward, lace
+ *  flopped the opposite way (an abandoned pair is never parallel) */
 const EMPTY_SHOES = shell(
   [
     `<path d="M15,95 C14,80 20,68 32,66 C45,64 58,70 64,76 C66,84 62,90 54,92 C40,96 22,98 15,95" fill="none" />`,
-    `<path d="M60,96 C59,82 66,70 78,68 C90,66 102,72 108,78 C110,86 105,92 97,94 C83,98 66,99 60,96" fill="none" />`,
+    `<path d="M64,88 C70,72 82,62 96,64 C108,66 112,76 108,84 C100,94 82,100 68,98 C63,96 62,92 64,88" fill="none" />`,
     `<path d="M35,68 L40,74 L37,80" fill="none" />`,
-    `<path d="M80,70 L85,76 L82,82" fill="none" />`,
+    `<path d="M92,66 L86,73 L91,79 L84,85" fill="none" />`,
     `<line x1="18" y1="104" x2="29" y2="105" />`,
-    `<line x1="72" y1="106" x2="81" y2="105" />`,
+    `<line x1="71" y1="107" x2="84" y2="106" />`,
   ].join(""),
 );
 
@@ -111,12 +113,14 @@ const BANANA = shell(
   ].join(""),
 );
 
-/** a wavy-hem sheet ghost with two eyes, slightly transparent */
+/** a wavy-hem sheet ghost with two eyes, slightly transparent —
+ *  left flank sags out lazier than the right, hem waves uneven,
+ *  eyes at slightly different heights */
 const GHOST = shell(
   [
-    `<path d="M35,100 C30,60 32,30 60,25 C88,30 90,60 85,100 C80,92 75,98 70,100 C65,94 60,100 55,96 C50,102 45,94 40,100 C38,98 36,100 35,100" fill="none" />`,
-    `<circle cx="48" cy="55" r="4" />`,
-    `<circle cx="72" cy="55" r="3.5" />`,
+    `<path d="M33,102 C24,66 34,28 58,24 C84,26 88,52 82,98 C77,89 73,101 67,96 C62,90 58,102 51,95 C47,102 41,92 37,100 C35,96 34,103 33,102" fill="none" />`,
+    `<circle cx="49" cy="54" r="4" />`,
+    `<circle cx="71" cy="57" r="3" />`,
   ].join(""),
   'opacity=".8"',
 );
@@ -131,21 +135,23 @@ const TROPHY = shell(
   ].join(""),
 );
 
-/** 3 interlocked oval links */
+/** 3 interlocked links: one fat and round, one skinny and upright,
+ *  one leaning and half-twisted — no two alike */
 const CHAIN = shell(
   [
-    `<path d="M22,30 C12,32 12,50 24,52 C36,54 38,34 26,31 Z" fill="none" />`,
-    `<path d="M45,50 C35,52 35,70 47,72 C59,74 61,54 49,51 Z" fill="none" />`,
-    `<path d="M68,70 C58,72 58,90 70,92 C82,94 84,74 72,71 Z" fill="none" />`,
+    `<path d="M20,30 C6,35 9,55 26,57 C42,59 45,37 30,30 C27,29 23,29 20,30 Z" fill="none" />`,
+    `<path d="M49,48 C41,55 44,75 54,73 C62,71 62,52 55,47 C53,46 51,46 49,48 Z" fill="none" />`,
+    `<path d="M68,72 C81,63 98,71 96,84 C95,95 80,99 72,90 C68,85 74,80 80,83 C76,78 66,79 68,72 Z" fill="none" />`,
   ].join(""),
 );
 
-/** 3 curling speed-lines of differing sweep */
+/** 3 speed-curls of differing sweep — the third runs longest and
+ *  hooks back on itself in a tight curl */
 const WIND = shell(
   [
     `<path d="M10,40 C30,30 45,45 65,35" fill="none" />`,
     `<path d="M15,60 C35,50 55,68 78,58" fill="none" />`,
-    `<path d="M20,82 C42,72 60,90 85,80" fill="none" />`,
+    `<path d="M18,86 C48,74 78,92 100,80 C108,75 104,67 96,71" fill="none" />`,
   ].join(""),
 );
 
