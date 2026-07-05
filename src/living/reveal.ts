@@ -1,4 +1,5 @@
 import { drawDurationMs, RUNNER_FADE_MS } from "./timing";
+import type { DrawHooks } from "./sound";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -54,8 +55,13 @@ function readDrawMs(svg: SVGSVGElement): number {
  *  doodle-fallback map area, neither of which carry `.ink-map`/`.ink-route`.
  *  Returns a cancel function that stops the rAF loop, clears the fade
  *  timer, and removes the runner immediately — used for teardown when the
- *  living-book layer is torn down mid-draw. */
-export function revealChapter(section: HTMLElement): (() => void) | undefined {
+ *  living-book layer is torn down mid-draw.
+ *
+ *  `hooks`, if given, is fired at the real start/end of the stroke draw-in
+ *  itself (not the runner-fade tail that follows completion) — sound.ts's
+ *  pencil scratch sustains for exactly that window. A cancel mid-draw also
+ *  fires `onDrawEnd` so a scratch never sustains forever past a teardown. */
+export function revealChapter(section: HTMLElement, hooks?: DrawHooks): (() => void) | undefined {
   const svg = section.querySelector<SVGSVGElement>(".ink-map");
   if (!svg) return undefined;
   const path = svg.querySelector<SVGPathElement>(".ink-route");
@@ -70,6 +76,7 @@ export function revealChapter(section: HTMLElement): (() => void) | undefined {
   path.style.transitionDuration = `${ms}ms`;
   path.classList.add("is-drawing");
   path.style.strokeDashoffset = "0"; // kick the transition (dasharray total -> 0)
+  hooks?.onDrawStart(ms);
 
   const runner = createRunner();
   svg.appendChild(runner);
@@ -89,6 +96,7 @@ export function revealChapter(section: HTMLElement): (() => void) | undefined {
     if (t < 1) {
       rafId = requestAnimationFrame(frame);
     } else {
+      hooks?.onDrawEnd();
       runner.classList.add("is-fading");
       fadeTimer = window.setTimeout(() => runner.remove(), RUNNER_FADE_MS);
     }
@@ -99,5 +107,6 @@ export function revealChapter(section: HTMLElement): (() => void) | undefined {
     cancelAnimationFrame(rafId);
     window.clearTimeout(fadeTimer);
     runner.remove();
+    hooks?.onDrawEnd();
   };
 }

@@ -1,3 +1,5 @@
+import type { DrawHooks } from "./sound";
+
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 const FADE_MS = 300;
@@ -22,8 +24,12 @@ function createDot(): SVGCircleElement {
  *  No-ops (returns undefined) for chapters without a flight map — those are
  *  reveal.ts's job (route maps) or have no map at all (doodle fallback).
  *  Returns a cancel function that stops every in-flight timer/rAF and
- *  removes the traveling dot, for teardown mid-animation. */
-export function revealFlight(section: HTMLElement): (() => void) | undefined {
+ *  removes the traveling dot, for teardown mid-animation.
+ *
+ *  `hooks`, if given, fires at the real start/end of the arc draw-in itself
+ *  (not the rim fade-in that precedes it, nor the dot-fade tail that
+ *  follows) — see reveal.ts's matching contract for route maps. */
+export function revealFlight(section: HTMLElement, hooks?: DrawHooks): (() => void) | undefined {
   const svg = section.querySelector<SVGSVGElement>(".ink-flight");
   if (!svg) return undefined;
   const maybeArc = svg.querySelector<SVGPathElement>(".ink-arc");
@@ -67,6 +73,7 @@ export function revealFlight(section: HTMLElement): (() => void) | undefined {
     arc.classList.add("is-drawing");
     arc.style.strokeDashoffset = "0";
     dot.style.opacity = "1";
+    hooks?.onDrawStart(ARC_DRAW_MS);
 
     const start = performance.now();
 
@@ -79,6 +86,7 @@ export function revealFlight(section: HTMLElement): (() => void) | undefined {
       if (t < 1) {
         rafId = requestAnimationFrame(frame);
       } else {
+        hooks?.onDrawEnd();
         dot.classList.add("is-fading");
         fadeTimer = window.setTimeout(() => dot.remove(), DOT_FADE_MS);
       }
@@ -93,5 +101,6 @@ export function revealFlight(section: HTMLElement): (() => void) | undefined {
     window.clearTimeout(fadeTimer);
     cancelAnimationFrame(rafId);
     dot.remove();
+    hooks?.onDrawEnd();
   };
 }

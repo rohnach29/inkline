@@ -268,3 +268,13 @@
     transition: none;
   }
 }
+
+/* 10. Sound toggle (living-book, sound.ts) — never printed --------------- */
+
+.sound-toggle {
+  /* "sound: off" and "sound: on (pencil)" differ enough in length that a
+     bare toggle click would otherwise visibly resize the button — pin a
+     minimum width so the toolbar doesn't jump. */
+  min-width: 9.5rem;
+  text-align: center;
+}

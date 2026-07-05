@@ -9,7 +9,7 @@ import { renderBook, esc, doodleFor } from "../render";
 import { makeSyntheticYear } from "../fixtures/synthetic";
 import { routeFiles, gpxToRaw } from "./files";
 import { rejectionPage, brokenZipPage, stuckPage } from "./errors";
-import { initLivingBook, wireCover3d } from "../living";
+import { initLivingBook, wireCover3d, attachSound, soundLabel } from "../living";
 import type { LivingBookHandle } from "../living";
 
 // ---------------------------------------------------------------------
@@ -25,6 +25,13 @@ let pageIndex = 0;
 /** Teardown for the currently-active living-book layer (self-drawing ink +
  *  runner), if any. Non-null only while a book is on screen. */
 let livingBookHandle: LivingBookHandle | null = null;
+
+/** The one pencil-sound instance for the whole app session — created once
+ *  at boot (cheap: reads the persisted preference, touches no AudioContext
+ *  at all — see sound.ts's `attachSound` for exactly when that happens) and
+ *  reused across every book render, since the toggle/preference and any
+ *  underlying AudioContext should both survive a "start over". */
+const soundHandle = attachSound();
 
 function paint(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 30));
@@ -167,6 +174,7 @@ function showBook(bookHtml: string): void {
   app.innerHTML = [
     `<div class="toolbar no-print">`,
     `<button type="button" class="theme-toggle" id="theme-toggle"></button>`,
+    `<button type="button" class="sound-toggle" id="sound-toggle"></button>`,
     `<button type="button" class="print-btn" id="print-btn">print</button>`,
     `<button type="button" class="start-over-btn" id="start-over-btn">start over</button>`,
     `</div>`,
@@ -179,7 +187,7 @@ function showBook(bookHtml: string): void {
 
   livingBookHandle?.teardown();
   const bookRoot = document.querySelector<HTMLElement>(".book")!;
-  livingBookHandle = initLivingBook(bookRoot);
+  livingBookHandle = initLivingBook(bookRoot, soundHandle);
 }
 
 /** Tears down the living-book layer (if any) and returns to the cover — the
@@ -206,16 +214,34 @@ function setupToolbar(): void {
     renderLabel();
   });
 
+  const soundBtn = document.getElementById("sound-toggle") as HTMLButtonElement;
+  const renderSoundLabel = () => {
+    soundBtn.textContent = soundLabel(soundHandle.isEnabled());
+  };
+  renderSoundLabel();
+
+  soundBtn.addEventListener("click", () => {
+    soundHandle.toggle();
+    renderSoundLabel();
+  });
+
   document.getElementById("print-btn")!.addEventListener("click", () => window.print());
   document.getElementById("start-over-btn")!.addEventListener("click", () => startOver());
 }
 
+/** Keyboard page-turn navigation. Fires the pencil-sound whoosh (no-op while
+ *  sound is disabled) whenever a turn actually happens — not on a no-op
+ *  nav at either end of the book. Runs identically under reduced motion:
+ *  the scroll itself has no `behavior: "smooth"` gate here because nav must
+ *  keep working regardless, and sound is audio, not motion, so it's allowed
+ *  to fire even though the animated ink-draw layer never runs in that mode. */
 function goToPage(delta: number): void {
   if (pageEls.length === 0) return;
   const next = pageIndex + delta;
   if (next < 0 || next >= pageEls.length) return; // no wrap
   pageIndex = next;
   pageEls[pageIndex]!.scrollIntoView({ behavior: "smooth" });
+  soundHandle.whoosh();
 }
 
 window.addEventListener("keydown", (e) => {

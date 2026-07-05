@@ -4,12 +4,21 @@ import { initAtmosphere } from "./atmosphere";
 import { initBeasts } from "./beasts";
 import { initShare } from "./share";
 import { initToc } from "./toc";
+import type { DrawHooks } from "./sound";
 
 /** cover3d is wired directly by app/main.ts on the landing screen (before
  *  any book, and thus before `initLivingBook`, exists) — re-exported here
  *  so callers only ever need one import path into `src/living`. */
 export { wireCover3d } from "./cover3d";
 export type { Cover3dHandle } from "./cover3d";
+
+/** Pencil-sound glue is also driven from app/main.ts's toolbar (the toggle
+ *  button lives there, beside the theme toggle) — re-exported here for the
+ *  same single-import-path reason as cover3d above. `SoundHandle` itself
+ *  implements `DrawHooks`, so `main.ts` can pass its one instance straight
+ *  through to `initLivingBook` below. */
+export { attachSound, soundLabel } from "./sound";
+export type { SoundHandle, DrawHooks } from "./sound";
 
 const CHAPTER_SELECTOR = ".page-chapter";
 const INTERSECTION_THRESHOLD = 0.35;
@@ -19,10 +28,9 @@ const INTERSECTION_THRESHOLD = 0.35;
  *  map markup and no-ops (returns undefined) when it finds nothing of its
  *  kind (route vs. flight), so both can safely share one chapter without
  *  stepping on each other. */
-const CHAPTER_REVEALERS: ReadonlyArray<(section: HTMLElement) => (() => void) | undefined> = [
-  revealChapter,
-  revealFlight,
-];
+const CHAPTER_REVEALERS: ReadonlyArray<
+  (section: HTMLElement, hooks?: DrawHooks) => (() => void) | undefined
+> = [revealChapter, revealFlight];
 
 export interface LivingBookHandle {
   /** Disconnects every observer, cancels any in-flight draw/runner
@@ -60,8 +68,15 @@ function installFunctionalChrome(root: ParentNode): () => void {
  *  beast doodles. The caller gates this entirely behind
  *  `prefers-reduced-motion` — this function assumes it's safe to animate.
  *  Returns undefined when there are no `.page-chapter` sections to wire
- *  (nothing to observe). */
-function installAnimatedLayer(root: ParentNode): (() => void) | undefined {
+ *  (nothing to observe).
+ *
+ *  `soundHooks`, if given, is threaded through to every chapter revealer —
+ *  this is the "lightweight hook registry" the pencil-scratch sound hangs
+ *  off of: reveal.ts/flight.ts each fire it at the real start/end of their
+ *  own draw-in, and whichever one actually has a map to draw (route vs.
+ *  flight; each no-ops for the other's chapters) is the one that ends up
+ *  calling it. */
+function installAnimatedLayer(root: ParentNode, soundHooks?: DrawHooks): (() => void) | undefined {
   const sections = root.querySelectorAll<HTMLElement>(CHAPTER_SELECTOR);
   if (sections.length === 0) return undefined;
 
@@ -77,7 +92,7 @@ function installAnimatedLayer(root: ParentNode): (() => void) | undefined {
         done.add(section);
 
         for (const reveal of CHAPTER_REVEALERS) {
-          const cancel = reveal(section);
+          const cancel = reveal(section, soundHooks);
           if (cancel) cancels.add(cancel);
         }
       }
@@ -114,10 +129,16 @@ function installAnimatedLayer(root: ParentNode): (() => void) | undefined {
  *    transform, no sound), per the plan's global constraint.
  *
  *  Always returns a real handle — even under reduced motion, since the
- *  functional chrome still needs its own teardown. */
-export function initLivingBook(root: ParentNode): LivingBookHandle {
+ *  functional chrome still needs its own teardown.
+ *
+ *  `soundHooks` (typically `main.ts`'s single `attachSound()` instance,
+ *  which implements `DrawHooks` directly) is forwarded into the animated
+ *  layer so draws can drive the pencil-scratch sound; naturally unused
+ *  under reduced motion, since the animated layer never installs there and
+ *  a draw that never runs can't scratch. */
+export function initLivingBook(root: ParentNode, soundHooks?: DrawHooks): LivingBookHandle {
   const functionalTeardown = installFunctionalChrome(root);
-  const animatedTeardown = prefersReducedMotion() ? undefined : installAnimatedLayer(root);
+  const animatedTeardown = prefersReducedMotion() ? undefined : installAnimatedLayer(root, soundHooks);
 
   return {
     teardown(): void {
