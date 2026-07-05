@@ -29,4 +29,22 @@ describe("parseGpx", () => {
     const pts = parseGpx(SAMPLE);
     expect(pts[2]!.lat).toBe(19.09687); // lat-before-lon variant parsed
   });
+
+  it("parses single-quoted attributes and skips self-closing points (no time)", () => {
+    const xml = `<gpx><trk><trkseg>
+      <trkpt lat='19.5' lon='72.8'><time>2024-07-23T04:20:00Z</time></trkpt>
+      <trkpt lat="19.6" lon="72.9"/>
+    </trkseg></trk></gpx>`;
+    const pts = parseGpx(xml);
+    expect(pts).toHaveLength(1);
+    expect(pts[0]!.lat).toBe(19.5);
+  });
+
+  it("skips timestamps without a timezone designator (determinism)", () => {
+    const xml = `<gpx><trkpt lat="19.0" lon="72.9"><time>2024-07-23T04:20:00</time></trkpt>
+      <trkpt lat="19.1" lon="72.9"><time>2024-07-23T04:21:00+05:30</time></trkpt></gpx>`;
+    const pts = parseGpx(xml);
+    expect(pts).toHaveLength(1);
+    expect(pts[0]!.t).toBe(Date.parse("2024-07-23T04:21:00+05:30"));
+  });
 });
