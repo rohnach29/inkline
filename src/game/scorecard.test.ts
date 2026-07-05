@@ -54,8 +54,21 @@ describe("scoreCardSvg", () => {
     expect(svg).toContain('filter="url(#wobble-card)"');
   });
 
-  it("has no leftover template braces", () => {
-    expect(svg).not.toContain("{");
+  it("has no leftover un-interpolated template placeholders", () => {
+    // The inline <style> block legitimately contains CSS "{" / "}" braces,
+    // so this checks for unsubstituted `${...}` template syntax rather than
+    // any brace character.
+    expect(svg).not.toContain("${");
+  });
+
+  it("includes exactly one inline <style> block with the card's typography", () => {
+    const matches = svg.match(/<style>/g) ?? [];
+    expect(matches).toHaveLength(1);
+    expect(svg).toContain('"Bradley Hand","Segoe Print","Comic Sans MS",cursive');
+    expect(svg).toContain('"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif');
+    expect(svg).toContain(".ink-card-title{");
+    expect(svg).toContain(".ink-card-stat{");
+    expect(svg).toContain(".ink-card-poem{");
   });
 
   it("includes the poem line", () => {
@@ -70,6 +83,6 @@ describe("scoreCardSvg", () => {
     const noBeast: ScoreFacts = { ...facts, furthestBeast: null };
     const out = scoreCardSvg(noBeast, line);
     expect(out.startsWith("<svg")).toBe(true);
-    expect(out).not.toContain("{");
+    expect(out).not.toContain("${");
   });
 });

@@ -51,6 +51,23 @@ export function cardLine(rng: Rng, kmSurvived: number): string {
 const WOBBLE_FILTER =
   '<filter id="wobble-card"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter>';
 
+/** Inline styles for the card's three text classes. The card is rendered as
+ *  a standalone `data:image/svg+xml` <img> src, so page stylesheets never
+ *  reach it — an inline <style> scoped to this SVG is the only way to get
+ *  real typography instead of the browser's ~16px UA serif fallback. Fonts
+ *  and sizes only, no hex colors here: fill is already carried as a literal
+ *  attribute on each <text> element, and the whole SVG string is passed
+ *  through encodeURIComponent() by game.ts before it becomes the <img> src,
+ *  so any character here (including a literal "#") would survive the round
+ *  trip regardless — but keeping color out of this block keeps the
+ *  light-theme fill values as the single source of truth. */
+const CARD_STYLE =
+  "<style>" +
+  '.ink-card-title{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:30px;font-weight:bold;letter-spacing:2px;}' +
+  '.ink-card-stat{font-family:"Bradley Hand","Segoe Print","Comic Sans MS",cursive;font-size:19px;}' +
+  '.ink-card-poem{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:17px;font-style:italic;}' +
+  "</style>";
+
 const PAPER = "#FAF6EC";
 const INK = "#26211A";
 const PENCIL = "#4E525C";
@@ -85,6 +102,7 @@ export function scoreCardSvg(facts: ScoreFacts, line: string): string {
 
   return [
     `<svg viewBox="0 0 480 300" width="480" height="300" class="ink-scorecard" xmlns="http://www.w3.org/2000/svg">`,
+    CARD_STYLE,
     `<defs>${WOBBLE_FILTER}</defs>`,
     `<rect x="0" y="0" width="480" height="300" fill="${PAPER}" />`,
     `<path d="${BORDER_PATH}" fill="none" stroke="${INK}" stroke-width="3" filter="url(#wobble-card)" />`,

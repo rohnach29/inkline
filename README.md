@@ -63,6 +63,8 @@ npm run build
 - Two runtime dependencies: `fflate` to unzip the export, `tz-lookup` to resolve timezones.
 - Every timestamp is converted to local time using the GPS coordinates of that specific run, not your device's clock or the export's filename — both lie the moment you get on a plane.
 
-## Roadmap
+## The whole book
 
-Living pages that update as you keep running, and a small game tucked into the back of the book — coming in the next chapters.
+The pages aren't static once they're drawn. Routes trace themselves in on scroll, weather rides in on your actual data for that run, and the beasts wiggle like they're still out there.
+
+And the back of the book plays. It's a one-button runner — you outrun The Quiet across your own year's elevation, the hills you actually ran turned into the hills you have to jump. When it finally catches you (it always does), you get a score card, honest numbers and all, that you can keep.
