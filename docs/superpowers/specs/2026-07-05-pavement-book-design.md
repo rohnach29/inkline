@@ -1,7 +1,8 @@
-# Where the Pavement Ends — Design Spec
+# Inkline — Design Spec
 
 **Date:** 2026-07-05
-**Status:** Approved pending user review
+**Status:** Approved
+**Name:** Inkline (routes drawn in ink + incline). "Where the Pavement Ends" survives as the title of the demo book.
 **One-liner:** A zero-install browser app that turns an Apple Health export (or plain GPX files) into an illustrated, animated, printable Shel-Silverstein-style storybook — entirely client-side; health data never leaves the browser.
 
 ## Goals
