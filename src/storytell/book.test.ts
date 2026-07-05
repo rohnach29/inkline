@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { buildBook } from "./book";
+import { buildBook, selectEvents } from "./book";
 import { analyzeYear } from "../analyze";
 import { makeSyntheticYear } from "../fixtures/synthetic";
 import type { Year } from "../ingest";
+import type { StoryEvent } from "../analyze/types";
 
 const year = makeSyntheticYear();
 const story = analyzeYear(year);
@@ -15,6 +16,17 @@ function emptyYear(): Year {
 function tinyYear(): Year {
   const y = makeSyntheticYear();
   return { runs: y.runs.slice(0, 2), places: y.places, span: { firstUtc: y.runs[0]!.startUtc, lastUtc: y.runs[1]!.startUtc } };
+}
+
+/** Year with a single run and a place that resolves to no known city. */
+function midPacificYear(): Year {
+  const y = makeSyntheticYear();
+  const run = y.runs[0]!;
+  return {
+    runs: [run],
+    places: [{ id: "far-place", lat: 0, lon: -160, runCount: 1 }],
+    span: { firstUtc: run.startUtc, lastUtc: run.startUtc },
+  };
 }
 
 describe("buildBook", () => {
@@ -126,5 +138,70 @@ describe("buildBook", () => {
     const s = analyzeYear(y);
     const book = buildBook(y, s);
     expect(book.subtitle).toBe("a very short book of running");
+  });
+
+  it("falls back to a placeless dedication when no place resolves to a named city", () => {
+    const y = midPacificYear();
+    const s = analyzeYear(y);
+    const book = buildBook(y, s);
+    expect(book.colophon.places).toEqual([]);
+    expect(book.dedication).toEqual([
+      "for the roads that got you nowhere in particular",
+      `and the ${y.runs.length} runs that drew them`,
+    ]);
+  });
+
+  it("omits the 'when' stat for a journey chapter whose evidence run can't be resolved", () => {
+    const journeyEvent: StoryEvent = {
+      type: "journey",
+      runIds: [],
+      atUtc: 1_000_000,
+      magnitude: 600,
+      data: { km: 600, fromCity: "Nowhere", toCity: "Somewhere Else", fromLat: 0, fromLon: 0, toLat: 1, toLon: 1 },
+    };
+    const y = tinyYear();
+    const book = buildBook(y, { events: [journeyEvent] });
+    const journey = book.chapters.find((c) => c.eventType === "journey");
+    expect(journey).toBeDefined();
+    expect(journey!.stats.some((s) => s.label === "when")).toBe(false);
+    expect(journey!.stats.some((s) => s.label === "distance")).toBe(true);
+  });
+
+  it("breaks equal-weight ties across DIFFERENT types by atUtc, not magnitude", () => {
+    // Regression test: earliest-run and latest-run share TYPE_WEIGHT (25).
+    // latest-run's magnitude (seconds-of-day, max) is structurally >= an
+    // earliest-run's magnitude (seconds-of-day, min), so a buggy comparator
+    // that compares magnitude across types would always let latest-run win
+    // a forced choice. Magnitude must only break ties WITHIN the same type;
+    // across types the tie falls through to atUtc (then type) ordering.
+    const filler: StoryEvent[] = Array.from({ length: 13 }, (_, i) => ({
+      type: "streak",
+      runIds: [],
+      atUtc: 1000 + i,
+      magnitude: i,
+      data: {},
+    }));
+
+    const earliestEvt: StoryEvent = {
+      type: "earliest-run",
+      runIds: [],
+      atUtc: 500_000, // earlier atUtc
+      magnitude: 6 * 3600, // 06:00 — small seconds-of-day
+      data: {},
+    };
+    const latestEvt: StoryEvent = {
+      type: "latest-run",
+      runIds: [],
+      atUtc: 600_000, // later atUtc
+      magnitude: 20 * 3600, // 20:00 — large seconds-of-day
+      data: {},
+    };
+
+    // 13 higher-weight filler events force exactly one of the two weight-25
+    // tie candidates out of the top-14 selection.
+    const selected = selectEvents([...filler, earliestEvt, latestEvt]);
+
+    expect(selected.some((e) => e.type === "earliest-run")).toBe(true);
+    expect(selected.some((e) => e.type === "latest-run")).toBe(false);
   });
 });

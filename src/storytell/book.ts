@@ -78,11 +78,6 @@ function fmtPace(minPerKm: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")} /km`;
 }
 
-function monthName(monthKey: string): string {
-  const idx = Number(monthKey.slice(5, 7)) - 1;
-  return MONTH_NAMES[idx] ?? "January";
-}
-
 // -------------------------------------------------------------------------
 // Selection — strict weight dominance
 // -------------------------------------------------------------------------
@@ -93,11 +88,11 @@ function monthName(monthKey: string): string {
  * Magnitude only ranks events WITHIN a type (which quiets/months make the
  * cut); atUtc asc is the final deterministic tie-break.
  */
-function compareByPriority(a: StoryEvent, b: StoryEvent): number {
+export function compareByPriority(a: StoryEvent, b: StoryEvent): number {
   const wa = TYPE_WEIGHT[a.type];
   const wb = TYPE_WEIGHT[b.type];
   if (wa !== wb) return wb - wa;
-  if (a.magnitude !== b.magnitude) return b.magnitude - a.magnitude;
+  if (a.type === b.type && a.magnitude !== b.magnitude) return b.magnitude - a.magnitude;
   if (a.atUtc !== b.atUtc) return a.atUtc - b.atUtc;
   if (a.type !== b.type) return a.type < b.type ? -1 : 1;
   return 0;
@@ -117,7 +112,7 @@ function compareByAtUtc(a: StoryEvent, b: StoryEvent): number {
  * combined pool is then cut to the overall 14-chapter cap by priority, and
  * the final selection is re-sorted chronologically.
  */
-function selectEvents(events: StoryEvent[]): StoryEvent[] {
+export function selectEvents(events: StoryEvent[]): StoryEvent[] {
   const forced = events.filter((e) => e.type === "first-run" || e.type === "last-run");
   const rest = events.filter((e) => e.type !== "first-run" && e.type !== "last-run");
 
@@ -176,7 +171,15 @@ const DOODLE_TAGS: Record<StoryEventType, string[]> = {
   "ghost-elevation": ["ghost"],
 };
 
-const TITLE_BANKS: Partial<Record<StoryEventType, readonly string[]>> = {
+/**
+ * The 5 types whose titles are generated procedurally (see NAMED_ENTITY_TYPES
+ * below) rather than picked from a fixed bank. Every other StoryEventType
+ * MUST have a TITLE_BANKS entry — kept as a total Record (not Partial) so a
+ * missing entry is a compile error, not a silent runtime fallback.
+ */
+type NamedEntityType = "quiet" | "hill-beast" | "route-champion" | "night-runs" | "ghost-elevation";
+
+const TITLE_BANKS: Record<Exclude<StoryEventType, NamedEntityType>, readonly string[]> = {
   "first-run": ["The First Step", "Day One, More or Less", "Shoes, Untied", "The Opening Lace-Up"],
   "last-run": ["The Last Lap", "One More, For the Road", "The Closing Mile", "Where the Year Sets Down"],
   "longest-run": ["The Long Way Round", "The One That Kept Going", "A Distance With No Ending", "The Marathon of Second-Guessing"],
@@ -332,10 +335,9 @@ function statsFor(event: StoryEvent, runById: Map<string, Run>): ChapterStat[] {
     case "journey": {
       const lastId = event.runIds[event.runIds.length - 1];
       const run = lastId !== undefined ? runById.get(lastId) : undefined;
-      return [
-        { label: "distance", value: fmtKm(num(d.km)) },
-        { label: "when", value: run ? fmtDateLocal(run.startLocal) : `${Math.round(num(d.km))} km away` },
-      ];
+      const stats: ChapterStat[] = [{ label: "distance", value: fmtKm(num(d.km)) }];
+      if (run) stats.push({ label: "when", value: fmtDateLocal(run.startLocal) });
+      return stats;
     }
     case "month":
       return [
@@ -363,7 +365,7 @@ function statsFor(event: StoryEvent, runById: Map<string, Run>): ChapterStat[] {
   }
 }
 
-const NAMED_ENTITY_TYPES: ReadonlySet<StoryEventType> = new Set([
+const NAMED_ENTITY_TYPES: ReadonlySet<StoryEventType> = new Set<NamedEntityType>([
   "quiet",
   "hill-beast",
   "route-champion",
@@ -384,13 +386,11 @@ function titleFor(event: StoryEvent, chapterId: string, rng: Rng): string {
     case "ghost-elevation":
       return nameGhost(rng, chapterId);
     default: {
+      // Exhaustive by construction: TITLE_BANKS is typed as a total Record
+      // over every StoryEventType not handled above, so this can't be
+      // undefined — no fallback needed, and a new type left off TITLE_BANKS
+      // fails to compile instead of failing silently at runtime.
       const bank = TITLE_BANKS[event.type];
-      if (!bank || bank.length === 0) {
-        // month falls back on the actual calendar month name — always
-        // available, never generic filler.
-        if (event.type === "month") return monthName(str(event.data.month));
-        return KICKER[event.type];
-      }
       const r = rng.fork(`title:${chapterId}`);
       return r.pick(bank);
     }
@@ -425,7 +425,7 @@ function beastFor(event: StoryEvent, chapterTitle: string): BeastEntry | null {
       return {
         name: chapterTitle,
         kind: "false-start",
-        description: `${Math.round(num(d.count))} runs that quit before a kilometer, shortest just ${num(d.shortestKm).toFixed(2)} km.`,
+        description: `${Math.round(num(d.count))} runs that quit before a kilometer, shortest just ${fmtKm(num(d.shortestKm))}.`,
         doodleTag: "banana",
       };
     case "ghost-elevation":

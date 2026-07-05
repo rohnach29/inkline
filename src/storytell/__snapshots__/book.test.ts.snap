@@ -4,7 +4,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
 {
   "beasts": [
     {
-      "description": "2 runs that quit before a kilometer, shortest just 0.40 km.",
+      "description": "2 runs that quit before a kilometer, shortest just 0.4 km.",
       "doodleTag": "banana",
       "kind": "false-start",
       "name": "Two Steps and a Shrug",
