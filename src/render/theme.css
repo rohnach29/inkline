@@ -291,3 +291,47 @@ body {
     margin: 12mm;
   }
 }
+
+/* 8. Living book — self-drawing ink + runner --------------------------------
+ * .ink-route/.ink-arc start fully hidden (JS sets stroke-dasharray/offset to
+ * the path's total length) and draw in when JS adds .is-drawing and flips
+ * stroke-dashoffset to 0 — the transition-duration itself comes from JS via
+ * inline style (data-draw-ms), so only the property/timing-function live
+ * here. The runner is a tiny stroke-only stick figure positioned via JS
+ * transform each frame; it fades out and is removed once its chapter's map
+ * has finished drawing. */
+
+.ink-route.is-drawing,
+.ink-arc.is-drawing {
+  transition-property: stroke-dashoffset;
+  transition-timing-function: linear;
+}
+
+.ink-runner-stroke {
+  stroke: var(--ink);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.ink-runner {
+  opacity: 1;
+}
+
+.ink-runner.is-fading {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Belt-and-suspenders: initLivingBook never installs the observer/animation
+   * under reduced motion, so this never actually fires in practice — but a
+   * stray .is-drawing class (e.g. from a future caller) should still never
+   * animate. */
+  .ink-route.is-drawing,
+  .ink-arc.is-drawing,
+  .ink-runner.is-fading {
+    transition: none !important;
+  }
+}

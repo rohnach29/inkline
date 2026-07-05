@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderBook } from "./pages";
-import { esc } from "./svg";
+import { esc, drawDurationMs } from "./svg";
 import { doodleFor } from "./doodles";
 import { makeSyntheticYear } from "../fixtures/synthetic";
 import { analyzeYear } from "../analyze";
@@ -280,5 +280,53 @@ describe("renderBook", () => {
         expect(section).toContain(doodle);
       }
     });
+  });
+
+  it("stamps a route map's svg with data-draw-ms equal to drawDurationMs of the run's pace", () => {
+    // trackedYear's run "r1": km=5, minutes=30 -> pace 6 min/km
+    const chapter = baseChapter({
+      mapSpec: { kind: "route", runId: "r1" },
+      doodleTags: [],
+    });
+    const html = renderBook(oneChapterBook(chapter), trackedYear());
+    const section = sectionFor(html, "ch-1");
+    const expectedMs = drawDurationMs(30 / 5);
+    expect(section).toContain(`data-draw-ms="${expectedMs}"`);
+  });
+
+  it("stamps a flight map's svg with a fixed data-draw-ms of 4000", () => {
+    const chapter = baseChapter({
+      mapSpec: {
+        kind: "flight",
+        from: { lat: 19.08, lon: 72.88, name: "Mumbai" },
+        to: { lat: 40.42, lon: -86.92, name: "Lafayette" },
+        km: 12842,
+      },
+      doodleTags: [],
+      eventType: "journey",
+    });
+    const html = renderBook(oneChapterBook(chapter), trackedYear());
+    const section = sectionFor(html, "ch-1");
+    expect(section).toContain('data-draw-ms="4000"');
+  });
+
+  it("gives a doodle-fallback map area no data-draw-ms attribute at all", () => {
+    const chapter = baseChapter({
+      mapSpec: null,
+      doodleTags: ["shoes"],
+    });
+    const html = renderBook(oneChapterBook(chapter), trackedYear());
+    const section = sectionFor(html, "ch-1");
+    expect(section).not.toContain("data-draw-ms");
+  });
+
+  it("gives a missing-run route mapSpec (doodle fallback) no data-draw-ms attribute", () => {
+    const chapter = baseChapter({
+      mapSpec: { kind: "route", runId: "does-not-exist" },
+      doodleTags: ["shoes"],
+    });
+    const html = renderBook(oneChapterBook(chapter), trackedYear());
+    const section = sectionFor(html, "ch-1");
+    expect(section).not.toContain("data-draw-ms");
   });
 });

@@ -1,6 +1,6 @@
 import type { Book, Chapter, MapSpec } from "../storytell";
 import type { Year } from "../ingest";
-import { routeSvg, flightSvg, esc } from "./svg";
+import { routeSvg, flightSvg, esc, drawDurationMs } from "./svg";
 import { doodleFor } from "./doodles";
 
 /** Emitted exactly once, at the top of renderBook's output. Every ink-* and
@@ -24,6 +24,10 @@ const DETERMINISM_LINE = "drawn deterministically — the same year makes the sa
 const BEASTS_KICKER = "a field guide to what chased you";
 
 const FALLBACK_DOODLE_TAG = "shoes";
+
+/** Flight maps have no meaningful "pace" (they're not a run), so the
+ *  self-drawing-ink layer gets a fixed duration for them. */
+const FLIGHT_DRAW_MS = 4000;
 
 // -------------------------------------------------------------------------
 // Per-letter tilt
@@ -60,6 +64,13 @@ interface DoodlePick {
   usedTagIndex: number;
 }
 
+/** Stamps `data-draw-ms="{ms}"` onto a top-level `<svg ...>` string's opening
+ *  tag, for the living-book layer to read the self-drawing-ink duration from.
+ *  Assumes `svgHtml` starts with `<svg ` (true of routeSvg/flightSvg output). */
+function withDrawMs(svgHtml: string, ms: number): string {
+  return svgHtml.replace("<svg ", `<svg data-draw-ms="${ms}" `);
+}
+
 /** First tag (in order) that resolves to a non-empty doodle; "shoes" if none do. */
 function firstDoodle(tags: readonly string[]): DoodlePick {
   for (let i = 0; i < tags.length; i++) {
@@ -89,10 +100,14 @@ function renderMapArea(mapSpec: MapSpec | null, doodleTags: readonly string[], y
       const run = year.runs.find((r) => r.id === mapSpec.runId);
       if (run?.track && run.track.length > 0) {
         const svg = routeSvg(run.track, run.id);
-        if (svg) return { html: svg, usedTagIndex: -1 };
+        if (svg) {
+          const pace = run.km > 0 ? run.minutes / run.km : null;
+          return { html: withDrawMs(svg, drawDurationMs(pace)), usedTagIndex: -1 };
+        }
       }
     } else {
-      return { html: flightSvg(mapSpec.from, mapSpec.to, mapSpec.km), usedTagIndex: -1 };
+      const svg = flightSvg(mapSpec.from, mapSpec.to, mapSpec.km);
+      return { html: withDrawMs(svg, FLIGHT_DRAW_MS), usedTagIndex: -1 };
     }
   }
   return firstDoodle(doodleTags);

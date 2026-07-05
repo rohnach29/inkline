@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { projectTrack, pathFrom, routeSvg, flightSvg, esc } from "./svg";
+import { projectTrack, pathFrom, routeSvg, flightSvg, esc, drawDurationMs } from "./svg";
 import type { XY } from "./svg";
 import type { TrackPoint } from "../ingest";
 import type { LatLonName } from "../storytell";
@@ -177,5 +177,51 @@ describe("esc", () => {
     expect(esc(`<a href="x">Tom & Jerry's</a>`)).toBe(
       "&lt;a href=&quot;x&quot;&gt;Tom &amp; Jerry&#39;s&lt;/a&gt;",
     );
+  });
+});
+
+describe("drawDurationMs", () => {
+  it("maps the low endpoint: 3.5 min/km -> 2000ms", () => {
+    expect(drawDurationMs(3.5)).toBe(2000);
+  });
+
+  it("maps the high endpoint: 9.0 min/km -> 6000ms", () => {
+    expect(drawDurationMs(9.0)).toBe(6000);
+  });
+
+  it("clamps paces faster than 3.5 min/km to 2000ms", () => {
+    expect(drawDurationMs(1)).toBe(2000);
+    expect(drawDurationMs(0.1)).toBe(2000);
+  });
+
+  it("clamps paces slower than 9.0 min/km to 6000ms", () => {
+    expect(drawDurationMs(20)).toBe(6000);
+    expect(drawDurationMs(100)).toBe(6000);
+  });
+
+  it("maps a mid pace linearly and rounds to an integer", () => {
+    // pace 5 -> t = 1.5/5.5 = 0.27272..., ms = 2000 + 0.27272*4000 = 3090.909 -> 3091
+    const result = drawDurationMs(5);
+    expect(result).toBe(3091);
+    expect(Number.isInteger(result)).toBe(true);
+  });
+
+  it("falls back to 3500ms for null pace", () => {
+    expect(drawDurationMs(null)).toBe(3500);
+  });
+
+  it("falls back to 3500ms for non-finite pace (NaN, Infinity, -Infinity)", () => {
+    expect(drawDurationMs(NaN)).toBe(3500);
+    expect(drawDurationMs(Infinity)).toBe(3500);
+    expect(drawDurationMs(-Infinity)).toBe(3500);
+  });
+
+  it("falls back to 3500ms for zero or negative pace", () => {
+    expect(drawDurationMs(0)).toBe(3500);
+    expect(drawDurationMs(-5)).toBe(3500);
+  });
+
+  it("is deterministic for the same pace", () => {
+    expect(drawDurationMs(6.25)).toBe(drawDurationMs(6.25));
   });
 });

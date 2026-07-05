@@ -9,6 +9,8 @@ import { renderBook, esc, doodleFor } from "../render";
 import { makeSyntheticYear } from "../fixtures/synthetic";
 import { routeFiles, gpxToRaw } from "./files";
 import { rejectionPage, brokenZipPage, stuckPage } from "./errors";
+import { initLivingBook } from "../living";
+import type { LivingBookHandle } from "../living";
 
 // ---------------------------------------------------------------------
 // Root + small shared state
@@ -19,6 +21,10 @@ const app = document.getElementById("app")!;
 /** Pages currently on the book screen, in document order, for keyboard nav. */
 let pageEls: HTMLElement[] = [];
 let pageIndex = 0;
+
+/** Teardown for the currently-active living-book layer (self-drawing ink +
+ *  runner), if any. Non-null only while a book is on screen. */
+let livingBookHandle: LivingBookHandle | null = null;
 
 function paint(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 30));
@@ -149,7 +155,7 @@ function showError(sectionHtml: string): void {
     `<button type="button" class="start-over-btn" id="error-start-over">start over</button>`,
     `</div>`,
   ].join("");
-  document.getElementById("error-start-over")!.addEventListener("click", () => renderCover());
+  document.getElementById("error-start-over")!.addEventListener("click", () => startOver());
 }
 
 function showBook(bookHtml: string): void {
@@ -165,6 +171,18 @@ function showBook(bookHtml: string): void {
   setupToolbar();
   pageEls = Array.from(document.querySelectorAll<HTMLElement>(".book .page"));
   pageIndex = 0;
+
+  livingBookHandle?.teardown();
+  const bookRoot = document.querySelector<HTMLElement>(".book")!;
+  livingBookHandle = initLivingBook(bookRoot);
+}
+
+/** Tears down the living-book layer (if any) and returns to the cover — the
+ *  one choke point every "start over" affordance routes through. */
+function startOver(): void {
+  livingBookHandle?.teardown();
+  livingBookHandle = null;
+  renderCover();
 }
 
 function setupToolbar(): void {
@@ -184,7 +202,7 @@ function setupToolbar(): void {
   });
 
   document.getElementById("print-btn")!.addEventListener("click", () => window.print());
-  document.getElementById("start-over-btn")!.addEventListener("click", () => renderCover());
+  document.getElementById("start-over-btn")!.addEventListener("click", () => startOver());
 }
 
 function goToPage(delta: number): void {

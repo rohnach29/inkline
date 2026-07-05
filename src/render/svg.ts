@@ -136,6 +136,27 @@ export function routeSvg(track: readonly TrackPoint[], runId: string): string {
   ].join("");
 }
 
+const PACE_MIN_MIN_PER_KM = 3.5;
+const PACE_MAX_MIN_PER_KM = 9.0;
+const DRAW_MS_MIN = 2000;
+const DRAW_MS_MAX = 6000;
+const DRAW_MS_DEFAULT = 3500;
+
+/** Maps a run's pace (minutes per km) to a self-drawing-ink duration in ms,
+ *  linearly from [3.5 -> 2000] to [9.0 -> 6000], clamped to [2000, 6000].
+ *  `null`, non-finite, or non-positive pace (no usable pace data) falls back
+ *  to 3500ms. Always an integer. */
+export function drawDurationMs(paceMinPerKm: number | null): number {
+  if (paceMinPerKm === null || !Number.isFinite(paceMinPerKm) || paceMinPerKm <= 0) {
+    return DRAW_MS_DEFAULT;
+  }
+  const t =
+    (paceMinPerKm - PACE_MIN_MIN_PER_KM) / (PACE_MAX_MIN_PER_KM - PACE_MIN_MIN_PER_KM);
+  const raw = DRAW_MS_MIN + t * (DRAW_MS_MAX - DRAW_MS_MIN);
+  const clamped = Math.min(DRAW_MS_MAX, Math.max(DRAW_MS_MIN, raw));
+  return Math.round(clamped);
+}
+
 function circularDiff(a: number, b: number): number {
   const d = Math.abs(a - b) % 360;
   return Math.min(d, 360 - d);
