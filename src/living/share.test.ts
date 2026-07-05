@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { pageFileName, svgShell, inlineTokens } from "./share";
+import { pageFileName, svgShell, inlineTokens, composeShareInner } from "./share";
 
 describe("pageFileName", () => {
   it('turns a data-page value into "inkline-{value}.png"', () => {
@@ -70,5 +70,36 @@ describe("inlineTokens", () => {
     const a = inlineTokens({ b: "2", a: "1" });
     const b = inlineTokens({ a: "1", b: "2" });
     expect(a).toBe(b);
+  });
+});
+
+describe("composeShareInner", () => {
+  it('contains the wobble filter def exactly once (id="wobble")', () => {
+    const inner = composeShareInner("body{color:red}", "<section>page</section>");
+    const matches = inner.match(/id="wobble"/g) ?? [];
+    expect(matches).toHaveLength(1);
+  });
+
+  it("embeds the css inside a <style> block and the section markup verbatim", () => {
+    const inner = composeShareInner(".page{background:#fff}", '<section class="page">x</section>');
+    expect(inner).toContain("<style>.page{background:#fff}</style>");
+    expect(inner).toContain('<section class="page">x</section>');
+  });
+
+  it("orders defs before style before section, so url(#wobble) resolves for everything after it", () => {
+    const inner = composeShareInner("CSS", "SECTION");
+    const defsAt = inner.indexOf('id="wobble"');
+    const styleAt = inner.indexOf("<style>CSS</style>");
+    const sectionAt = inner.indexOf("SECTION");
+    expect(defsAt).toBeGreaterThanOrEqual(0);
+    expect(styleAt).toBeGreaterThan(defsAt);
+    expect(sectionAt).toBeGreaterThan(styleAt);
+  });
+
+  it("still contains the wobble def exactly once even when the section itself mentions url(#wobble)", () => {
+    const inner = composeShareInner("", '<svg><path filter="url(#wobble)"/></svg>');
+    const matches = inner.match(/id="wobble"/g) ?? [];
+    expect(matches).toHaveLength(1);
+    expect(inner).toContain('filter="url(#wobble)"');
   });
 });

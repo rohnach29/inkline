@@ -75,13 +75,23 @@ export function initToc(root: ParentNode): () => void {
 
   const observer = new IntersectionObserver(
     (entries) => {
+      // A single callback batch can report several chapters intersecting at
+      // once (fast scroll, initial observe). Highlight the TOPMOST one —
+      // smallest boundingClientRect.top among the intersecting entries —
+      // not whichever happened to come last in the batch, which is
+      // delivery-order luck, not reading order.
+      let topmost: IntersectionObserverEntry | undefined;
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
-        const btn = buttons.get(entry.target as HTMLElement);
-        if (!btn) continue;
-        for (const other of buttons.values()) other.classList.remove("is-current");
-        btn.classList.add("is-current");
+        if (!topmost || entry.boundingClientRect.top < topmost.boundingClientRect.top) {
+          topmost = entry;
+        }
       }
+      if (!topmost) return;
+      const btn = buttons.get(topmost.target as HTMLElement);
+      if (!btn) return;
+      for (const other of buttons.values()) other.classList.remove("is-current");
+      btn.classList.add("is-current");
     },
     { threshold: SPY_THRESHOLD },
   );

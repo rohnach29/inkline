@@ -5,8 +5,11 @@ import { doodleFor } from "./doodles";
 
 /** Emitted exactly once, at the top of renderBook's output. Every ink-* and
  *  ink-doodle stroke in this file references filter="url(#wobble)" against
- *  this single definition. */
-const WOBBLE_DEFS =
+ *  this single definition. Exported so living/share.ts can embed the same
+ *  defs into each rasterized page's standalone SVG — the filter lives at
+ *  book root, OUTSIDE every `.page`, so a cloned section alone would render
+ *  its routes/doodles unfiltered (losing the hand-drawn wobble). */
+export const WOBBLE_DEFS =
   '<svg style="position:absolute;width:0;height:0" aria-hidden="true"><defs><filter id="wobble"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter></defs></svg>';
 
 // -------------------------------------------------------------------------

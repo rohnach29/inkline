@@ -1,3 +1,5 @@
+import { WOBBLE_DEFS } from "../render/pages";
+
 const SVG_NS = "http://www.w3.org/2000/svg";
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 
@@ -50,6 +52,18 @@ export function inlineTokens(tokens: Record<string, string>): string {
     .join("");
 }
 
+/** Composes the full foreignObject payload for a rasterized page: the
+ *  book's single wobble-filter defs block FIRST (the filter lives once at
+ *  book root, outside every `.page`, so a cloned section alone would render
+ *  every route/doodle stroke unfiltered — losing the hand-drawn aesthetic),
+ *  then the collected stylesheet rules, then the serialized section itself.
+ *  The defs svg carries no explicit xmlns, so inside the XML-parsed
+ *  standalone document it inherits the root svg's SVG namespace — exactly
+ *  what a `<filter>` needs for `url(#wobble)` references to resolve. */
+export function composeShareInner(css: string, serializedSection: string): string {
+  return `${WOBBLE_DEFS}<style>${css}</style>${serializedSection}`;
+}
+
 // ---------------------------------------------------------------------
 // Rasterization glue
 // ---------------------------------------------------------------------
@@ -77,10 +91,11 @@ function collectStylesheetText(): string {
       for (const rule of Array.from(sheet.cssRules)) {
         css += rule.cssText;
       }
-    } catch {
+    } catch (err) {
       // Cross-origin (or otherwise inaccessible) stylesheet — expected to
       // happen occasionally in browsers with strict CORS on <link> sheets;
       // none of ours are cross-origin, so this is belt-and-suspenders.
+      console.warn(`share: skipping unreadable stylesheet ${sheet.href ?? "(inline)"}`, err);
       continue;
     }
   }
@@ -108,7 +123,11 @@ async function rasterizeSection(section: HTMLElement): Promise<Blob> {
   const h = Math.max(1, Math.round(rect.height));
 
   const clone = section.cloneNode(true) as HTMLElement;
-  clone.querySelector(".share-btn")?.remove();
+  // Strip ALL screen-only chrome from the clone, not just the share button:
+  // a page shared mid-animation can be carrying an .ink-runner or
+  // .ink-flight-dot (both .no-print, like the button itself), and none of
+  // that belongs in the kept PNG any more than in the printed book.
+  clone.querySelectorAll(".no-print").forEach((el) => el.remove());
   const tokenStyle = inlineTokens(readTokens(section));
   const existingStyle = clone.getAttribute("style") ?? "";
   clone.setAttribute("style", `${tokenStyle}${existingStyle}`);
@@ -118,7 +137,7 @@ async function rasterizeSection(section: HTMLElement): Promise<Blob> {
 
   const css = collectStylesheetText();
   const serialized = new XMLSerializer().serializeToString(clone);
-  const inner = `<style>${css}</style>${serialized}`;
+  const inner = composeShareInner(css, serialized);
   const svg = svgShell(w, h, inner);
   const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 
@@ -148,13 +167,23 @@ function createShareButton(): HTMLButtonElement {
   return btn;
 }
 
+/** How long a just-clicked download's object URL stays alive before being
+ *  revoked. Revoking synchronously after `.click()` has historically raced
+ *  the download start in Safari (the fetch of the blob URL hadn't begun by
+ *  the time it was revoked); one second is comfortably past that window
+ *  while still releasing the blob promptly. */
+const REVOKE_DELAY_MS = 1000;
+
 function triggerDownload(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   a.click();
-  URL.revokeObjectURL(url);
+  // Deliberately NOT tracked in initShare's teardown timer set: clearing it
+  // on teardown would leak the object URL forever — letting it fire after
+  // teardown is both harmless and required.
+  window.setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
 }
 
 /** Installs a "keep this page" button (bottom-right, `.share-btn no-print`)
