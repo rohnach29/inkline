@@ -151,6 +151,12 @@ export function detectHill(track: readonly TrackPoint[]): Hill | null {
       }
       if (length > 0) {
         const gradePct = (gain / length) * 100;
+        // Selection rule: max gain *among segments that individually pass the
+        // gain/grade gate*, not "find the max-gain segment, then gate it". A
+        // long shallow climb (e.g. 100m over 5km, 2% grade) can out-gain a
+        // short steep pitch (e.g. 30m over 600m, 5% grade) without qualifying
+        // as a hill; gating the raw max-gain segment first would let that
+        // shallow climb mask the smaller segment that actually qualifies.
         if (gain >= HILL_MIN_GAIN_M && gradePct >= HILL_MIN_GRADE_PCT) {
           if (!best || gain > best.gainM) {
             best = { gainM: gain, lengthM: length, gradePct, lat: segment[0]!.lat, lon: segment[0]!.lon };

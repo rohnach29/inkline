@@ -129,6 +129,37 @@ describe("detectRouteChampion", () => {
       data: { count: 3, seedRunId: "r1", km: 5 },
     });
   });
+
+  it("breaks a tie between two equally-sized clusters by earliest seed-run startUtc", () => {
+    // Two non-overlapping routes, each ending up with 3 runs (tied count).
+    // Runs are interleaved chronologically so both clusters exist concurrently;
+    // the "early" cluster's seed run starts before the "late" cluster's seed run.
+    const earlyPath: [number, number, number][] = [
+      [10, 10, 0],
+      [10.001, 10.001, 0],
+    ];
+    const latePath: [number, number, number][] = [
+      [20, 20, 0], // far from earlyPath -> distinct cluster
+      [20.001, 20.001, 0],
+    ];
+    const runs = [
+      mkRun({ id: "e1", startLocal: "2025-01-01T08:00:00", track: mkTrack(earlyPath, 0) }), // early seed
+      mkRun({ id: "l1", startLocal: "2025-01-02T08:00:00", track: mkTrack(latePath, 0) }), // late seed
+      mkRun({ id: "e2", startLocal: "2025-01-03T08:00:00", track: mkTrack(earlyPath, 0) }),
+      mkRun({ id: "l2", startLocal: "2025-01-04T08:00:00", track: mkTrack(latePath, 0) }),
+      mkRun({ id: "e3", startLocal: "2025-01-05T08:00:00", track: mkTrack(earlyPath, 0) }),
+      mkRun({ id: "l3", startLocal: "2025-01-06T08:00:00", track: mkTrack(latePath, 0) }),
+    ];
+    const events = detectRouteChampion(mkYear(runs));
+    expect(events).toHaveLength(1);
+    // Both clusters have 3 runs (tied count); the champion must be the one
+    // whose seed run (e1, 2025-01-01) is chronologically earlier than the
+    // other cluster's seed run (l1, 2025-01-02).
+    expect(events[0]).toMatchObject({
+      runIds: ["e1", "e2", "e3"],
+      data: { seedRunId: "e1" },
+    });
+  });
 });
 
 describe("detectHill", () => {
@@ -209,6 +240,31 @@ describe("detectHill", () => {
     );
     expect(detectHill(track)).toBeNull();
   });
+
+  it("picks a smaller qualifying steep pitch over a larger non-qualifying shallow climb", () => {
+    // Segment 1: 0 -> 100m over 5km => gain 100 (well over the 25m minimum)
+    // but only 2% grade (fails the 3% grade gate). A >2m drop afterward closes
+    // this segment before the next one starts.
+    // Segment 2: 97 -> 127m over 600m => gain 30, grade 5% (passes both gates).
+    // The adjudicated rule is "max gain among segments that individually pass
+    // gain>=25 AND grade>=3%", not "max-gain-then-gate": if the shallow climb's
+    // raw gain (100) were selected first and then gated, it would fail and the
+    // function would incorrectly return null instead of falling through to the
+    // smaller qualifying steep segment.
+    const track = mkTrack(
+      [
+        [0, 0, 0],
+        [metersLat(5000), 0, 100], // shallow climb top: gain 100 / 5000m = 2% grade
+        [metersLat(5000), 0, 97], // 3m drop (>2m tolerance) closes segment 1
+        [metersLat(5000) + metersLat(600), 0, 127], // steep climb: gain 30 / 600m = 5% grade
+      ],
+      0,
+    );
+    const hill = detectHill(track);
+    expect(hill).not.toBeNull();
+    expect(hill!.gainM).toBe(30); // the steep segment, not the shallow one (gain 100) and not null
+    expect(hill!.gradePct).toBeCloseTo(5, 0);
+  });
 });
 
 describe("detectHillBeast", () => {
@@ -247,6 +303,99 @@ describe("detectHillBeast", () => {
 
   it("returns [] for an empty year", () => {
     expect(detectHillBeast(EMPTY_YEAR)).toEqual([]);
+  });
+
+  it("breaks a grade tie between two recurring-hill cells by higher mean gainM", () => {
+    // Cell X (lat 5, cellKey "1000|0"): gain 25 / length 102m.
+    // Cell Y (lat 10, cellKey "2000|0"): gain 50 / length 204m - exactly double
+    // gain and length, which reproduces the identical grade as a bit-exact
+    // float (verified independently), so meanGrade ties exactly while
+    // meanGainM differs (25 vs 50).
+    // Cell Y must win despite "1000|0" < "2000|0" lexicographically - proving
+    // mean gain is consulted before the cell-key tie-break.
+    const cellXRun = (id: string, t: string): Run =>
+      mkRun({
+        id,
+        startLocal: t,
+        track: mkTrack(
+          [
+            [5, 0, 0],
+            [5 + metersLat(102), 0, 25],
+          ],
+          0,
+        ),
+      });
+    const cellYRun = (id: string, t: string): Run =>
+      mkRun({
+        id,
+        startLocal: t,
+        track: mkTrack(
+          [
+            [10, 0, 0],
+            [10 + metersLat(204), 0, 50],
+          ],
+          0,
+        ),
+      });
+    const runs = [
+      cellXRun("x1", "2025-01-01T08:00:00"),
+      cellXRun("x2", "2025-01-02T08:00:00"),
+      cellXRun("x3", "2025-01-03T08:00:00"),
+      cellYRun("y1", "2025-01-04T08:00:00"),
+      cellYRun("y2", "2025-01-05T08:00:00"),
+      cellYRun("y3", "2025-01-06T08:00:00"),
+    ];
+    const events = detectHillBeast(mkYear(runs));
+    expect(events).toHaveLength(1);
+    const event = events[0]!;
+    expect(event.runIds).toEqual(["y1", "y2", "y3"]);
+    expect(event.data["gainM"]).toBe(50);
+    expect(event.data["lat"]).toBe(10);
+  });
+
+  it("breaks a grade+gain tie between two recurring-hill cells by the smallest lexicographic cell key", () => {
+    // Cell A (lat 5, cellKey "1000|0") and Cell B (lat 7, cellKey "1400|0")
+    // share the exact same gain (30) and length (120m), producing an exactly
+    // tied meanGrade AND meanGainM (verified bit-exact independently).
+    // Cell A must win because "1000|0" < "1400|0" lexicographically.
+    const cellARun = (id: string, t: string): Run =>
+      mkRun({
+        id,
+        startLocal: t,
+        track: mkTrack(
+          [
+            [5, 0, 0],
+            [5 + metersLat(120), 0, 30],
+          ],
+          0,
+        ),
+      });
+    const cellBRun = (id: string, t: string): Run =>
+      mkRun({
+        id,
+        startLocal: t,
+        track: mkTrack(
+          [
+            [7, 0, 0],
+            [7 + metersLat(120), 0, 30],
+          ],
+          0,
+        ),
+      });
+    const runs = [
+      cellARun("a1", "2025-01-01T08:00:00"),
+      cellARun("a2", "2025-01-02T08:00:00"),
+      cellARun("a3", "2025-01-03T08:00:00"),
+      cellBRun("b1", "2025-01-04T08:00:00"),
+      cellBRun("b2", "2025-01-05T08:00:00"),
+      cellBRun("b3", "2025-01-06T08:00:00"),
+    ];
+    const events = detectHillBeast(mkYear(runs));
+    expect(events).toHaveLength(1);
+    const event = events[0]!;
+    expect(event.runIds).toEqual(["a1", "a2", "a3"]);
+    expect(event.data["gainM"]).toBe(30);
+    expect(event.data["lat"]).toBe(5);
   });
 });
 
