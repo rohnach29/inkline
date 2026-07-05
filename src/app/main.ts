@@ -245,6 +245,10 @@ function goToPage(delta: number): void {
 }
 
 window.addEventListener("keydown", (e) => {
+  // Ignore key auto-repeat: holding an arrow key must not machine-gun page
+  // turns (or their whooshes — sound.ts additionally throttles the whoosh
+  // itself, which covers rapid DISCRETE presses this guard can't see).
+  if (e.repeat) return;
   if (e.key === "ArrowRight") goToPage(1);
   else if (e.key === "ArrowLeft") goToPage(-1);
 });

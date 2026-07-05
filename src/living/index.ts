@@ -135,8 +135,17 @@ function installAnimatedLayer(root: ParentNode, soundHooks?: DrawHooks): (() => 
  *  which implements `DrawHooks` directly) is forwarded into the animated
  *  layer so draws can drive the pencil-scratch sound; naturally unused
  *  under reduced motion, since the animated layer never installs there and
- *  a draw that never runs can't scratch. */
-export function initLivingBook(root: ParentNode, soundHooks?: DrawHooks): LivingBookHandle {
+ *  a draw that never runs can't scratch. If the hooks object also carries a
+ *  `teardown` (SoundHandle does), it's invoked from this handle's teardown
+ *  as defense in depth: every revealer's cancel already fires `onDrawEnd`,
+ *  but the hard-kill guarantees no scratch voice can outlive the book it
+ *  was scratching for, even if a future revealer forgets that contract.
+ *  (The sound system itself — preference, AudioContext — survives; only an
+ *  in-flight voice is cut.) */
+export function initLivingBook(
+  root: ParentNode,
+  soundHooks?: DrawHooks & { teardown?(): void },
+): LivingBookHandle {
   const functionalTeardown = installFunctionalChrome(root);
   const animatedTeardown = prefersReducedMotion() ? undefined : installAnimatedLayer(root, soundHooks);
 
@@ -144,6 +153,7 @@ export function initLivingBook(root: ParentNode, soundHooks?: DrawHooks): Living
     teardown(): void {
       functionalTeardown();
       if (animatedTeardown) animatedTeardown();
+      soundHooks?.teardown?.();
     },
   };
 }

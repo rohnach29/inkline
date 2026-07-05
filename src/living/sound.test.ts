@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { scratchParams, whooshParams, soundLabel } from "./sound";
+import { scratchParams, whooshParams, soundLabel, makeThrottle } from "./sound";
 import type { ScratchParams, WhooshParams } from "./sound";
 
 describe("scratchParams", () => {
@@ -71,6 +71,54 @@ describe("whooshParams", () => {
 
   it("is stable across repeated calls (no hidden state/randomness)", () => {
     expect(whooshParams()).toEqual(whooshParams());
+  });
+});
+
+describe("makeThrottle", () => {
+  it("fires on the very first call", () => {
+    let t = 0;
+    const gate = makeThrottle(150, () => t);
+    expect(gate()).toBe(true);
+  });
+
+  it("suppresses calls within minMs of the last fire", () => {
+    let t = 0;
+    const gate = makeThrottle(150, () => t);
+    expect(gate()).toBe(true);
+    t = 25;
+    expect(gate()).toBe(false);
+    t = 149;
+    expect(gate()).toBe(false);
+  });
+
+  it("fires again once minMs has elapsed since the last FIRE", () => {
+    let t = 0;
+    const gate = makeThrottle(150, () => t);
+    expect(gate()).toBe(true);
+    t = 150;
+    expect(gate()).toBe(true);
+  });
+
+  it("suppressed calls do not reset the window (throttle, not debounce)", () => {
+    let t = 0;
+    const gate = makeThrottle(150, () => t);
+    expect(gate()).toBe(true); // fires at t=0
+    t = 100;
+    expect(gate()).toBe(false); // suppressed — must NOT push the window out
+    t = 160;
+    expect(gate()).toBe(true); // 160ms since last FIRE (t=0), not since t=100
+  });
+
+  it("keeps gating across several fire/suppress cycles", () => {
+    let t = 0;
+    const gate = makeThrottle(150, () => t);
+    expect(gate()).toBe(true); // t=0 fire
+    t = 200;
+    expect(gate()).toBe(true); // fire
+    t = 300;
+    expect(gate()).toBe(false); // 100ms since t=200 fire
+    t = 350;
+    expect(gate()).toBe(true); // 150ms since t=200 fire
   });
 });
 

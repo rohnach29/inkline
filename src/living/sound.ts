@@ -30,6 +30,11 @@ const MASTER_WHOOSH_GAIN = 0.1;
  *  at the start/end of the buffer. */
 const WHOOSH_EDGE_MS = 20;
 const WHOOSH_Q = 1.2;
+/** Minimum interval between whoosh bursts. The keydown handler already
+ *  ignores auto-repeat (`e.repeat`), but rapid discrete presses can still
+ *  arrive faster than a burst decays — without this gate they'd stack into
+ *  a machine-gun of overlapping 220ms bursts. */
+const WHOOSH_MIN_INTERVAL_MS = 150;
 
 // ---------------------------------------------------------------------
 // Pure params (TDD'd in sound.test.ts)
@@ -81,6 +86,22 @@ export function whooshParams(): WhooshParams {
 /** The toolbar's toggle label for the given enabled state. */
 export function soundLabel(enabled: boolean): string {
   return enabled ? "sound: on (pencil)" : "sound: off";
+}
+
+/** Minimal leading-edge throttle: the returned gate reports `true` (fire)
+ *  if at least `minMs` has passed since the last time it fired, `false`
+ *  (suppress) otherwise. Suppressed calls do NOT reset the window — this is
+ *  a throttle, not a debounce, so a steady stream of calls still fires
+ *  every `minMs` rather than never. `now` is injected for testability
+ *  (production passes `() => performance.now()`). */
+export function makeThrottle(minMs: number, now: () => number): () => boolean {
+  let lastFire = -Infinity;
+  return (): boolean => {
+    const t = now();
+    if (t - lastFire < minMs) return false;
+    lastFire = t;
+    return true;
+  };
 }
 
 // ---------------------------------------------------------------------
@@ -136,7 +157,28 @@ export interface SoundHandle extends DrawHooks {
 }
 
 interface ActiveScratch {
+  /** Graceful stop: rides the 150ms release ramp down, then stops the
+   *  source nodes. For the normal end of a draw. */
   stop(): void;
+  /** Hard kill: cancels all scheduled envelope values, snaps the gain to 0,
+   *  and stops the source nodes NOW. For toggle-off and teardown — a
+   *  graceful release scheduled right before `ctx.suspend()` would freeze
+   *  mid-ramp (the audio clock stops), and the stale ~150ms tail of the
+   *  abandoned scratch would bleed into whatever plays after the next
+   *  resume. (Not extractable as a pure function — it's entirely WebAudio
+   *  node calls against a live context.) */
+  kill(): void;
+}
+
+/** Logs-and-swallows for the intentionally-floating `AudioContext.resume()`
+ *  promises: resume can reject (e.g. browser autoplay policy when no user
+ *  gesture is in flight), and an unhandled rejection would surface as a
+ *  console error for what is expected, recoverable behavior — the next
+ *  gesture-driven call just resumes again. */
+function resumeGuarded(ctx: AudioContext): void {
+  ctx.resume().catch((err: unknown) => {
+    console.debug("inkline sound: AudioContext.resume() rejected", err);
+  });
 }
 
 function createNoiseBuffer(ctx: AudioContext): AudioBuffer {
@@ -155,8 +197,8 @@ function createNoiseBuffer(ctx: AudioContext): AudioBuffer {
 /** Starts one scratch "voice": looping white noise -> bandpass (per
  *  `params`, Q 0.8) -> lowpass -> tremolo (LFO-modulated gain) -> envelope
  *  gain (80ms attack, then held at sustain until `.stop()` is called, which
- *  releases over 150ms) -> destination. Returns a handle whose `stop()` is
- *  safe to call at most once. */
+ *  releases over 150ms) -> destination. Returns a handle whose `stop()`/
+ *  `kill()` are idempotent (first one wins; later calls no-op). */
 function playScratch(ctx: AudioContext, buffer: AudioBuffer, params: ScratchParams): ActiveScratch {
   const now = ctx.currentTime;
 
@@ -206,6 +248,15 @@ function playScratch(ctx: AudioContext, buffer: AudioBuffer, params: ScratchPara
       noise.stop(stopAt + releaseS + 0.02);
       lfo.stop(stopAt + releaseS + 0.02);
     },
+    kill(): void {
+      if (stopped) return;
+      stopped = true;
+      const killAt = ctx.currentTime;
+      envelope.gain.cancelScheduledValues(killAt);
+      envelope.gain.setValueAtTime(0, killAt);
+      noise.stop(killAt);
+      lfo.stop(killAt);
+    },
   };
 }
 
@@ -252,6 +303,7 @@ export function attachSound(): SoundHandle {
   let noiseBuffer: AudioBuffer | null = null;
   let enabled = loadSoundEnabled();
   let activeScratch: ActiveScratch | null = null;
+  const whooshGate = makeThrottle(WHOOSH_MIN_INTERVAL_MS, () => performance.now());
 
   function ensureContext(): AudioContext {
     if (!ctx) {
@@ -263,17 +315,40 @@ export function attachSound(): SoundHandle {
 
   /** Returns a ready-to-use (resumed) context, lazily creating it on first
    *  need, only while enabled — or null while disabled, so every call site
-   *  below has one guard instead of repeating the enabled-check. */
+   *  below has one guard instead of repeating the enabled-check.
+   *
+   *  Autoplay nuance for the restored-"on" session (preference persisted as
+   *  "on", page reloaded, toggle never clicked this session): the first
+   *  call here may come from an OBSERVER-triggered draw (`onDrawStart` via
+   *  IntersectionObserver), not from a user gesture — the browser's
+   *  autoplay policy will then let the context be constructed but keep it
+   *  suspended, and `resume()` rejects/no-ops (logged at debug level by
+   *  `resumeGuarded`, never thrown). That's accepted: the context simply
+   *  sits suspended until a call that IS gesture-adjacent lands — a toggle
+   *  click, or a whoosh (keyboard nav counts as a user gesture) — whose
+   *  `resume()` then succeeds and sound starts from that point on. */
   function contextIfEnabled(): AudioContext | null {
     if (!enabled) return null;
     const context = ensureContext();
-    void context.resume();
+    resumeGuarded(context);
     return context;
   }
 
-  function stopActiveScratch(): void {
+  /** Ends the current scratch (if any) via its normal 150ms release ramp —
+   *  the natural end of a draw. */
+  function releaseActiveScratch(): void {
     if (activeScratch) {
       activeScratch.stop();
+      activeScratch = null;
+    }
+  }
+
+  /** Silences the current scratch (if any) IMMEDIATELY — no release ramp.
+   *  Required before `ctx.suspend()` (a scheduled ramp would freeze with
+   *  the clock and bleed after the next resume) and used for teardown. */
+  function killActiveScratch(): void {
+    if (activeScratch) {
+      activeScratch.kill();
       activeScratch = null;
     }
   }
@@ -287,10 +362,13 @@ export function attachSound(): SoundHandle {
       enabled = !enabled;
       persistSoundEnabled(enabled);
       if (enabled) {
-        void ensureContext().resume();
+        resumeGuarded(ensureContext());
       } else if (ctx) {
-        stopActiveScratch();
-        void ctx.suspend();
+        // Hard-kill BEFORE suspending: order matters — see killActiveScratch.
+        killActiveScratch();
+        ctx.suspend().catch((err: unknown) => {
+          console.debug("inkline sound: AudioContext.suspend() rejected", err);
+        });
       }
       return enabled;
     },
@@ -298,22 +376,24 @@ export function attachSound(): SoundHandle {
     onDrawStart(drawMs: number): void {
       const context = contextIfEnabled();
       if (!context || !noiseBuffer) return;
-      stopActiveScratch(); // defensive: draws don't overlap in practice, but never stack voices
+      releaseActiveScratch(); // defensive: draws don't overlap in practice, but never stack voices
       activeScratch = playScratch(context, noiseBuffer, scratchParams(drawMs));
     },
 
     onDrawEnd(): void {
-      stopActiveScratch();
+      releaseActiveScratch();
     },
 
     whoosh(): void {
+      if (!enabled) return;
+      if (!whooshGate()) return; // rapid discrete presses — don't stack bursts
       const context = contextIfEnabled();
       if (!context || !noiseBuffer) return;
       playWhoosh(context, noiseBuffer, whooshParams());
     },
 
     teardown(): void {
-      stopActiveScratch();
+      killActiveScratch();
     },
   };
 }
