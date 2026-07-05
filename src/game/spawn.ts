@@ -11,23 +11,43 @@ export interface Obstacle {
   name: string;
 }
 
-/** Runner hitbox (game-meters). Only width matters for the horizontal overlap
- *  test; the vertical clearance rule uses yM against the obstacle's own
- *  height directly (see hitTest below), not the runner's body height. */
-const RUNNER_WIDTH_M = 6;
+/** Runner hitbox (game-meters): w 0.6, h 1.8 (a person-sized runner). Only
+ *  width matters for the horizontal overlap test; the vertical clearance
+ *  rule uses yM against the obstacle's own height directly (see hitTest
+ *  below), not the runner's body height. */
+const RUNNER_WIDTH_M = 0.6;
 
 const FIRST_OBSTACLE_XM = 160;
 const GAP_MIN_M = 90;
 const GAP_MAX_M = 220;
 const END_MARGIN_M = 100;
 
-/** Fixed footprint per beast kind — matches the doodle silhouette. */
+/** Physical hitbox footprint per beast kind, in REAL game-meters, tuned to
+ *  the jump arc so every kind is actually clearable (the original values
+ *  here were authored at doodle-glyph scale — 6-16m tall — and nothing was
+ *  jumpable; draw.ts now deliberately decouples the drawn glyph size from
+ *  these honest hitboxes).
+ *
+ *  The clearance math (see jumpable.test.ts for the executable proof):
+ *  - Jump apex = JUMP_V^2 / (2*GRAVITY) ~= 1.18m analytic, ~1.148m under
+ *    the discrete 120Hz integration; total air distance ~= 2.73m at
+ *    RUN_SPEED (airtime 2*JUMP_V/GRAVITY ~= 0.65s).
+ *  - Clearing requires yM >= heightM for the ENTIRE horizontal overlap
+ *    window, which is (widthM + runner 0.6m) wide — NOT merely being
+ *    airborne over the center.
+ *  - The arc spends only airDist * sqrt(1 - h/apex) meters above height h,
+ *    so height and width trade off hard: h near the apex leaves almost no
+ *    horizontal clearance at all.
+ *  Each entry below leaves a verified input-timing window (exhaustive
+ *  per-takeoff-tick search in jumpable.test.ts): quiet 18 ticks (150ms),
+ *  false-start 30 (250ms), hill 10 (83ms — the skill test), night 17
+ *  (142ms), ghost 17 (142ms). */
 const SIZE_BY_KIND: Record<BeastEntry["kind"], { widthM: number; heightM: number }> = {
-  quiet: { widthM: 18, heightM: 10 },
-  "false-start": { widthM: 8, heightM: 6 },
-  hill: { widthM: 26, heightM: 16 },
-  night: { widthM: 14, heightM: 12 },
-  ghost: { widthM: 12, heightM: 14 },
+  quiet: { widthM: 1.0, heightM: 0.4 },
+  "false-start": { widthM: 0.7, heightM: 0.3 },
+  hill: { widthM: 1.4, heightM: 0.3 },
+  night: { widthM: 0.9, heightM: 0.5 },
+  ghost: { widthM: 0.7, heightM: 0.6 },
 };
 
 const FALLBACK_KIND: BeastEntry["kind"] = "false-start";
@@ -66,8 +86,8 @@ export function spawnObstacles(
   return obstacles;
 }
 
-/** AABB-ish overlap test: the runner (body width 6, height 10, positioned at
- *  xM with vertical offset yM above ground) hits an obstacle when their
+/** AABB-ish overlap test: the runner (body width 0.6, height 1.8, positioned
+ *  at xM with vertical offset yM above ground) hits an obstacle when their
  *  horizontal spans overlap AND yM < obstacle.heightM (a high enough jump
  *  clears it clean). Returns the obstacle hit, or null if the runner is
  *  clear of everything. */

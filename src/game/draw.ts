@@ -32,14 +32,26 @@ const VERTICAL_SCALE_CAP = 3;
 const TERRAIN_SEGMENT_M = 20;
 const TERRAIN_JITTER_PX = 3;
 
-/** Obstacles use a FIXED vertical px/m (not the terrain's exaggerated
- *  `verticalScale`) so a hilly year (which shrinks `verticalScale` toward
- *  near-zero to keep the terrain line readable) never shrinks a beast
- *  glyph down to invisibility. */
-const OBSTACLE_PX_PER_M = 3;
+/** DELIBERATE visual/hitbox decoupling: obstacle hitboxes (spawn.ts
+ *  SIZE_BY_KIND) are physical-scale — tuned to the jump arc, all under
+ *  0.6m tall — which at 6 px/m would draw as a ~2-4px speck. Each beast
+ *  glyph is instead drawn at max(heightM * PX_PER_M, this floor) tall,
+ *  width scaled by the same factor (aspect preserved), anchored at the
+ *  ground line. The drawn beast is therefore BIGGER than what can actually
+ *  trip you — hitboxes stay honest and generous-feeling, glyphs stay
+ *  charming doodles. Do not "fix" one side to match the other. */
+const OBSTACLE_MIN_GLYPH_PX = 30;
 
 const RUNNER_LOCAL_SCALE = 3.4;
 const RUNNER_STRIDE_M = 6;
+
+/** Visual-only vertical exaggeration for the jump: the physical apex is
+ *  ~1.15m (≈7px at PX_PER_M 6), which would read as a twitch next to the
+ *  30px-floor beast glyphs. Drawn at 30 px/m the hop peaks at ~34px — about
+ *  one runner body height, cresting just above the glyphs it (physically,
+ *  honestly) clears. Same decoupling philosophy as OBSTACLE_MIN_GLYPH_PX:
+ *  the simulation is untouched, only the drawing is exaggerated. */
+const JUMP_VISUAL_PX_PER_M = 30;
 
 const FOG_EDGE_SEGMENT_PX = 16;
 const FOG_EDGE_JITTER_PX = 4;
@@ -272,8 +284,9 @@ export function drawObstacle(
   groundY: number,
   tokens: Tokens,
 ): void {
-  const wPx = obstacle.widthM * PX_PER_M;
-  const hPx = obstacle.heightM * OBSTACLE_PX_PER_M;
+  // Visual size decoupled from the physical hitbox — see OBSTACLE_MIN_GLYPH_PX.
+  const hPx = Math.max(obstacle.heightM * PX_PER_M, OBSTACLE_MIN_GLYPH_PX);
+  const wPx = obstacle.widthM * (hPx / obstacle.heightM);
   ctx.save();
   ctx.translate(x, groundY);
   ctx.strokeStyle = tokens.ink;
@@ -413,7 +426,7 @@ export function render(ctx: CanvasRenderingContext2D, params: RenderParams): voi
   }
 
   const runnerGroundY = groundYAt(terrain, state.xM, elevMin, vScale);
-  const runnerY = runnerGroundY - state.yM * PX_PER_M;
+  const runnerY = runnerGroundY - state.yM * JUMP_VISUAL_PX_PER_M;
   drawRunner(ctx, RUNNER_SCREEN_X, runnerY, state.xM, tokens, !state.grounded);
 
   const quietScreenX = worldToScreenX(camera, state.quietXM);

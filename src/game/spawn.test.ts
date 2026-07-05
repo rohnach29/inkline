@@ -84,23 +84,23 @@ describe("spawnObstacles", () => {
     const sizeByName = new Map(
       spawnObstacles(new Rng(5), BEASTS, 5000).map((o) => [o.kind, o]),
     );
-    expect(sizeByName.get("quiet")).toMatchObject({ widthM: 18, heightM: 10 });
-    expect(sizeByName.get("false-start")).toMatchObject({ widthM: 8, heightM: 6 });
-    expect(sizeByName.get("hill")).toMatchObject({ widthM: 26, heightM: 16 });
-    expect(sizeByName.get("night")).toMatchObject({ widthM: 14, heightM: 12 });
-    expect(sizeByName.get("ghost")).toMatchObject({ widthM: 12, heightM: 14 });
+    expect(sizeByName.get("quiet")).toMatchObject({ widthM: 1.0, heightM: 0.4 });
+    expect(sizeByName.get("false-start")).toMatchObject({ widthM: 0.7, heightM: 0.3 });
+    expect(sizeByName.get("hill")).toMatchObject({ widthM: 1.4, heightM: 0.3 });
+    expect(sizeByName.get("night")).toMatchObject({ widthM: 0.9, heightM: 0.5 });
+    expect(sizeByName.get("ghost")).toMatchObject({ widthM: 0.7, heightM: 0.6 });
   });
 });
 
 describe("hitTest", () => {
-  const obstacle = { xM: 200, kind: "hill" as const, widthM: 26, heightM: 16, name: "The Hill of Record" };
+  const obstacle = { xM: 200, kind: "hill" as const, widthM: 1.4, heightM: 0.3, name: "The Hill of Record" };
 
   it("returns the obstacle when the grounded runner overlaps it", () => {
     expect(hitTest(200, 0, [obstacle])).toBe(obstacle);
   });
 
   it("returns null when the runner jumps above the obstacle's height", () => {
-    expect(hitTest(200, 20, [obstacle])).toBeNull();
+    expect(hitTest(200, 0.5, [obstacle])).toBeNull();
   });
 
   it("returns null when the runner does not overlap horizontally", () => {
@@ -109,16 +109,16 @@ describe("hitTest", () => {
 
   it("returns null when yM equals heightM exactly (jump clears at the boundary)", () => {
     // hitTest requires yM < heightM strictly; yM === heightM is a clean clear.
-    expect(hitTest(200, 16, [obstacle])).toBeNull();
+    expect(hitTest(200, 0.3, [obstacle])).toBeNull();
   });
 
   it("returns null when the runner's right edge exactly touches the obstacle's left edge", () => {
     // Strict inequalities in hitTest: edge-touching (runnerRight === obstacleLeft)
-    // does NOT count as overlap. Runner half-width 3, obstacle left edge at
-    // 200 - 26/2 = 187, so a runner at xM 184 touches without hitting.
-    expect(hitTest(184, 0, [obstacle])).toBeNull();
+    // does NOT count as overlap. Runner half-width 0.3, obstacle left edge at
+    // 200 - 1.4/2 = 199.3, so a runner at xM 199.0 touches without hitting.
+    expect(hitTest(199.0, 0, [obstacle])).toBeNull();
     // one hair further along and it IS a hit
-    expect(hitTest(184.01, 0, [obstacle])).toBe(obstacle);
+    expect(hitTest(199.01, 0, [obstacle])).toBe(obstacle);
   });
 });
 
