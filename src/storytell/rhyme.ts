@@ -48,6 +48,7 @@ const FAMILY_WORDS: Record<string, readonly string[]> = {
   ED: [
     "said", "unread", "red", "bed", "head", "thread", "instead", "ahead",
     "led", "fled", "bread", "dead", "spread", "shed", "wed", "fed", "sled",
+    "overhead",
   ],
   // /ʊd/
   OOD: [
@@ -285,6 +286,16 @@ const FAMILY_WORDS: Record<string, readonly string[]> = {
     "plot", "dot", "rot", "caught", "bought", "taught", "fought", "ought",
     "sought", "brought", "hot", "pot", "cot", "slot", "jot", "robot",
     "distraught", "onslaught", "forgot",
+  ],
+  // /iːk/
+  EAK: [
+    "peak", "speak", "week", "seek", "creek", "leak", "sneak", "weak",
+    "cheek", "peek", "tweak", "unique", "antique", "mystique", "streak",
+  ],
+  // /ɔɪ/
+  OY: [
+    "coy", "toy", "boy", "joy", "enjoy", "annoy", "destroy", "employ",
+    "deploy", "convoy", "ahoy", "corduroy", "decoy",
   ],
   // /ɛnd/
   END: [

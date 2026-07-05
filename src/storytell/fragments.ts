@@ -53,7 +53,7 @@ export const COUPLETS: readonly Couplet[] = [
     a: "The last run tiptoed out and shut the gate,",
     b: "and left the year to sit alone and wait.",
     mood: "quiet",
-    kinds: ["last-run", "ghost-elevation", "quiet"],
+    kinds: ["last-run", "quiet"],
     role: "open",
   },
   {
@@ -88,7 +88,7 @@ export const COUPLETS: readonly Couplet[] = [
     a: "The mountain thought that no one would attend.",
     b: "You climbed it, rude and cheerful, to the end.",
     mood: "triumphant",
-    kinds: ["hilliest-run", "hill-beast", "ghost-elevation"],
+    kinds: ["hilliest-run", "hill-beast"],
     role: "open",
   },
   {
@@ -144,7 +144,7 @@ export const COUPLETS: readonly Couplet[] = [
     a: "The road forgot the shape you used to trace.",
     b: "It kept your silence like an empty space.",
     mood: "quiet",
-    kinds: ["quiet", "ghost-elevation"],
+    kinds: ["quiet"],
     role: "open",
   },
   {
@@ -231,6 +231,20 @@ export const COUPLETS: readonly Couplet[] = [
     kinds: ["longest-run"],
     role: "open",
   },
+  {
+    a: "Your watch insists you scaled a modest peak.",
+    b: "The street out front declines to hear it speak.",
+    mood: "absurd",
+    kinds: ["ghost-elevation"],
+    role: "open",
+  },
+  {
+    a: "The satellites got dreamy overhead,",
+    b: "and penciled mountains on the flat instead.",
+    mood: "absurd",
+    kinds: ["ghost-elevation"],
+    role: "open",
+  },
 
   // ---------------------------------------------------------------- DATA ----
   {
@@ -310,21 +324,21 @@ export const COUPLETS: readonly Couplet[] = [
     a: "But quiet isn't empty — ask the snow.",
     b: "It's just the road rehearsing where you'll go.",
     mood: "quiet",
-    kinds: ["quiet", "ghost-elevation"],
+    kinds: ["quiet"],
     role: "close",
   },
   {
     a: "So log it, all of it, and don't be coy —",
-    b: "the road remembers every honest joy.",
+    b: "the road keeps every footprint like a toy.",
     mood: "triumphant",
     kinds: ["longest-run", "fastest-run", "first-run"],
     role: "close",
   },
   {
-    a: "Whatever chased you, you outran the doubt,",
-    b: "and that is what the running was about.",
+    a: "The neighbors' dogs have given up the chase —",
+    b: "they just nod now, and let you have the place.",
     mood: "triumphant",
-    kinds: ["fastest-run", "route-champion", "hill-beast"],
+    kinds: ["fastest-run", "route-champion"],
     role: "close",
   },
   {
@@ -338,7 +352,7 @@ export const COUPLETS: readonly Couplet[] = [
     a: "The last run isn't sad, it's just a door,",
     b: "and doors are how you find out there's a floor.",
     mood: "quiet",
-    kinds: ["last-run", "ghost-elevation"],
+    kinds: ["last-run"],
     role: "close",
   },
   {
@@ -377,7 +391,7 @@ export const COUPLETS: readonly Couplet[] = [
     role: "close",
   },
   {
-    a: "A false start's still a start, if you are fair —",
+    a: "A false start's still a start; the shoes were there —",
     b: "you laced them up; you carried them somewhere.",
     mood: "sheepish",
     kinds: ["false-starts"],
@@ -399,7 +413,7 @@ export const COUPLETS: readonly Couplet[] = [
   },
   {
     a: "So count the chain, then let the counting rest —",
-    b: "the days you showed up were the days you're best.",
+    b: "your shoes did all the math; they know it best.",
     mood: "steady",
     kinds: ["streak", "month"],
     role: "close",
@@ -457,7 +471,7 @@ export const COUPLETS: readonly Couplet[] = [
     a: "The map shows climbing where the ground stayed flat —",
     b: "the ghost of hills. There's no real harm in that.",
     mood: "sheepish",
-    kinds: ["ghost-elevation", "quiet"],
+    kinds: ["ghost-elevation"],
     role: "close",
   },
   {
@@ -475,9 +489,9 @@ export const COUPLETS: readonly Couplet[] = [
     role: "close",
   },
   {
-    a: "The calendar has proof of who you are —",
-    b: "a run of days that stretched from scar to star.",
-    mood: "triumphant",
+    a: "The mailman knows. The kettle knows. The street",
+    b: "has memorized the morning drum of feet.",
+    mood: "steady",
     kinds: ["streak"],
     role: "close",
   },
@@ -493,6 +507,13 @@ export const COUPLETS: readonly Couplet[] = [
     b: "to sand a groove clean through the planet's face.",
     mood: "absurd",
     kinds: ["month", "route-champion"],
+    role: "close",
+  },
+  {
+    a: "So thank your watch for hills it kindly threw.",
+    b: "Some gifts are made of nothing — good ones, too.",
+    mood: "sheepish",
+    kinds: ["ghost-elevation"],
     role: "close",
   },
 ];
