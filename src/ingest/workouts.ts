@@ -38,7 +38,10 @@ export function parseWorkoutElement(el: string): WorkoutRecord | null {
     km = dist[2] === "km" ? parseFloat(dist[1]!) : parseFloat(dist[1]!) * 1.60934;
   } else {
     const legacy = attr(el, "totalDistance"); // older export format
-    if (legacy) km = parseFloat(legacy);
+    if (legacy) {
+      const v = parseFloat(legacy);
+      km = attr(el, "totalDistanceUnit") === "mi" ? v * 1.60934 : v;
+    }
   }
   return {
     activity,
@@ -51,6 +54,7 @@ export function parseWorkoutElement(el: string): WorkoutRecord | null {
 }
 
 const CLOSE = "</Workout>";
+const MAX_BUFFER = 1_000_000;
 
 /** Feed export.xml in chunks of any size; never holds the whole file. */
 export class WorkoutScanner {
@@ -75,7 +79,10 @@ export class WorkoutScanner {
     const lastOpen = this.buf.lastIndexOf("<Workout ");
     if (lastOpen > 0) {
       this.buf = this.buf.slice(lastOpen);
-    } else if (lastOpen === -1 && this.buf.length > 1_000_000) {
+    }
+    if (this.buf.length > MAX_BUFFER) {
+      // Either no <Workout at all, or an unclosed/corrupt element larger than
+      // any real workout — drop it, keep a tail to catch a split tag.
       this.buf = this.buf.slice(-CLOSE.length);
     }
   }

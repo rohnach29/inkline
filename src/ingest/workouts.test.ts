@@ -43,4 +43,26 @@ describe("WorkoutScanner", () => {
     expect(s.workouts).toHaveLength(1);
     expect(s.workouts[0]!.km).toBeCloseTo(5.253, 3);
   });
+
+  it("converts legacy totalDistance miles to km", () => {
+    const s = new WorkoutScanner();
+    s.push(
+      `<Workout workoutActivityType="HKWorkoutActivityTypeRunning" duration="30" durationUnit="min" totalDistance="3.1" totalDistanceUnit="mi" startDate="2020-01-01 08:00:00 +0000" endDate="2020-01-01 08:30:00 +0000"></Workout>`,
+    );
+    expect(s.workouts[0]!.km).toBeCloseTo(4.989, 2);
+  });
+
+  it("bounds the buffer when an open <Workout never closes, then resyncs", () => {
+    const s = new WorkoutScanner();
+    s.push(
+      `<Workout workoutActivityType="X" startDate="2020-01-01 08:00:00 +0000" endDate="2020-01-01 08:30:00 +0000">`,
+    );
+    for (let i = 0; i < 3; i++) s.push("x".repeat(600_000));
+    expect((s as unknown as { buf: string }).buf.length).toBeLessThanOrEqual(1_000_000);
+    expect(s.workouts).toHaveLength(0);
+    s.push(
+      `<Workout workoutActivityType="HKWorkoutActivityTypeRunning" duration="10" durationUnit="min" startDate="2020-01-02 08:00:00 +0000" endDate="2020-01-02 08:10:00 +0000"></Workout>`,
+    );
+    expect(s.workouts).toHaveLength(1);
+  });
 });
