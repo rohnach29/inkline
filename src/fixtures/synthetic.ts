@@ -50,34 +50,152 @@ function utcMs(y: number, mo: number, d: number, h: number, mi: number, s: numbe
   return Date.UTC(y, mo - 1, d, h, mi, s) - offsetHours * 3_600_000;
 }
 
-/** A flat (no elevation change) synthetic loop of 20 points, ~100m apart. */
-function flatTrack(baseLat: number, baseLon: number, baseEle: number, startT: number): TrackPoint[] {
-  const stepDeg = 100 / 111_320; // ~100m per step, longitude direction
-  const points: TrackPoint[] = [];
-  for (let i = 0; i < 20; i++) {
-    points.push({ lat: baseLat, lon: baseLon + i * stepDeg, ele: baseEle, t: startT + i * 20_000 });
+/**
+ * Track geometry: shapes are authored as metre offsets from a base point
+ * (deterministic trig only — NO rng), then normalized so the haversine path
+ * length exactly matches the length the original straight-line fixture had.
+ * That pins the derived km of every tracked run (and therefore every
+ * detector outcome) while making demo route maps look like actual runs:
+ * a riverside curve, a lopsided block rectangle, a wobbled loop, and an
+ * out-and-back with a bulge.
+ */
+
+interface OffsetM {
+  dLatM: number;
+  dLonM: number;
+}
+
+/** Scale a metre-offset path so its planar polyline length is targetM.
+ *  (Planar length and haversine agree to <0.01% at these ~1.5 km scales.) */
+function scaleOffsets(offsets: OffsetM[], targetM: number): OffsetM[] {
+  let len = 0;
+  for (let i = 1; i < offsets.length; i++) {
+    const a = offsets[i - 1]!;
+    const b = offsets[i]!;
+    len += Math.hypot(b.dLatM - a.dLatM, b.dLonM - a.dLonM);
   }
-  return points;
+  const f = targetM / len;
+  return offsets.map((o) => ({ dLatM: o.dLatM * f, dLonM: o.dLonM * f }));
+}
+
+/** Convert metre offsets to TrackPoints around a base coordinate. */
+function offsetsToTrack(
+  baseLat: number,
+  baseLon: number,
+  offsets: OffsetM[],
+  eleAt: (i: number) => number,
+  startT: number,
+  dtMs: number,
+): TrackPoint[] {
+  const latDeg = 1 / 111_320;
+  const lonDeg = 1 / (111_320 * Math.cos((baseLat * Math.PI) / 180));
+  return offsets.map((o, i) => ({
+    lat: baseLat + o.dLatM * latDeg,
+    lon: baseLon + o.dLonM * lonDeg,
+    ele: eleAt(i),
+    t: startT + i * dtMs,
+  }));
+}
+
+/** Riverside curve: 26 points drifting north along a shore, the lon
+ *  wobbling like a river bank, with a gentle hook at the far end. */
+function riversideOffsets(): OffsetM[] {
+  const n = 26;
+  const out: OffsetM[] = [];
+  for (let i = 0; i < n; i++) {
+    const u = i / (n - 1);
+    out.push({
+      dLatM: i * 70,
+      dLonM: 65 * Math.sin(u * Math.PI * 1.6 + 0.3) + 28 * Math.sin(u * Math.PI * 4.0) + u * 60,
+    });
+  }
+  return out;
+}
+
+/** Lopsided rectangle around imaginary blocks: 23 points, closed. */
+function blockOffsets(): OffsetM[] {
+  const corners: OffsetM[] = [
+    { dLatM: 0, dLonM: 0 },
+    { dLatM: -18, dLonM: 430 },
+    { dLatM: 262, dLonM: 458 },
+    { dLatM: 288, dLonM: -22 },
+  ];
+  const perEdge = [7, 4, 7, 4]; // points added per edge (excluding the edge's end corner)
+  const out: OffsetM[] = [];
+  for (let e = 0; e < 4; e++) {
+    const a = corners[e]!;
+    const b = corners[(e + 1) % 4]!;
+    const steps = perEdge[e]!;
+    for (let s = 0; s < steps; s++) {
+      const u = s / steps;
+      out.push({ dLatM: a.dLatM + (b.dLatM - a.dLatM) * u, dLonM: a.dLonM + (b.dLonM - a.dLonM) * u });
+    }
+  }
+  out.push({ dLatM: 0, dLonM: 0 }); // close the loop
+  return out;
+}
+
+/** Slightly squashed, wobbled ellipse: 24 points — the repeated hill loop. */
+function loopOffsets(): OffsetM[] {
+  const n = 24;
+  const out: OffsetM[] = [];
+  for (let i = 0; i < n; i++) {
+    const th = (2 * Math.PI * i) / n;
+    const r = 100 * (1 + 0.14 * Math.sin(3 * th + 0.9));
+    out.push({ dLatM: 0.82 * r * Math.sin(th), dLonM: r * Math.cos(th) });
+  }
+  return out;
+}
+
+/** Out-and-back with a bulge: 28 points north along a path that bows east,
+ *  returning on a parallel line 18 m west. */
+function outAndBackOffsets(): OffsetM[] {
+  const half = 14;
+  const out: OffsetM[] = [];
+  for (let i = 0; i < half; i++) {
+    const u = i / (half - 1);
+    out.push({ dLatM: i * 55, dLonM: 48 * Math.sin(u * Math.PI) });
+  }
+  for (let i = 0; i < half; i++) {
+    const j = half - 1 - i;
+    const u = j / (half - 1);
+    out.push({ dLatM: j * 55, dLonM: 42 * Math.sin(u * Math.PI) - 18 });
+  }
+  return out;
+}
+
+// Target lengths (m) — the exact haversine lengths of the original
+// straight-line fixture tracks, so every run's derived km is unchanged.
+const RIVERSIDE_TARGET_M = 1793.6;
+const BLOCKS_TARGET_M = 1445.0;
+const HILL_LOOP_TARGET_M = 1749.1;
+const OUT_AND_BACK_TARGET_M = 1444.7;
+
+/** A flat-elevation shaped track (riverside / blocks / out-and-back). */
+function shapedFlatTrack(
+  shape: OffsetM[],
+  targetM: number,
+  baseLat: number,
+  baseLon: number,
+  baseEle: number,
+  startT: number,
+): TrackPoint[] {
+  return offsetsToTrack(baseLat, baseLon, scaleOffsets(shape, targetM), () => baseEle, startT, 20_000);
 }
 
 /**
- * A 24-point synthetic loop with a 60m climb built into the first ~1200m:
- * elevation ramps up 7.5m/step for 8 steps (0 -> 60m gain, ~5% grade),
- * holds for 4 steps, then descends back down over the remaining 11 steps.
+ * The 24-point hill loop with a 60m climb over its first half: elevation
+ * ramps up 7.5m/step for 8 steps, holds for 4, then descends 5m/step.
  * detectHill's non-decreasing-with-2m-dip-tolerance walk finds exactly one
- * qualifying climb segment here (gain=60 >= 25, grade=5% >= 3%).
+ * qualifying segment (points 0-12: gain 60m >= 25m over ~934m, ~6.4% >= 3%).
  */
 function hillLoopTrack(baseLat: number, baseLon: number, baseEle: number, startT: number): TrackPoint[] {
-  const stepDeg = 100 / 111_320;
-  const points: TrackPoint[] = [];
-  for (let i = 0; i < 24; i++) {
-    let ele: number;
-    if (i <= 8) ele = baseEle + i * 7.5;
-    else if (i <= 12) ele = baseEle + 60;
-    else ele = baseEle + 60 - (i - 12) * 5;
-    points.push({ lat: baseLat, lon: baseLon + i * stepDeg, ele, t: startT + i * 30_000 });
-  }
-  return points;
+  const eleAt = (i: number): number => {
+    if (i <= 8) return baseEle + i * 7.5;
+    if (i <= 12) return baseEle + 60;
+    return baseEle + 60 - (i - 12) * 5;
+  };
+  return offsetsToTrack(baseLat, baseLon, scaleOffsets(loopOffsets(), HILL_LOOP_TARGET_M), eleAt, startT, 30_000);
 }
 
 interface RunSpec {
@@ -148,7 +266,7 @@ export function makeSyntheticYear(): Year {
       id: "r12-quiet-end-fastest",
       y: 2025, mo: 3, d: 18, h: 7, mi: 0, s: 0, offsetHours: IST, tz: TZ_MUMBAI,
       km: 5.0, minutes: 22, elevationGain: 10, placeId: PLACE_MUMBAI,
-      track: flatTrack(MUMBAI_LAT, MUMBAI_LON, 10, utcMs(2025, 3, 18, 7, 0, 0, IST)),
+      track: shapedFlatTrack(riversideOffsets(), RIVERSIDE_TARGET_M, MUMBAI_LAT, MUMBAI_LON, 10, utcMs(2025, 3, 18, 7, 0, 0, IST)),
     }),
 
     // --- Place B (Lafayette): journey lands here ---
@@ -156,7 +274,7 @@ export function makeSyntheticYear(): Year {
       id: "r13-journey-land",
       y: 2025, mo: 4, d: 1, h: 8, mi: 0, s: 0, offsetHours: EDT, tz: TZ_LAFAYETTE,
       km: 6.0, minutes: 36, elevationGain: 15, placeId: PLACE_LAFAYETTE,
-      track: flatTrack(40.415, -86.925, 200, utcMs(2025, 4, 1, 8, 0, 0, EDT)),
+      track: shapedFlatTrack(blockOffsets(), BLOCKS_TARGET_M, 40.415, -86.925, 200, utcMs(2025, 4, 1, 8, 0, 0, EDT)),
     }),
 
     // --- Repeated route + hill-beast (same track, 4 times) ---
@@ -170,7 +288,7 @@ export function makeSyntheticYear(): Year {
       id: "r18-ghost-hilliest",
       y: 2025, mo: 6, d: 5, h: 7, mi: 30, s: 0, offsetHours: EDT, tz: TZ_LAFAYETTE,
       km: 4.0, minutes: 24, elevationGain: 300, placeId: PLACE_LAFAYETTE,
-      track: flatTrack(40.43, -86.9, 200, utcMs(2025, 6, 5, 7, 30, 0, EDT)),
+      track: shapedFlatTrack(outAndBackOffsets(), OUT_AND_BACK_TARGET_M, 40.43, -86.9, 200, utcMs(2025, 6, 5, 7, 30, 0, EDT)),
     }),
 
     // --- Longest run of the year (also becomes last-run: latest startUtc).
