@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildBook, selectEvents } from "./book";
+import { buildBook, selectEvents, dedupName } from "./book";
 import { analyzeYear } from "../analyze";
 import { makeSyntheticYear } from "../fixtures/synthetic";
 import type { Year } from "../ingest";
@@ -174,8 +174,10 @@ describe("buildBook", () => {
     // that compares magnitude across types would always let latest-run win
     // a forced choice. Magnitude must only break ties WITHIN the same type;
     // across types the tie falls through to atUtc (then type) ordering.
+    // false-starts (weight 30 > 25) has no per-type selection cap, so all
+    // 13 fillers survive to the global 14-slot cut.
     const filler: StoryEvent[] = Array.from({ length: 13 }, (_, i) => ({
-      type: "streak",
+      type: "false-starts",
       runIds: [],
       atUtc: 1000 + i,
       magnitude: i,
@@ -203,5 +205,96 @@ describe("buildBook", () => {
 
     expect(selected.some((e) => e.type === "earliest-run")).toBe(true);
     expect(selected.some((e) => e.type === "latest-run")).toBe(false);
+  });
+
+  it("caps journeys at 2, keeping the 2 largest by km", () => {
+    const journeys: StoryEvent[] = [600, 100, 400, 300, 500, 200].map((km, i) => ({
+      type: "journey",
+      runIds: [],
+      atUtc: 1000 + i,
+      magnitude: km,
+      data: { km },
+    }));
+    const selected = selectEvents(journeys);
+    const kms = selected.filter((e) => e.type === "journey").map((e) => e.magnitude).sort((a, b) => b - a);
+    expect(kms).toEqual([600, 500]);
+    expect(selected.length).toBe(2);
+  });
+
+  it("caps quiets at 3, keeping the 3 largest by days", () => {
+    const quiets: StoryEvent[] = [12, 90, 5, 40, 7, 33, 60].map((days, i) => ({
+      type: "quiet",
+      runIds: [],
+      atUtc: 1000 + i,
+      magnitude: days,
+      data: { days },
+    }));
+    const selected = selectEvents(quiets);
+    const dayCounts = selected.filter((e) => e.type === "quiet").map((e) => e.magnitude).sort((a, b) => b - a);
+    expect(dayCounts).toEqual([90, 60, 40]);
+    expect(selected.length).toBe(3);
+  });
+
+  it("keeps longest-run even when journeys and quiets flood the pool (real-export regression)", () => {
+    // Real data produced 6 journeys (w80) + 7 quiets (w70) = 13 events that,
+    // uncapped, took every non-forced slot and pushed longest-run (w65) out.
+    const journeys: StoryEvent[] = Array.from({ length: 6 }, (_, i) => ({
+      type: "journey",
+      runIds: [],
+      atUtc: 10_000 + i,
+      magnitude: 1000 + i,
+      data: {},
+    }));
+    const quiets: StoryEvent[] = Array.from({ length: 7 }, (_, i) => ({
+      type: "quiet",
+      runIds: [],
+      atUtc: 20_000 + i,
+      magnitude: 10 + i,
+      data: {},
+    }));
+    const bookends: StoryEvent[] = [
+      { type: "first-run", runIds: [], atUtc: 1, magnitude: 5, data: {} },
+      { type: "last-run", runIds: [], atUtc: 99_999, magnitude: 5, data: {} },
+    ];
+    const longest: StoryEvent = { type: "longest-run", runIds: [], atUtc: 15_000, magnitude: 21.1, data: {} };
+
+    const selected = selectEvents([...journeys, ...quiets, ...bookends, longest]);
+
+    expect(selected.some((e) => e.type === "longest-run")).toBe(true);
+    expect(selected.filter((e) => e.type === "journey").length).toBe(2);
+    expect(selected.filter((e) => e.type === "quiet").length).toBe(3);
+  });
+
+  it("dedupName redraws deterministically on collision", () => {
+    const gen = (k: string) => (k === "base" ? "The Small Quiet" : `Drawn:${k}`);
+    const draw = () => {
+      const used = new Set<string>(["The Small Quiet"]);
+      return dedupName(used, gen, "base");
+    };
+    const a = draw();
+    const b = draw();
+    expect(a).toBe(b); // deterministic across runs
+    expect(a).toBe("Drawn:base#2"); // redraw with suffixed key, not the collision
+  });
+
+  it("dedupName falls back to '(Again)' when every redraw collides, and records the winner", () => {
+    const used = new Set<string>(["The Small Quiet"]);
+    const name = dedupName(used, () => "The Small Quiet", "k");
+    expect(name).toBe("The Small Quiet (Again)");
+    expect(used.has("The Small Quiet (Again)")).toBe(true);
+  });
+
+  it("never emits duplicate entity names across chapters and beasts", () => {
+    const book = buildBook(year, story);
+    const entityTitles = book.chapters
+      .filter((c) => ["quiet", "hill-beast", "route-champion", "night-runs", "ghost-elevation"].includes(c.eventType))
+      .map((c) => c.title);
+    expect(new Set(entityTitles).size).toBe(entityTitles.length);
+    const beastKeys = book.beasts.map((b) => `${b.name}::${b.kind}`);
+    expect(new Set(beastKeys).size).toBe(beastKeys.length);
+    // beasts inherit their chapter's (de-duplicated) title
+    for (const beast of book.beasts) {
+      expect(book.chapters.some((c) => c.title === beast.name)).toBe(true);
+    }
   });
 });

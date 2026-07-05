@@ -7,7 +7,20 @@ import { verseFor } from "./verse";
 import type { Book, Chapter, MapSpec, ChapterStat, BeastEntry, Colophon, LatLonName } from "./types";
 
 const MAX_CHAPTERS = 14;
-const MAX_MONTH_CHAPTERS = 3;
+
+/**
+ * Per-type selection caps, applied WITHIN each type by (magnitude desc,
+ * atUtc asc) before the global weight-dominant cut. Real exports can emit
+ * many journeys/quiets; uncapped, their high weights crowd out every other
+ * chapter. Types absent from this map are uncapped.
+ */
+const SELECTION_CAPS: Partial<Record<StoryEventType, number>> = {
+  journey: 2,
+  quiet: 3,
+  "ghost-elevation": 1,
+  streak: 2,
+  month: 3,
+};
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -105,10 +118,35 @@ function compareByAtUtc(a: StoryEvent, b: StoryEvent): number {
 }
 
 /**
+ * Enforce SELECTION_CAPS: for each capped type, keep only the top-N events
+ * WITHIN that type by (magnitude desc, atUtc asc) — which is exactly what
+ * compareByPriority yields for same-type events. Uncapped types and event
+ * order are otherwise preserved (the caller re-sorts anyway).
+ */
+function applyTypeCaps(events: StoryEvent[]): StoryEvent[] {
+  const cappedByType = new Map<StoryEventType, StoryEvent[]>();
+  const out: StoryEvent[] = [];
+  for (const event of events) {
+    if (SELECTION_CAPS[event.type] === undefined) {
+      out.push(event);
+      continue;
+    }
+    const group = cappedByType.get(event.type);
+    if (group) group.push(event);
+    else cappedByType.set(event.type, [event]);
+  }
+  for (const [type, group] of cappedByType) {
+    group.sort(compareByPriority);
+    out.push(...group.slice(0, SELECTION_CAPS[type]));
+  }
+  return out;
+}
+
+/**
  * first-run/last-run are always forced in (their weights of 100/90 make
  * this true anyway under strict weight dominance, but forcing them keeps
- * the guarantee explicit and cheap). Month events are capped at the 3
- * highest-magnitude (== highest-km) before joining the general pool. The
+ * the guarantee explicit and cheap). Per-type SELECTION_CAPS are applied
+ * first (top-N within each capped type by magnitude desc, atUtc asc). The
  * combined pool is then cut to the overall 14-chapter cap by priority, and
  * the final selection is re-sorted chronologically.
  */
@@ -116,11 +154,7 @@ export function selectEvents(events: StoryEvent[]): StoryEvent[] {
   const forced = events.filter((e) => e.type === "first-run" || e.type === "last-run");
   const rest = events.filter((e) => e.type !== "first-run" && e.type !== "last-run");
 
-  const monthEvents = rest.filter((e) => e.type === "month").sort(compareByPriority);
-  const nonMonth = rest.filter((e) => e.type !== "month");
-  const topMonths = monthEvents.slice(0, MAX_MONTH_CHAPTERS);
-
-  const pool = [...nonMonth, ...topMonths].sort(compareByPriority);
+  const pool = applyTypeCaps(rest).sort(compareByPriority);
   const remainingSlots = Math.max(0, MAX_CHAPTERS - forced.length);
   const chosenFromPool = pool.slice(0, remainingSlots);
 
@@ -373,18 +407,37 @@ const NAMED_ENTITY_TYPES: ReadonlySet<StoryEventType> = new Set<NamedEntityType>
   "ghost-elevation",
 ]);
 
-function titleFor(event: StoryEvent, chapterId: string, rng: Rng): string {
+const MAX_NAME_REDRAWS = 8;
+
+/**
+ * Draw a name via `gen(key)`; if it's already used, redraw deterministically
+ * with `key#2`, `key#3`, ... (the name functions fork the rng by key, so a
+ * suffixed key is a fresh, stable draw). After MAX_NAME_REDRAWS collisions,
+ * fall back to appending " (Again)" — still deterministic. The winning name
+ * is recorded in `used`.
+ */
+export function dedupName(used: Set<string>, gen: (key: string) => string, baseKey: string): string {
+  let name = gen(baseKey);
+  for (let attempt = 2; used.has(name) && attempt <= MAX_NAME_REDRAWS; attempt++) {
+    name = gen(`${baseKey}#${attempt}`);
+  }
+  if (used.has(name)) name = `${name} (Again)`;
+  used.add(name);
+  return name;
+}
+
+function titleFor(event: StoryEvent, chapterId: string, rng: Rng, usedNames: Set<string>): string {
   switch (event.type) {
     case "quiet":
-      return nameQuiet(rng, chapterId, num(event.data.days));
+      return dedupName(usedNames, (k) => nameQuiet(rng, k, num(event.data.days)), chapterId);
     case "hill-beast":
-      return nameHill(rng, chapterId);
+      return dedupName(usedNames, (k) => nameHill(rng, k), chapterId);
     case "route-champion":
-      return nameRoute(rng, chapterId);
+      return dedupName(usedNames, (k) => nameRoute(rng, k), chapterId);
     case "night-runs":
-      return nameNightBeast(rng, chapterId, str(event.data.latestLocalTime));
+      return dedupName(usedNames, (k) => nameNightBeast(rng, k, str(event.data.latestLocalTime)), chapterId);
     case "ghost-elevation":
-      return nameGhost(rng, chapterId);
+      return dedupName(usedNames, (k) => nameGhost(rng, k), chapterId);
     default: {
       // Exhaustive by construction: TITLE_BANKS is typed as a total Record
       // over every StoryEventType not handled above, so this can't be
@@ -478,10 +531,11 @@ export function buildBook(year: Year, story: Story): Book {
 
   const chapters: Chapter[] = [];
   const beasts: BeastEntry[] = [];
+  const usedNames = new Set<string>();
 
   for (const event of selected) {
     const id = `${event.type}:${event.atUtc}`;
-    const chapterTitle = titleFor(event, id, rng);
+    const chapterTitle = titleFor(event, id, rng, usedNames);
     const name = NAMED_ENTITY_TYPES.has(event.type) ? chapterTitle : undefined;
     const evidenceRun = firstEvidenceRun(event, runById);
     const place = evidenceRun?.placeId ? placeById.get(evidenceRun.placeId) : undefined;
