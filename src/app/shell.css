@@ -278,3 +278,105 @@
   min-width: 9.5rem;
   text-align: center;
 }
+
+/* 11. Outrun the Quiet — the back-of-book game (game.ts/draw.ts/index.ts).
+ * The frame/canvas/HUD/death-overlay chrome only; the game page's kicker,
+ * title, and how-to prose live in render/theme.css beside the rest of the
+ * book's typography. --------------------------------------------------- */
+
+.game-frame {
+  position: relative;
+  max-width: 100%;
+  margin: 1.5rem auto 0;
+}
+
+.game-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 800 / 360;
+  background: var(--paper);
+  border: 1px solid var(--ink-faint);
+  border-radius: 4px;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+.game-hud {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.9rem;
+  text-align: right;
+  pointer-events: none;
+}
+
+.game-km {
+  font-family: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.game-flash {
+  font-family: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+  font-size: 0.9rem;
+  color: var(--pencil);
+  max-width: 22ch;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.game-flash.is-flashing {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-flash {
+    transition: none;
+  }
+}
+
+.game-death {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: var(--shadow);
+  border-radius: 4px;
+}
+
+.game-death[hidden] {
+  display: none;
+}
+
+.game-death-card {
+  max-width: 88%;
+  width: 420px;
+  height: auto;
+  box-shadow: 0 8px 30px var(--shadow);
+  border-radius: 2px;
+}
+
+.game-death-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.game-restart-btn,
+.game-keep-btn {
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--ink-faint);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.game-restart-btn:hover,
+.game-keep-btn:hover {
+  border-color: var(--ink);
+}

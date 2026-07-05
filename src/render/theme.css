@@ -136,6 +136,17 @@ body {
   color: var(--pencil);
 }
 
+.page-game {
+  text-align: center;
+}
+
+.game-how-to {
+  font-family: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+  color: var(--pencil);
+  font-size: 1rem;
+  margin: 0.5rem 0 0;
+}
+
 .colophon-line {
   margin: 0.5rem 0;
   font-size: 1.05rem;

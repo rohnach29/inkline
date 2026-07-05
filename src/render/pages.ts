@@ -26,6 +26,10 @@ const EMPTY_BOOK_LINES = [
 const DETERMINISM_LINE = "drawn deterministically — the same year makes the same book, forever.";
 const BEASTS_KICKER = "a field guide to what chased you";
 
+const GAME_KICKER = "in which you are given one more chance";
+const GAME_TITLE = "Outrun the Quiet";
+const GAME_HOW_TO = "press space, or tap — the fog is patient but you are faster";
+
 const FALLBACK_DOODLE_TAG = "shoes";
 
 /** Flight maps have no meaningful "pace" (they're not a run), so the
@@ -197,6 +201,21 @@ function renderBeasts(book: Book): string {
   ].join("");
 }
 
+/** The back-matter game page: "Outrun the Quiet" mounts into `.game-mount`
+ *  (see `src/game/index.ts`'s `initGame`) once the living-book layer wires
+ *  it up in `app/main.ts` — this function only ever emits the static shell,
+ *  never touches the game itself (pages.ts stays pure/deterministic). */
+function renderGamePage(): string {
+  return [
+    `<section class="page page-game" data-page="game">`,
+    `<div class="kicker">${esc(GAME_KICKER)}</div>`,
+    `<h2 class="chapter-title">${tiltSpan(GAME_TITLE)}</h2>`,
+    `<p class="verse game-how-to">${esc(GAME_HOW_TO)}</p>`,
+    `<div class="game-mount"></div>`,
+    `</section>`,
+  ].join("");
+}
+
 function renderColophon(book: Book): string {
   const c = book.colophon;
   const placesLine = c.places.length > 0 ? c.places.join(", ") : "no named places — the roads keep their secrets";
@@ -235,6 +254,7 @@ export function renderBook(book: Book, year: Year): string {
     parts.push(renderBeasts(book));
   }
 
+  parts.push(renderGamePage());
   parts.push(renderColophon(book));
 
   return parts.join("");

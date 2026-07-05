@@ -111,12 +111,27 @@ describe("renderBook", () => {
     expect(matches.length).toBe(1);
   });
 
-  it("emits one <section> per cover + dedication + colophon + chapters + beasts(optional)", () => {
+  it("emits one <section> per cover + dedication + game + colophon + chapters + beasts(optional)", () => {
     const html = renderBook(book, year);
     const sectionCount = (html.match(/<section/g) ?? []).length;
-    const expected = book.chapters.length + 3 + (book.beasts.length > 0 ? 1 : 0);
+    const expected = book.chapters.length + 4 + (book.beasts.length > 0 ? 1 : 0);
     expect(book.beasts.length).toBeGreaterThan(0); // fixture guard: beasts page must be exercised
     expect(sectionCount).toBe(expected);
+  });
+
+  it("renders the game page between the beasts index and the colophon, with its kicker, title, how-to line, and mount div", () => {
+    const html = renderBook(book, year);
+    const section = sectionFor(html, "game");
+    expect(section).toContain('class="game-mount"');
+    expect(unescapeAll(stripTags(section))).toContain("in which you are given one more chance");
+    expect(unescapeAll(stripTags(section))).toContain("Outrun the Quiet");
+    expect(section).toContain(esc("press space, or tap — the fog is patient but you are faster"));
+
+    const beastsAt = html.indexOf('data-page="beasts"');
+    const gameAt = html.indexOf('data-page="game"');
+    const colophonAt = html.indexOf('data-page="colophon"');
+    expect(beastsAt).toBeLessThan(gameAt);
+    expect(gameAt).toBeLessThan(colophonAt);
   });
 
   it("includes every chapter title (reconstructed from tilt spans) and every verse line", () => {
