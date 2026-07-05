@@ -1,0 +1,175 @@
+/* ---------------------------------------------------------------------
+ * Inkline — ink-on-paper theme
+ * Tokens, typography, page layout, ink-stroke aesthetics, print rules.
+ * ------------------------------------------------------------------- */
+
+/* 1. Tokens ------------------------------------------------------------ */
+
+:root {
+  --desk: #e9e2d2;
+  --paper: #faf6ec;
+  --ink: #26211a;
+  --ink-faint: #6f6759;
+  --pencil: #4e525c;
+  --shadow: rgba(60, 50, 30, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --desk: #12141a;
+    --paper: #1c1f26;
+    --ink: #e9e5db;
+    --ink-faint: #9a9ea8;
+    --pencil: #bdb3a0;
+    --shadow: rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme="dark"] {
+  --desk: #12141a;
+  --paper: #1c1f26;
+  --ink: #e9e5db;
+  --ink-faint: #9a9ea8;
+  --pencil: #bdb3a0;
+  --shadow: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+  --desk: #e9e2d2;
+  --paper: #faf6ec;
+  --ink: #26211a;
+  --ink-faint: #6f6759;
+  --pencil: #4e525c;
+  --shadow: rgba(60, 50, 30, 0.18);
+}
+
+/* 2. Base --------------------------------------------------------------- */
+
+body {
+  background: var(--desk);
+  color: var(--ink);
+  margin: 0;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+.hand {
+  font-family: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+}
+
+/* 3. Page ---------------------------------------------------------------- */
+
+.page {
+  background: var(--paper);
+  max-width: 720px;
+  margin: 3rem auto;
+  padding: 4rem 3.5rem;
+  box-shadow: 0 6px 30px var(--shadow);
+  border-radius: 2px;
+  position: relative;
+}
+
+/* 4. Typography ----------------------------------------------------------- */
+
+.kicker {
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
+.chapter-title {
+  font-size: 2.2rem;
+}
+
+.tilt-a {
+  display: inline-block;
+  transform: rotate(-1.2deg);
+}
+
+.tilt-b {
+  display: inline-block;
+  transform: rotate(0.8deg);
+}
+
+.tilt-c {
+  display: inline-block;
+  transform: rotate(-0.4deg);
+}
+
+.verse {
+  font-size: 1.15rem;
+  line-height: 1.9;
+}
+
+.stats {
+  font-family: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+  color: var(--pencil);
+}
+
+/* 5. Ink strokes ------------------------------------------------------------ */
+
+.ink-route,
+.ink-globe,
+.ink-graticule,
+.ink-arc,
+.ink-doodle path,
+.ink-doodle circle,
+.ink-doodle line {
+  stroke: var(--ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.ink-arc {
+  stroke-dasharray: 6 7;
+}
+
+.ink-graticule {
+  stroke: var(--ink-faint);
+  stroke-width: 1.2;
+}
+
+.ink-start,
+.ink-dot {
+  fill: var(--ink);
+}
+
+.ink-label {
+  font-family: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+  font-size: 13px;
+  fill: var(--pencil);
+}
+
+/* 6. Print ------------------------------------------------------------------ */
+
+@media print {
+  :root {
+    --desk: #e9e2d2 !important;
+    --paper: #faf6ec !important;
+    --ink: #26211a !important;
+    --ink-faint: #6f6759 !important;
+    --pencil: #4e525c !important;
+    --shadow: rgba(60, 50, 30, 0.18) !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .page {
+    box-shadow: none;
+    margin: 0;
+    max-width: none;
+    page-break-after: always;
+  }
+
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}
