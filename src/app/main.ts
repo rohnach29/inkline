@@ -187,7 +187,12 @@ function showBook(bookHtml: string): void {
 
   livingBookHandle?.teardown();
   const bookRoot = document.querySelector<HTMLElement>(".book")!;
-  livingBookHandle = initLivingBook(bookRoot, soundHandle);
+  try {
+    livingBookHandle = initLivingBook(bookRoot, soundHandle);
+  } catch (err) {
+    console.error("living-book layer failed to init; static book unaffected", err);
+    livingBookHandle = null;
+  }
 }
 
 /** Tears down the living-book layer (if any) and returns to the cover — the
