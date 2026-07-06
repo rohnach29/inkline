@@ -7,6 +7,14 @@ import { scene as hilliestRun } from "./hilliest-run";
 import { scene as earliestRun } from "./earliest-run";
 import { scene as latestRun } from "./latest-run";
 import { scene as nightRuns } from "./night-runs";
+import { scene as falseStarts } from "./false-starts";
+import { scene as quiet } from "./quiet";
+import { scene as streak } from "./streak";
+import { scene as journey } from "./journey";
+import { scene as month } from "./month";
+import { scene as routeChampion } from "./route-champion";
+import { scene as hillBeast } from "./hill-beast";
+import { scene as ghostElevation } from "./ghost-elevation";
 
 /** Scene modules register here as Tasks 4–6 land them. */
 export const SCENES: Partial<Record<SceneTag, SceneFn>> = {
@@ -18,4 +26,12 @@ export const SCENES: Partial<Record<SceneTag, SceneFn>> = {
   "earliest-run": earliestRun,
   "latest-run": latestRun,
   "night-runs": nightRuns,
+  "false-starts": falseStarts,
+  "quiet": quiet,
+  "streak": streak,
+  "journey": journey,
+  "month": month,
+  "route-champion": routeChampion,
+  "hill-beast": hillBeast,
+  "ghost-elevation": ghostElevation,
 };

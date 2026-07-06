@@ -7,7 +7,10 @@ import type { SceneTag } from "./types";
 const TAGS = Object.keys(SCENES) as SceneTag[];
 const BIG = { km: 33, days: 21, count: 9, gainM: 480, paceMinPerKm: 4.4 };
 const SMALL = { km: 4, days: 3, count: 2, gainM: 35, paceMinPerKm: 7.2 };
-const PARAMETRIC: SceneTag[] = ["longest-run", "fastest-run", "hilliest-run", "night-runs"];
+const PARAMETRIC: SceneTag[] = [
+  "longest-run", "fastest-run", "hilliest-run", "night-runs",
+  "streak", "quiet", "journey", "month", "false-starts", "route-champion", "hill-beast", "ghost-elevation",
+];
 
 describe.each(TAGS)("scene %s", (tag) => {
   it("renders deterministically, non-empty, within budget", () => {
