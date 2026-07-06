@@ -2,7 +2,7 @@ import type { PoemSpec } from "./forms";
 
 export const POEMS: readonly PoemSpec[] = [
   {
-    id: "night-runs/the-moon-kept-the-tab",
+    id: "night-runs/the-moon-comes-along",
     kind: "night-runs",
     form: "quip",
     band: "any",
@@ -10,8 +10,8 @@ export const POEMS: readonly PoemSpec[] = [
     slots: [],
     lines: [
       { text: "The moon never asks you where you're going." },
-      { text: "The moon has seen it all and simply glows." },
-      { text: "It kept your side of the street lit. No charge." },
+      { text: "It just comes along, the way the good dogs do —" },
+      { text: "roof to roof to roof, matching your pace." },
     ],
   },
   {

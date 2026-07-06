@@ -67,14 +67,15 @@ export const POEMS: readonly PoemSpec[] = [
     mood: "steady",
     slots: [],
     lines: [
-      { text: "Dear runner, from the mile you don't run often:" },
+      { text: "This is the far mile writing. We met the once." },
       { text: "" },
       { text: "I get so few visitors this far out of town." },
       { text: "The pavement here is shy. It doesn't shine." },
       { text: "But you came, and stayed, and hardly checked the time" },
       { text: "more than you had to. I noticed. I keep count." },
       { text: "" },
-      { text: "Come back when the long mood takes you. — the far mile" },
+      { text: "I'd visit you, but miles are bad at moving." },
+      { text: "That's the whole sadness of miles. Come see me." },
     ],
   },
   {

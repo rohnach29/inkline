@@ -11,7 +11,7 @@ export const POEMS: readonly PoemSpec[] = [
     lines: [
       { text: "Gravity noticed you were headed up." },
       { text: "Gravity takes that kind of thing to heart." },
-      { text: "You went up anyway. It is still sulking." },
+      { text: "The whole way down, it held your hand too tight." },
     ],
   },
   {

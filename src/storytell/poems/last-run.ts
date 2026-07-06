@@ -101,8 +101,8 @@ export const POEMS: readonly PoemSpec[] = [
     mood: "steady",
     slots: [],
     lines: [
-      { text: "For after the last one, when the book is shut:" },
-      { text: "do not treat the number like a door that locked." },
+      { text: "Do not treat the number like a door that locked." },
+      { text: "The book is shut; the legs signed nothing at all." },
       { text: "The legs remember. The legs do not read books." },
       { text: "Leave the shoes where light can find them, facing out." },
       { text: "One morning, no reason, they'll be on before you ask." },
