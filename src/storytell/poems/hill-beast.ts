@@ -9,7 +9,7 @@ export const POEMS: readonly PoemSpec[] = [
     mood: "absurd",
     slots: ["name"],
     lines: [
-      { text: "You put in a year. {name}" },
+      { text: "You trained. {name}" },
       { text: "has never trained a day. It doesn't stretch." },
       { text: "It is simply uphill, always, and it is winning." },
     ],

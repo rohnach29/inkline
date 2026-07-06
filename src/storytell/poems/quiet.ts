@@ -107,7 +107,7 @@ export const POEMS: readonly PoemSpec[] = [
       { text: "We told her you'd be back. She laughed." },
       { text: "" },
       { text: "We are not angry. Shoes are built for patience." },
-      { text: "But {name} waits too," },
+      { text: "But {name} waits with us," },
       { text: "and it is getting large." },
       { text: "" },
       { text: "Yours truly,", align: "right" },
