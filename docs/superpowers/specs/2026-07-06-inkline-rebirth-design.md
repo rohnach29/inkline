@@ -1,7 +1,7 @@
 # Inkline Rebirth — Design Spec
 
 **Date:** 2026-07-06
-**Status:** Approved direction (Approach 1: staged full rebirth, Plans F → G → H)
+**Status:** Approved direction (Approach 1: staged full rebirth). Plans F and G are in scope. **Plan H is DEFERRED (user decision 2026-07-06): TODO only — do not schedule or implement unless the user re-requests it.** The spec text for Plan H below is kept as the design of record for that future TODO.
 **Supersedes:** the verse and doodle sections of `2026-07-05-pavement-book-design.md`; the game section of that spec is revoked.
 
 ## Why
