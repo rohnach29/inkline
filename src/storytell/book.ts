@@ -4,6 +4,7 @@ import { nearestCity } from "../analyze/cities";
 import { Rng, seedFromYear } from "./rng";
 import { nameHill, nameRoute, nameQuiet, nameGhost, nameNightBeast, bookTitle } from "./names";
 import { PoemSelector, poemFor } from "./poems/select";
+import { isMonsoonRegion } from "./poems/features";
 import { CORPUS } from "./poems";
 import type { Book, Chapter, MapSpec, ChapterStat, BeastEntry, Colophon, LatLonName } from "./types";
 
@@ -294,10 +295,6 @@ function computeMapSpec(event: StoryEvent, runById: Map<string, Run>): MapSpec |
 
   const runId = lastTrackedRunId(event, runById);
   return runId !== null ? { kind: "route", runId } : null;
-}
-
-function isMonsoonRegion(lat: number, lon: number): boolean {
-  return lat >= 8 && lat <= 25 && lon >= 68 && lon <= 90;
 }
 
 function computeAtmosphereTags(event: StoryEvent, runById: Map<string, Run>, placeById: Map<string, Year["places"][number]>): string[] {
