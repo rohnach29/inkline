@@ -187,24 +187,24 @@ const KICKER: Record<StoryEventType, string> = {
   "ghost-elevation": "in which the watch imagines things",
 };
 
-const DOODLE_TAGS: Record<StoryEventType, string[]> = {
-  "first-run": ["shoes"],
-  "last-run": [],
-  "longest-run": ["trophy"],
-  "fastest-run": ["wind"],
-  "hilliest-run": [],
-  "earliest-run": [],
-  "latest-run": [],
-  "night-runs": ["moon", "stars"],
-  "false-starts": ["banana"],
-  quiet: ["empty-shoes"],
-  streak: ["chain"],
-  journey: ["plane", "globe"],
-  month: ["calendar"],
-  "route-champion": [],
-  "hill-beast": ["hills"],
-  "ghost-elevation": ["ghost"],
-};
+/** Maps a StoryEvent's `data` fields onto the scene engine's SceneParams
+ *  keys — a scene reads whichever of km/days/count/gainM/paceMinPerKm apply
+ *  to its own event type and ignores the rest (SceneParams is all-optional).
+ *  `gainM` accepts either `gainM` (hill-beast) or `elevationGainM`
+ *  (hilliest-run/ghost-elevation) — first match wins, later duplicates
+ *  never overwrite an already-set key. */
+function sceneParamsFor(event: StoryEvent): Record<string, number> {
+  const d = event.data;
+  const out: Record<string, number> = {};
+  const keys: Array<[string, string]> = [
+    ["km", "km"], ["days", "days"], ["count", "count"],
+    ["gainM", "gainM"], ["elevationGainM", "gainM"], ["paceMinPerKm", "paceMinPerKm"],
+  ];
+  for (const [from, to] of keys) {
+    if (from in d && out[to] === undefined) out[to] = Number(d[from]);
+  }
+  return out;
+}
 
 /**
  * The 5 types whose titles are generated procedurally (see NAMED_ENTITY_TYPES
@@ -462,35 +462,30 @@ function beastFor(event: StoryEvent, chapterTitle: string): BeastEntry | null {
         name: chapterTitle,
         kind: "quiet",
         description: `${Math.round(num(d.days))} days without a single footfall.`,
-        doodleTag: "empty-shoes",
       };
     case "hill-beast":
       return {
         name: chapterTitle,
         kind: "hill",
         description: `A ${Math.round(num(d.gainM))} m climb, met ${Math.round(num(d.times))} times, and never once forgiven.`,
-        doodleTag: "hills",
       };
     case "night-runs":
       return {
         name: chapterTitle,
         kind: "night",
         description: `${Math.round(num(d.count))} runs after the dark had already signed off, latest at ${str(d.latestLocalTime)}.`,
-        doodleTag: "moon",
       };
     case "false-starts":
       return {
         name: chapterTitle,
         kind: "false-start",
         description: `${Math.round(num(d.count))} runs that quit before a kilometer, shortest just ${fmtKm(num(d.shortestKm))}.`,
-        doodleTag: "banana",
       };
     case "ghost-elevation":
       return {
         name: chapterTitle,
         kind: "ghost",
         description: `${Math.round(num(d.elevationGainM))} m of climb the ground never actually had.`,
-        doodleTag: "ghost",
       };
     default:
       return null;
@@ -555,7 +550,7 @@ export function buildBook(year: Year, story: Story): Book {
       poem,
       stats: statsFor(event, runById),
       mapSpec: computeMapSpec(event, runById),
-      doodleTags: DOODLE_TAGS[event.type],
+      sceneParams: sceneParamsFor(event),
       atmosphereTags: computeAtmosphereTags(event, runById, placeById),
       eventType: event.type,
     };

@@ -1,5 +1,6 @@
 import { revealChapter } from "./reveal";
 import { revealFlight } from "./flight";
+import { revealScene } from "./scene-reveal";
 import { initAtmosphere } from "./atmosphere";
 import { initBeasts } from "./beasts";
 import { initShare } from "./share";
@@ -20,17 +21,22 @@ export type { Cover3dHandle } from "./cover3d";
 export { attachSound, soundLabel } from "./sound";
 export type { SoundHandle, DrawHooks } from "./sound";
 
-const CHAPTER_SELECTOR = ".page-chapter";
+/** Every section that can carry a self-drawing ink scene: chapters (route/
+ *  flight map + scene), the cover (scene only), and the beasts page (one
+ *  scene per beast entry, though revealScene only draws in the FIRST beast
+ *  entry's <svg.ink-scene> found in a .page-beasts section — see
+ *  scene-reveal.ts's single-svg-per-call contract). */
+const CHAPTER_SELECTOR = ".page-chapter, .page-beasts, .page-cover";
 const INTERSECTION_THRESHOLD = 0.35;
 
-/** Callbacks run once per chapter section, the first time it crosses the
+/** Callbacks run once per observed section, the first time it crosses the
  *  intersection threshold — each independently inspects the section's own
- *  map markup and no-ops (returns undefined) when it finds nothing of its
- *  kind (route vs. flight), so both can safely share one chapter without
- *  stepping on each other. */
+ *  markup and no-ops (returns undefined) when it finds nothing of its kind
+ *  (route map, flight map, or ink scene), so all three can safely share one
+ *  section without stepping on each other. */
 const CHAPTER_REVEALERS: ReadonlyArray<
   (section: HTMLElement, hooks?: DrawHooks) => (() => void) | undefined
-> = [revealChapter, revealFlight];
+> = [revealChapter, revealFlight, revealScene];
 
 export interface LivingBookHandle {
   /** Disconnects every observer, cancels any in-flight draw/runner
@@ -64,11 +70,11 @@ function installFunctionalChrome(root: ParentNode): () => void {
 }
 
 /** Installs the animated living-book layer: self-drawing ink + runner over
- *  route maps, the flight-arc reveal, atmosphere particles, and hover/tap
- *  beast doodles. The caller gates this entirely behind
- *  `prefers-reduced-motion` — this function assumes it's safe to animate.
- *  Returns undefined when there are no `.page-chapter` sections to wire
- *  (nothing to observe).
+ *  route maps, the flight-arc reveal, per-stroke ink-scene draw-in (chapters,
+ *  cover, beasts page), and atmosphere particles. The caller gates this
+ *  entirely behind `prefers-reduced-motion` — this function assumes it's
+ *  safe to animate. Returns undefined when there are no sections matching
+ *  `CHAPTER_SELECTOR` to wire (nothing to observe).
  *
  *  `soundHooks`, if given, is threaded through to every chapter revealer —
  *  this is the "lightweight hook registry" the pencil-scratch sound hangs

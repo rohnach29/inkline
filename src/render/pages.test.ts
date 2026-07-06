@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderBook } from "./pages";
 import { esc, drawDurationMs } from "./svg";
-import { doodleFor } from "./doodles";
 import { makeSyntheticYear } from "../fixtures/synthetic";
 import { analyzeYear } from "../analyze";
 import { buildBook } from "../storytell";
@@ -33,17 +32,7 @@ function sectionFor(html: string, dataPage: string): string {
   return html.slice(start, end);
 }
 
-function countOccurrences(haystack: string, needle: string): number {
-  let count = 0;
-  let at = haystack.indexOf(needle);
-  while (at !== -1) {
-    count++;
-    at = haystack.indexOf(needle, at + needle.length);
-  }
-  return count;
-}
-
-/** Minimal single-chapter Book for doodle-strip pinning tests. */
+/** Minimal single-chapter Book for map-area pinning tests. */
 function oneChapterBook(chapter: Chapter): Book {
   return {
     seed: 1,
@@ -67,7 +56,7 @@ function baseChapter(overrides: Partial<Chapter>): Chapter {
     },
     stats: [{ label: "distance", value: "5.0 km" }],
     mapSpec: null,
-    doodleTags: [],
+    sceneParams: {},
     atmosphereTags: [],
     eventType: "first-run",
     ...overrides,
@@ -141,6 +130,13 @@ describe("renderBook", () => {
     expect(html).not.toContain("page-game");
     expect(html).not.toContain("game-mount");
     expect(html).not.toContain("Outrun the Quiet");
+  });
+
+  it("renders one ink scene per chapter, on the cover, and per beast", () => {
+    const html = renderBook(book, year);
+    const sceneCount = (html.match(/class="ink-scene"/g) ?? []).length;
+    expect(sceneCount).toBe(book.chapters.length + 1 + book.beasts.length);
+    expect(html).not.toContain("ink-doodle");
   });
 
   it("includes every chapter title (reconstructed from tilt spans) and every poem line", () => {
@@ -241,7 +237,7 @@ describe("renderBook", () => {
     expect(html).not.toContain("page-chapter");
   });
 
-  it("never throws and falls back to a doodle when a route mapSpec's runId is missing from year.runs", () => {
+  it("never throws and renders an empty map area when a route mapSpec's runId is missing from year.runs", () => {
     const minimal: Book = {
       seed: 1,
       title: "Missing Run",
@@ -258,7 +254,7 @@ describe("renderBook", () => {
           },
           stats: [{ label: "distance", value: "5.0 km" }],
           mapSpec: { kind: "route", runId: "does-not-exist" },
-          doodleTags: ["shoes"],
+          sceneParams: {},
           atmosphereTags: [],
           eventType: "first-run",
         },
@@ -271,68 +267,17 @@ describe("renderBook", () => {
     expect(() => {
       html = renderBook(minimal, emptyYear());
     }).not.toThrow();
-    expect(html).toContain('class="ink-doodle"');
     expect(html).not.toContain('class="ink-map"');
-  });
-
-  it("keeps a lone doodleTag in the strip when the map rendered a real routeSvg", () => {
-    const chapter = baseChapter({
-      mapSpec: { kind: "route", runId: "r1" },
-      doodleTags: ["trophy"],
-      eventType: "longest-run",
-    });
-    const html = renderBook(oneChapterBook(chapter), trackedYear());
-    const section = sectionFor(html, "ch-1");
-    expect(section).toContain('class="ink-map"'); // real route rendered, no doodle consumed
-    expect(section).toContain(doodleFor("trophy")); // trophy survives in the strip
-  });
-
-  it("keeps ALL doodleTags in the strip for a flight-map (journey) chapter", () => {
-    const chapter = baseChapter({
-      mapSpec: {
-        kind: "flight",
-        from: { lat: 19.08, lon: 72.88, name: "Mumbai" },
-        to: { lat: 40.42, lon: -86.92, name: "Lafayette" },
-        km: 12842,
-      },
-      doodleTags: ["plane", "globe"],
-      eventType: "journey",
-    });
-    const html = renderBook(oneChapterBook(chapter), trackedYear());
-    const section = sectionFor(html, "ch-1");
-    expect(section).toContain("ink-arc"); // real flight svg rendered
-    expect(section).toContain(doodleFor("plane"));
-    expect(section).toContain(doodleFor("globe"));
-  });
-
-  it("renders a trackless chapter's lone doodleTag exactly once (map fallback, empty strip)", () => {
-    const chapter = baseChapter({
-      mapSpec: null,
-      doodleTags: ["shoes"],
-    });
-    const html = renderBook(oneChapterBook(chapter), trackedYear());
-    const section = sectionFor(html, "ch-1");
-    expect(countOccurrences(section, doodleFor("shoes"))).toBe(1);
-    expect(countOccurrences(section, 'class="ink-doodle"')).toBe(1);
-  });
-
-  it("renders every fixture chapter's every doodleTag somewhere in its own section", () => {
-    const html = renderBook(book, year);
-    book.chapters.forEach((chapter, i) => {
-      const section = sectionFor(html, `ch-${i + 1}`);
-      for (const tag of chapter.doodleTags) {
-        const doodle = doodleFor(tag);
-        expect(doodle.length).toBeGreaterThan(0); // fixture tags are all known
-        expect(section).toContain(doodle);
-      }
-    });
+    expect(html).toContain('<div class="map-area"></div>');
+    // The chapter's ink scene still carries the illustration even though
+    // the map area degraded to empty.
+    expect(html).toContain('class="ink-scene"');
   });
 
   it("stamps a route map's svg with data-draw-ms equal to drawDurationMs of the run's pace", () => {
     // trackedYear's run "r1": km=5, minutes=30 -> pace 6 min/km
     const chapter = baseChapter({
       mapSpec: { kind: "route", runId: "r1" },
-      doodleTags: [],
     });
     const html = renderBook(oneChapterBook(chapter), trackedYear());
     const section = sectionFor(html, "ch-1");
@@ -348,7 +293,6 @@ describe("renderBook", () => {
         to: { lat: 40.42, lon: -86.92, name: "Lafayette" },
         km: 12842,
       },
-      doodleTags: [],
       eventType: "journey",
     });
     const html = renderBook(oneChapterBook(chapter), trackedYear());
@@ -356,20 +300,17 @@ describe("renderBook", () => {
     expect(section).toContain('data-draw-ms="4000"');
   });
 
-  it("gives a doodle-fallback map area no data-draw-ms attribute at all", () => {
-    const chapter = baseChapter({
-      mapSpec: null,
-      doodleTags: ["shoes"],
-    });
+  it("gives a chapter with no mapSpec an empty map area and no data-draw-ms attribute", () => {
+    const chapter = baseChapter({ mapSpec: null });
     const html = renderBook(oneChapterBook(chapter), trackedYear());
     const section = sectionFor(html, "ch-1");
     expect(section).not.toContain("data-draw-ms");
+    expect(section).toContain('<div class="map-area"></div>');
   });
 
-  it("gives a missing-run route mapSpec (doodle fallback) no data-draw-ms attribute", () => {
+  it("gives a missing-run route mapSpec no data-draw-ms attribute", () => {
     const chapter = baseChapter({
       mapSpec: { kind: "route", runId: "does-not-exist" },
-      doodleTags: ["shoes"],
     });
     const html = renderBook(oneChapterBook(chapter), trackedYear());
     const section = sectionFor(html, "ch-1");

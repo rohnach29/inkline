@@ -6,7 +6,7 @@ import type { RawExport, Year } from "../ingest";
 import { analyzeYear } from "../analyze";
 import { buildBook } from "../storytell";
 import type { Book } from "../storytell";
-import { renderBook, esc, doodleFor } from "../render";
+import { renderBook, esc } from "../render";
 import { makeSyntheticYear } from "../fixtures/synthetic";
 import { routeFiles, gpxToRaw } from "./files";
 import { rejectionPage, brokenZipPage, stuckPage } from "./errors";
@@ -92,14 +92,12 @@ function renderCover(): void {
   pageEls = [];
   pageIndex = 0;
 
-  const doodle = doodleFor("shoes");
-
   app.innerHTML = [
     `<div class="map-area cover-wrap">`,
     `<section class="page cover-card drop-zone" id="drop-zone">`,
     `<h1 class="chapter-title cover-title">${tiltSpan("Inkline")}</h1>`,
     `<p class="verse cover-tagline">drop your Apple Health export — get the storybook of your running year</p>`,
-    `<div class="cover-doodle" aria-hidden="true">${doodle}</div>`,
+    `<div class="cover-doodle" aria-hidden="true"></div>`,
     `<p class="drop-zone-hint">drag your export here</p>`,
     `<button type="button" class="choose-file-btn" id="choose-file-btn">choose a file</button>`,
     `<input type="file" id="file-input" hidden multiple accept=".zip,.gpx" />`,

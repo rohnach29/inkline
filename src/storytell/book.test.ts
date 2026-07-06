@@ -107,6 +107,13 @@ describe("buildBook", () => {
     expect(book.beasts.some((b) => b.kind === "quiet")).toBe(true);
   });
 
+  it("gives a longest-run chapter a sceneParams.km number", () => {
+    const book = buildBook(year, story);
+    const longest = book.chapters.find((c) => c.eventType === "longest-run");
+    expect(longest).toBeDefined();
+    expect(typeof longest!.sceneParams.km).toBe("number");
+  });
+
   it("computes colophon.totalKm as the hand-summed fixture total", () => {
     const book = buildBook(year, story);
     expect(book.colophon.totalKm).toBeCloseTo(FIXTURE_TOTAL_KM, 1);

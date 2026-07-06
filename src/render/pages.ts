@@ -2,14 +2,18 @@ import type { Book, Chapter, MapSpec } from "../storytell";
 import type { ChapterPoem } from "../storytell";
 import type { Year } from "../ingest";
 import { routeSvg, flightSvg, esc, drawDurationMs } from "./svg";
-import { doodleFor } from "./doodles";
+import { renderScene } from "../ink";
+import type { SceneParams } from "../ink";
+import { Rng } from "../storytell/rng";
 
-/** Emitted exactly once, at the top of renderBook's output. Every ink-* and
- *  ink-doodle stroke in this file references filter="url(#wobble)" against
- *  this single definition. Exported so living/share.ts can embed the same
- *  defs into each rasterized page's standalone SVG — the filter lives at
- *  book root, OUTSIDE every `.page`, so a cloned section alone would render
- *  its routes/doodles unfiltered (losing the hand-drawn wobble). */
+/** Emitted exactly once, at the top of renderBook's output. Every ink-route/
+ *  ink-globe/ink-graticule/ink-arc stroke in this file references
+ *  filter="url(#wobble)" against this single definition — ink SCENES do not
+ *  (the stroke engine wobbles its own paths), so they're unaffected by this
+ *  defs block. Exported so living/share.ts can embed the same defs into each
+ *  rasterized page's standalone SVG — the filter lives at book root, OUTSIDE
+ *  every `.page`, so a cloned section alone would render its routes
+ *  unfiltered (losing the hand-drawn wobble). */
 export const WOBBLE_DEFS =
   '<svg style="position:absolute;width:0;height:0" aria-hidden="true"><defs><filter id="wobble"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter></defs></svg>';
 
@@ -26,8 +30,6 @@ const EMPTY_BOOK_LINES = [
 
 const DETERMINISM_LINE = "drawn deterministically — the same year makes the same book, forever.";
 const BEASTS_KICKER = "a field guide to what chased you";
-
-const FALLBACK_DOODLE_TAG = "shoes";
 
 /** Flight maps have no meaningful "pace" (they're not a run), so the
  *  self-drawing-ink layer gets a fixed duration for them. */
@@ -57,17 +59,6 @@ function tiltSpan(text: string): string {
   return out;
 }
 
-// -------------------------------------------------------------------------
-// Doodle fallback helpers
-// -------------------------------------------------------------------------
-
-interface DoodlePick {
-  html: string;
-  /** Index into `tags` of the tag that was rendered, or -1 when the ultimate
-   *  "shoes" fallback was used (no listed tag was consumed). */
-  usedTagIndex: number;
-}
-
 /** Stamps `data-draw-ms="{ms}"` onto a top-level `<svg ...>` string's opening
  *  tag, for the living-book layer to read the self-drawing-ink duration from.
  *  Assumes `svgHtml` starts with `<svg ` (true of routeSvg/flightSvg output). */
@@ -75,30 +66,13 @@ function withDrawMs(svgHtml: string, ms: number): string {
   return svgHtml.replace("<svg ", `<svg data-draw-ms="${ms}" `);
 }
 
-/** First tag (in order) that resolves to a non-empty doodle; "shoes" if none do. */
-function firstDoodle(tags: readonly string[]): DoodlePick {
-  for (let i = 0; i < tags.length; i++) {
-    const svg = doodleFor(tags[i]!);
-    if (svg) return { html: svg, usedTagIndex: i };
-  }
-  return { html: doodleFor(FALLBACK_DOODLE_TAG), usedTagIndex: -1 };
-}
-
 // -------------------------------------------------------------------------
-// Chapter map area — route svg, flight svg, or doodle fallback. Never throws:
-// a missing/trackless run, or an empty routeSvg result, degrades to the
-// chapter's first doodle tag (or "shoes" if that's empty/unknown too).
+// Chapter map area — route svg or flight svg only. Never throws: a
+// missing/trackless run, or an empty routeSvg result, degrades to "" (the
+// chapter's ink scene below always carries the illustration now).
 // -------------------------------------------------------------------------
 
-interface MapArea {
-  html: string;
-  /** Index of the doodleTag the map area consumed as its fallback, or -1
-   *  when a real route/flight svg (or the ultimate "shoes" fallback) was
-   *  rendered — i.e. when no listed tag was used up by the map area. */
-  usedTagIndex: number;
-}
-
-function renderMapArea(mapSpec: MapSpec | null, doodleTags: readonly string[], year: Year): MapArea {
+function renderMapArea(mapSpec: MapSpec | null, year: Year): string {
   if (mapSpec) {
     if (mapSpec.kind === "route") {
       const run = year.runs.find((r) => r.id === mapSpec.runId);
@@ -106,29 +80,28 @@ function renderMapArea(mapSpec: MapSpec | null, doodleTags: readonly string[], y
         const svg = routeSvg(run.track, run.id);
         if (svg) {
           const pace = run.km > 0 ? run.minutes / run.km : null;
-          return { html: withDrawMs(svg, drawDurationMs(pace)), usedTagIndex: -1 };
+          return withDrawMs(svg, drawDurationMs(pace));
         }
       }
     } else {
       const svg = flightSvg(mapSpec.from, mapSpec.to, mapSpec.km);
-      return { html: withDrawMs(svg, FLIGHT_DRAW_MS), usedTagIndex: -1 };
+      return withDrawMs(svg, FLIGHT_DRAW_MS);
     }
   }
-  return firstDoodle(doodleTags);
+  return "";
 }
 
 // -------------------------------------------------------------------------
 // Page renderers
 // -------------------------------------------------------------------------
 
-function renderCover(book: Book): string {
-  const firstTag = book.chapters[0]?.doodleTags[0];
-  const doodle = firstTag ? (doodleFor(firstTag) || doodleFor(FALLBACK_DOODLE_TAG)) : doodleFor(FALLBACK_DOODLE_TAG);
+function renderCover(book: Book, rng: Rng): string {
+  const scene = renderScene("cover", {}, rng.fork("scene:cover"));
   return [
     `<section class="page page-cover" data-page="cover">`,
     `<h1 class="book-title">${tiltSpan(book.title)}</h1>`,
     `<p class="book-subtitle">${esc(book.subtitle)}</p>`,
-    `<div class="cover-doodle">${doodle}</div>`,
+    `<div class="cover-scene">${scene}</div>`,
     `</section>`,
   ].join("");
 }
@@ -153,30 +126,27 @@ function renderPoem(poem: ChapterPoem): string {
   return `<div class="poem poem-${poem.form}">${lines}</div>`;
 }
 
-function renderChapter(chapter: Chapter, index: number, year: Year): string {
+function renderChapter(chapter: Chapter, index: number, year: Year, rng: Rng): string {
   const atmosphere = esc(chapter.atmosphereTags.join(" "));
   const poemHtml = renderPoem(chapter.poem);
-  const mapArea = renderMapArea(chapter.mapSpec, chapter.doodleTags, year);
+  const mapAreaHtml = renderMapArea(chapter.mapSpec, year);
   const statsRows = chapter.stats
     .map((s) => `<dt>${esc(s.label)}</dt><dd>${esc(s.value)}</dd>`)
     .join("");
-  // Strip = every doodleTag EXCEPT the one the map area actually consumed as
-  // its fallback. When the map rendered a real route/flight svg (no doodle
-  // consumed, usedTagIndex -1), ALL tags render in the strip.
-  const strip = chapter.doodleTags
-    .filter((_, i) => i !== mapArea.usedTagIndex)
-    .map((t) => doodleFor(t))
-    .filter((svg) => svg.length > 0)
-    .join("");
+  const scene = renderScene(
+    chapter.eventType,
+    chapter.sceneParams as SceneParams,
+    rng.fork(`scene:${chapter.id}`),
+  );
 
   return [
     `<section class="page page-chapter" data-page="ch-${index}" data-event="${esc(chapter.eventType)}" data-atmosphere="${atmosphere}">`,
     `<div class="kicker">${esc(chapter.kicker)}</div>`,
     `<h2 class="chapter-title">${tiltSpan(chapter.title)}</h2>`,
     poemHtml,
-    `<div class="map-area">${mapArea.html}</div>`,
+    `<div class="map-area">${mapAreaHtml}</div>`,
     `<dl class="stats">${statsRows}</dl>`,
-    strip ? `<div class="doodle-strip">${strip}</div>` : "",
+    `<div class="scene-area">${scene}</div>`,
     `</section>`,
   ].join("");
 }
@@ -192,12 +162,12 @@ function renderEmptyYearPage(): string {
   ].join("");
 }
 
-function renderBeasts(book: Book): string {
+function renderBeasts(book: Book, rng: Rng): string {
   const entries = book.beasts
     .map((b) =>
       [
         `<div class="beast-entry">`,
-        firstDoodle([b.doodleTag]).html,
+        renderScene(`beast-${b.kind}`, {}, rng.fork(`scene:beast:${b.name}`)),
         `<div class="beast-name">${esc(b.name)}</div>`,
         `<div class="beast-desc">${esc(b.description)}</div>`,
         `</div>`,
@@ -235,20 +205,22 @@ function renderColophon(book: Book): string {
 /** The entire book as an HTML string of consecutive <section class="page" …>
  *  elements, preceded by the wobble-filter defs svg (rendered exactly once).
  *  Pure, deterministic, never throws: a route mapSpec whose runId isn't in
- *  year.runs (or whose run has no usable track) degrades to a doodle. */
+ *  year.runs (or whose run has no usable track) degrades to an empty map
+ *  area — the chapter's ink scene still carries the illustration. */
 export function renderBook(book: Book, year: Year): string {
-  const parts: string[] = [WOBBLE_DEFS, renderCover(book), renderDedication(book)];
+  const rng = new Rng(book.seed);
+  const parts: string[] = [WOBBLE_DEFS, renderCover(book, rng), renderDedication(book)];
 
   if (book.chapters.length === 0) {
     parts.push(renderEmptyYearPage());
   } else {
     book.chapters.forEach((chapter, i) => {
-      parts.push(renderChapter(chapter, i + 1, year));
+      parts.push(renderChapter(chapter, i + 1, year, rng));
     });
   }
 
   if (book.beasts.length > 0) {
-    parts.push(renderBeasts(book));
+    parts.push(renderBeasts(book, rng));
   }
 
   parts.push(renderColophon(book));

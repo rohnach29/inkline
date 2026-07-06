@@ -19,7 +19,7 @@ export interface Chapter {
   poem: ChapterPoem;
   stats: ChapterStat[]; // honest numbers, already formatted
   mapSpec: MapSpec | null;
-  doodleTags: string[];
+  sceneParams: Record<string, number>;
   atmosphereTags: string[];
   eventType: StoryEventType;
 }
@@ -43,7 +43,6 @@ export interface BeastEntry {
   name: string;
   kind: "quiet" | "hill" | "night" | "false-start" | "ghost";
   description: string;
-  doodleTag: string;
 }
 
 export interface Colophon {

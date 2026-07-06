@@ -187,10 +187,7 @@ body {
 .ink-route,
 .ink-globe,
 .ink-graticule,
-.ink-arc,
-.ink-doodle path,
-.ink-doodle circle,
-.ink-doodle line {
+.ink-arc {
   stroke: var(--ink);
   stroke-width: 2.2;
   stroke-linecap: round;
@@ -233,24 +230,8 @@ body {
   margin: 2.5rem auto;
 }
 
-.map-area .ink-doodle {
-  display: block;
-  width: 150px;
-  height: auto;
-  margin: 2.5rem auto;
-}
-
-.doodle-strip {
-  display: flex;
-  gap: 1.25rem;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.doodle-strip .ink-doodle {
-  width: 64px;
-  height: auto;
-}
+.scene-area { max-width: 340px; margin: 1.2rem auto 0; }
+.cover-scene { max-width: 380px; margin: 2rem auto 0; }
 
 .beast-entry {
   display: flex;
@@ -259,11 +240,7 @@ body {
   margin: 1.5rem 0;
 }
 
-.beast-entry .ink-doodle {
-  width: 72px;
-  height: auto;
-  flex-shrink: 0;
-}
+.beast-entry .ink-scene { max-width: 200px; }
 
 /* pages.ts emits <dl class="stats"> with direct dt/dd children (no inner
  * dl), so the layout goes on .stats itself — a wrapping handwriting
@@ -359,12 +336,10 @@ body {
   }
 }
 
-/* 9. Living book — beast doodles + flight arc -------------------------------
- * Beasts (beasts.ts): hovering/tapping an .ink-doodle inside .page-beasts or
- * .doodle-strip adds .is-alive for 1400ms, triggering a subtle wiggle. Ghost
- * doodles (data-tag="ghost", emitted by render/doodles.ts) get their own
- * richer keyframes instead — same wiggle curve plus an extra float and an
- * opacity dip — via the higher-specificity attribute-selector rule below.
+/* 9. Living book — flight arc -----------------------------------------------
+ * Beast-hover wiggle (formerly the "is-alive" class on doodle svgs) retired
+ * along with doodles — beast entries render .ink-scene now, and Plan G's per-stroke
+ * draw-in (scene-reveal.ts) is the reveal treatment for every scene.
  *
  * Flight (flight.ts): the globe/graticule rims fade in via inline
  * transition-* styles JS sets before flipping opacity (mirrors the
@@ -372,45 +347,6 @@ body {
  * dasharray transition-property rule is needed here since that's already
  * covered by the .ink-arc.is-drawing rule above. The traveling dot fades out
  * once it reaches the end of the arc. */
-
-@keyframes doodle-wiggle {
-  0% {
-    transform: rotate(-2deg) translateY(0);
-  }
-  50% {
-    transform: rotate(2.5deg) translateY(-3px);
-  }
-  100% {
-    transform: rotate(-1deg) translateY(0);
-  }
-}
-
-.ink-doodle {
-  transform-origin: center bottom;
-}
-
-.ink-doodle.is-alive {
-  animation: doodle-wiggle 1.4s ease-in-out;
-}
-
-@keyframes ghost-drift {
-  0% {
-    transform: rotate(-2deg) translateY(0);
-    opacity: 0.8;
-  }
-  50% {
-    transform: rotate(2.5deg) translateY(-4px);
-    opacity: 0.5;
-  }
-  100% {
-    transform: rotate(-1deg) translateY(0);
-    opacity: 0.8;
-  }
-}
-
-.ink-doodle[data-tag="ghost"].is-alive {
-  animation: ghost-drift 1.4s ease-in-out;
-}
 
 .ink-flight-dot {
   fill: var(--ink);
@@ -422,11 +358,6 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ink-doodle.is-alive,
-  .ink-doodle[data-tag="ghost"].is-alive {
-    animation: none !important;
-  }
-
   .ink-flight-dot.is-fading {
     transition: none !important;
   }

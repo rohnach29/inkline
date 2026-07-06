@@ -5,31 +5,26 @@ exports[`buildBook > matches the golden snapshot 1`] = `
   "beasts": [
     {
       "description": "2 runs that quit before a kilometer, shortest just 0.4 km.",
-      "doodleTag": "banana",
       "kind": "false-start",
       "name": "Two Steps and a Shrug",
     },
     {
       "description": "2 runs after the dark had already signed off, latest at 00:45.",
-      "doodleTag": "moon",
       "kind": "night",
       "name": "The 00:45",
     },
     {
       "description": "40 days without a single footfall.",
-      "doodleTag": "empty-shoes",
       "kind": "quiet",
       "name": "The Small Quiet",
     },
     {
       "description": "A 60 m climb, met 4 times, and never once forgiven.",
-      "doodleTag": "hills",
       "kind": "hill",
       "name": "Mount Second Thoughts",
     },
     {
       "description": "300 m of climb the ground never actually had.",
-      "doodleTag": "ghost",
       "kind": "ghost",
       "name": "The Turnaround",
     },
@@ -37,9 +32,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
   "chapters": [
     {
       "atmosphereTags": [],
-      "doodleTags": [
-        "shoes",
-      ],
       "eventType": "first-run",
       "id": "first-run:1735865100000",
       "kicker": "in which the year begins",
@@ -67,6 +59,9 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {
+        "km": 3,
+      },
       "stats": [
         {
           "label": "distance",
@@ -81,9 +76,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [
-        "banana",
-      ],
       "eventType": "false-starts",
       "id": "false-starts:1735951800000",
       "kicker": "in which the shoes get put back on",
@@ -108,6 +100,9 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {
+        "count": 2,
+      },
       "stats": [
         {
           "label": "count",
@@ -122,7 +117,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [],
       "eventType": "latest-run",
       "id": "latest-run:1737395100000",
       "kicker": "in which the day gets away first",
@@ -168,6 +162,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {},
       "stats": [
         {
           "label": "time",
@@ -183,10 +178,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     {
       "atmosphereTags": [
         "fireflies",
-      ],
-      "doodleTags": [
-        "moon",
-        "stars",
       ],
       "eventType": "night-runs",
       "id": "night-runs:1737395100000",
@@ -209,6 +200,9 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {
+        "count": 2,
+      },
       "stats": [
         {
           "label": "nights",
@@ -223,7 +217,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [],
       "eventType": "earliest-run",
       "id": "earliest-run:1737400500000",
       "kicker": "in which the dawn is beaten to the punch",
@@ -257,6 +250,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {},
       "stats": [
         {
           "label": "time",
@@ -271,9 +265,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [
-        "chain",
-      ],
       "eventType": "streak",
       "id": "streak:1738373400000",
       "kicker": "in which the mornings pile up",
@@ -306,6 +297,9 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {
+        "days": 6,
+      },
       "stats": [
         {
           "label": "length",
@@ -320,9 +314,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [
-        "empty-shoes",
-      ],
       "eventType": "quiet",
       "id": "quiet:1738805400000",
       "kicker": "in which nothing happens, loudly",
@@ -344,6 +335,9 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {
+        "days": 40,
+      },
       "stats": [
         {
           "label": "silence",
@@ -358,9 +352,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [
-        "wind",
-      ],
       "eventType": "fastest-run",
       "id": "fastest-run:1742261400000",
       "kicker": "in which the wind gives up first",
@@ -388,6 +379,10 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {
+        "km": 5,
+        "paceMinPerKm": 4.4,
+      },
       "stats": [
         {
           "label": "pace",
@@ -402,10 +397,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [
-        "plane",
-        "globe",
-      ],
       "eventType": "journey",
       "id": "journey:1743508800000",
       "kicker": "in which the map gets crowded",
@@ -464,6 +455,9 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {
+        "km": 13077.115645908163,
+      },
       "stats": [
         {
           "label": "distance",
@@ -478,9 +472,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [
-        "hills",
-      ],
       "eventType": "hill-beast",
       "id": "hill-beast:1744284600000",
       "kicker": "in which a hill becomes a rival",
@@ -517,6 +508,9 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {
+        "gainM": 60,
+      },
       "stats": [
         {
           "label": "climb",
@@ -535,7 +529,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [],
       "eventType": "route-champion",
       "id": "route-champion:1744284600000",
       "kicker": "in which one road becomes a habit",
@@ -560,6 +553,10 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {
+        "count": 4,
+        "km": 3.2,
+      },
       "stats": [
         {
           "label": "runs",
@@ -574,9 +571,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [
-        "ghost",
-      ],
       "eventType": "ghost-elevation",
       "id": "ghost-elevation:1749123000000",
       "kicker": "in which the watch imagines things",
@@ -604,6 +598,9 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {
+        "gainM": 300,
+      },
       "stats": [
         {
           "label": "climb",
@@ -618,7 +615,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [],
       "eventType": "last-run",
       "id": "last-run:1750417200000",
       "kicker": "in which the year comes home",
@@ -652,6 +648,9 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           },
         ],
       },
+      "sceneParams": {
+        "km": 21.1,
+      },
       "stats": [
         {
           "label": "distance",
@@ -666,9 +665,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
     },
     {
       "atmosphereTags": [],
-      "doodleTags": [
-        "trophy",
-      ],
       "eventType": "longest-run",
       "id": "longest-run:1750417200000",
       "kicker": "in which the distance gets away from you",
@@ -725,6 +721,9 @@ exports[`buildBook > matches the golden snapshot 1`] = `
             "text": "and went the whole way home a step behind.",
           },
         ],
+      },
+      "sceneParams": {
+        "km": 21.1,
       },
       "stats": [
         {
