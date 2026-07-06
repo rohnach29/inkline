@@ -15,6 +15,12 @@ import { scene as month } from "./month";
 import { scene as routeChampion } from "./route-champion";
 import { scene as hillBeast } from "./hill-beast";
 import { scene as ghostElevation } from "./ghost-elevation";
+import { scene as beastQuiet } from "./beast-quiet";
+import { scene as beastHill } from "./beast-hill";
+import { scene as beastNight } from "./beast-night";
+import { scene as beastFalseStart } from "./beast-false-start";
+import { scene as beastGhost } from "./beast-ghost";
+import { scene as cover } from "./cover";
 
 /** Scene modules register here as Tasks 4–6 land them. */
 export const SCENES: Partial<Record<SceneTag, SceneFn>> = {
@@ -34,4 +40,10 @@ export const SCENES: Partial<Record<SceneTag, SceneFn>> = {
   "route-champion": routeChampion,
   "hill-beast": hillBeast,
   "ghost-elevation": ghostElevation,
+  "beast-quiet": beastQuiet,
+  "beast-hill": beastHill,
+  "beast-night": beastNight,
+  "beast-false-start": beastFalseStart,
+  "beast-ghost": beastGhost,
+  "cover": cover,
 };
