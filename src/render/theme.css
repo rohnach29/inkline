@@ -336,10 +336,15 @@ body {
   }
 }
 
-/* 9. Living book — flight arc -----------------------------------------------
- * Beast-hover wiggle (formerly the "is-alive" class on doodle svgs) retired
- * along with doodles — beast entries render .ink-scene now, and Plan G's per-stroke
- * draw-in (scene-reveal.ts) is the reveal treatment for every scene.
+/* 9. Living book — beast wiggle + flight arc --------------------------------
+ * Beasts (beasts.ts): hovering/tapping a `.beast-entry .ink-scene` adds
+ * .is-alive for 1400ms, triggering a subtle wiggle. The ghost beast scene
+ * (data-scene="beast-ghost", emitted by ink/scenes now instead of
+ * render/doodles.ts) gets its own richer keyframes — same wiggle curve plus
+ * an extra float and an opacity dip — via the higher-specificity
+ * attribute-selector rule below. Plan G's per-stroke draw-in
+ * (scene-reveal.ts) is the separate first-reveal treatment for every scene;
+ * this wiggle is the repeatable hover/tap affordance layered on top.
  *
  * Flight (flight.ts): the globe/graticule rims fade in via inline
  * transition-* styles JS sets before flipping opacity (mirrors the
@@ -347,6 +352,52 @@ body {
  * dasharray transition-property rule is needed here since that's already
  * covered by the .ink-arc.is-drawing rule above. The traveling dot fades out
  * once it reaches the end of the arc. */
+
+@keyframes beast-wiggle {
+  0% {
+    transform: rotate(-2deg) translateY(0);
+  }
+  50% {
+    transform: rotate(2.5deg) translateY(-3px);
+  }
+  100% {
+    transform: rotate(-1deg) translateY(0);
+  }
+}
+
+.beast-entry .ink-scene {
+  transform-origin: center bottom;
+}
+
+.beast-entry .ink-scene.is-alive {
+  animation: beast-wiggle 1.4s ease-in-out;
+}
+
+@keyframes beast-ghost-drift {
+  0% {
+    transform: rotate(-2deg) translateY(0);
+    opacity: 0.8;
+  }
+  50% {
+    transform: rotate(2.5deg) translateY(-4px);
+    opacity: 0.5;
+  }
+  100% {
+    transform: rotate(-1deg) translateY(0);
+    opacity: 0.8;
+  }
+}
+
+.beast-entry .ink-scene[data-scene="beast-ghost"].is-alive {
+  animation: beast-ghost-drift 1.4s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beast-entry .ink-scene.is-alive,
+  .beast-entry .ink-scene[data-scene="beast-ghost"].is-alive {
+    animation: none !important;
+  }
+}
 
 .ink-flight-dot {
   fill: var(--ink);

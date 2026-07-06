@@ -1,10 +1,10 @@
 const ALIVE_MS = 1400;
-const BEAST_SELECTOR = ".page-beasts .ink-doodle, .doodle-strip .ink-doodle";
+const BEAST_SELECTOR = ".beast-entry .ink-scene";
 
-/** Pure-ish trigger logic for a single beast doodle: given the element and
+/** Pure-ish trigger logic for a single beast scene: given the element and
  *  a monotonic clock (`performance.now`-shaped, injected so tests can drive
  *  it with a fake one), returns a function that, on `"enter"`, adds the
- *  `is-alive` class and returns `true` — UNLESS the doodle is still inside
+ *  `is-alive` class and returns `true` — UNLESS the scene is still inside
  *  its previous 1400ms window, in which case it does nothing and returns
  *  `false`. Re-triggerable once that window has fully elapsed. Class
  *  removal (so a later trigger can restart the CSS animation) is the
@@ -21,12 +21,11 @@ export function wireBeast(el: Element, now: () => number): (type: "enter") => bo
   };
 }
 
-/** Wires every `.ink-doodle` inside `.page-beasts` and `.doodle-strip` under
- *  `root`: hovering (`mouseenter`) or tapping (`click`) triggers a 1400ms
- *  `is-alive` wiggle (ghosts additionally drift, via the CSS selector
- *  `.ink-doodle[data-tag="ghost"].is-alive` — see render/theme.css), gated
- *  by `wireBeast` so a doodle mid-animation ignores further triggers until
- *  it ends. Returns a teardown that removes listeners and clears any
+/** Wires every `.ink-scene` inside a `.beast-entry` under `root`: hovering
+ *  (`mouseenter`) or tapping (`click`) triggers a 1400ms `is-alive` wiggle
+ *  (see the `.beast-entry .ink-scene.is-alive` CSS in render/theme.css),
+ *  gated by `wireBeast` so a scene mid-animation ignores further triggers
+ *  until it ends. Returns a teardown that removes listeners and clears any
  *  in-flight class-removal timers. */
 export function initBeasts(root: ParentNode): () => void {
   const elements = Array.from(root.querySelectorAll<Element>(BEAST_SELECTOR));

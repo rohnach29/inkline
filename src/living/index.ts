@@ -23,9 +23,9 @@ export type { SoundHandle, DrawHooks } from "./sound";
 
 /** Every section that can carry a self-drawing ink scene: chapters (route/
  *  flight map + scene), the cover (scene only), and the beasts page (one
- *  scene per beast entry, though revealScene only draws in the FIRST beast
- *  entry's <svg.ink-scene> found in a .page-beasts section — see
- *  scene-reveal.ts's single-svg-per-call contract). */
+ *  scene per beast entry — revealScene draws in every not-yet-revealed
+ *  `svg.ink-scene` found in the section, so all beast entries animate
+ *  together, see scene-reveal.ts). */
 const CHAPTER_SELECTOR = ".page-chapter, .page-beasts, .page-cover";
 const INTERSECTION_THRESHOLD = 0.35;
 

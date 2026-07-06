@@ -1,11 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { wireBeast } from "./beasts";
 
-/** Minimal stand-in for the one thing `wireBeast` touches on `el` —
- *  `classList.add` — since vitest here runs in its default node environment
- *  (no jsdom), a real DOM Element isn't available. Cast through `unknown`
- *  to satisfy the `Element` parameter type structurally. */
-function fakeDoodle(): { el: Element; aliveCount: () => number } {
+/** Minimal stand-in for the one thing `wireBeast` touches on `el` — a
+ *  `.beast-entry .ink-scene` svg's `classList.add` — since vitest here runs
+ *  in its default node environment (no jsdom), a real DOM Element isn't
+ *  available. Cast through `unknown` to satisfy the `Element` parameter
+ *  type structurally. */
+function fakeBeastEl(): { el: Element; aliveCount: () => number } {
   let count = 0;
   const el = {
     classList: {
@@ -32,14 +33,14 @@ function fakeClock(start = 0): { now: () => number; advance: (ms: number) => voi
 
 describe("wireBeast", () => {
   it("fires on the first enter", () => {
-    const { el } = fakeDoodle();
+    const { el } = fakeBeastEl();
     const clock = fakeClock();
     const trigger = wireBeast(el, clock.now);
     expect(trigger("enter")).toBe(true);
   });
 
   it("adds the is-alive class exactly once when it fires", () => {
-    const { el, aliveCount } = fakeDoodle();
+    const { el, aliveCount } = fakeBeastEl();
     const clock = fakeClock();
     const trigger = wireBeast(el, clock.now);
     trigger("enter");
@@ -47,7 +48,7 @@ describe("wireBeast", () => {
   });
 
   it("does not re-fire while still alive, just before the 1400ms window ends", () => {
-    const { el } = fakeDoodle();
+    const { el } = fakeBeastEl();
     const clock = fakeClock();
     const trigger = wireBeast(el, clock.now);
     expect(trigger("enter")).toBe(true);
@@ -56,7 +57,7 @@ describe("wireBeast", () => {
   });
 
   it("does not add is-alive again for a re-entry that doesn't fire", () => {
-    const { el, aliveCount } = fakeDoodle();
+    const { el, aliveCount } = fakeBeastEl();
     const clock = fakeClock();
     const trigger = wireBeast(el, clock.now);
     trigger("enter");
@@ -66,7 +67,7 @@ describe("wireBeast", () => {
   });
 
   it("re-fires exactly once the 1400ms window has elapsed", () => {
-    const { el } = fakeDoodle();
+    const { el } = fakeBeastEl();
     const clock = fakeClock();
     const trigger = wireBeast(el, clock.now);
     trigger("enter");
@@ -75,7 +76,7 @@ describe("wireBeast", () => {
   });
 
   it("re-fires well after the window has elapsed", () => {
-    const { el } = fakeDoodle();
+    const { el } = fakeBeastEl();
     const clock = fakeClock();
     const trigger = wireBeast(el, clock.now);
     trigger("enter");
@@ -84,7 +85,7 @@ describe("wireBeast", () => {
   });
 
   it("each successful fire re-arms its own fresh 1400ms window", () => {
-    const { el } = fakeDoodle();
+    const { el } = fakeBeastEl();
     const clock = fakeClock();
     const trigger = wireBeast(el, clock.now);
     trigger("enter"); // fires at t=0, alive until t=1400
@@ -95,8 +96,8 @@ describe("wireBeast", () => {
   });
 
   it("tracks alive windows independently per element", () => {
-    const a = fakeDoodle();
-    const b = fakeDoodle();
+    const a = fakeBeastEl();
+    const b = fakeBeastEl();
     const clock = fakeClock();
     const triggerA = wireBeast(a.el, clock.now);
     const triggerB = wireBeast(b.el, clock.now);

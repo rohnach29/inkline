@@ -12,6 +12,8 @@ import { routeFiles, gpxToRaw } from "./files";
 import { rejectionPage, brokenZipPage, stuckPage } from "./errors";
 import { initLivingBook, wireCover3d, attachSound, soundLabel } from "../living";
 import type { LivingBookHandle } from "../living";
+import { renderScene } from "../ink";
+import { Rng } from "../storytell/rng";
 
 // ---------------------------------------------------------------------
 // Root + small shared state
@@ -97,7 +99,7 @@ function renderCover(): void {
     `<section class="page cover-card drop-zone" id="drop-zone">`,
     `<h1 class="chapter-title cover-title">${tiltSpan("Inkline")}</h1>`,
     `<p class="verse cover-tagline">drop your Apple Health export — get the storybook of your running year</p>`,
-    `<div class="cover-doodle" aria-hidden="true"></div>`,
+    `<div class="cover-doodle" aria-hidden="true">${renderScene("cover", {}, new Rng(2026).fork("landing"))}</div>`,
     `<p class="drop-zone-hint">drag your export here</p>`,
     `<button type="button" class="choose-file-btn" id="choose-file-btn">choose a file</button>`,
     `<input type="file" id="file-input" hidden multiple accept=".zip,.gpx" />`,
