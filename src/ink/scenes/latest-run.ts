@@ -35,18 +35,22 @@ export const scene: SceneFn = (_params, rng) => {
   add(strokePath(arc(62, 57, 1.2, 0, Math.PI * 2, 6), "centerline", { wobble: 0.2 }, rng.fork("pupil")), "centerline", "s-ink"); // watching
   add(strokePath([{ x: 58, y: 52 }, { x: 65, y: 51 }], "centerline", { wobble: 0.3 }, rng.fork("brow")), "centerline", "s-ink");
 
-  // the crescent-moon "dog" trotting near the ground (crisp): outer bulge minus
-  // an inner arc, with a collar and little trotting ticks
-  const outer = arc(184, 168, 16, -1.05, 1.05, 8);
-  const inner = arc(176, 168, 14, 1.05, -1.05, 8);
+  // the crescent-moon "dog" (crisp): a BIG unmistakable crescent — outer arc of
+  // one circle, inner arc of an offset circle — horns pointing back toward the
+  // Kid, floating just above the ground at the end of the leash.
+  const mx = 192, my = 154, mr = 16;
+  const outer = arc(mx, my, mr, -2.0, 2.0, 14); // fat outer bulge, tips at the horns
+  const inner = arc(mx - 8, my, 14.6, 1.48, -1.48, 12); // inner curve back up between the horns
   add(strokePath([...outer, ...inner, outer[0]!], "centerline", { wobble: 0.7, overshoot: 2 }, rng.fork("moon")), "centerline", "s-ink");
-  // a collar where the leash clips on, and two little trotting legs
-  add(strokePath([{ x: 185, y: 154 }, { x: 195, y: 157 }], "centerline", { wobble: 0.3 }, rng.fork("collar")), "centerline", "s-ink");
-  add(strokePath([{ x: 181, y: 183 }, { x: 179, y: 191 }], "centerline", { wobble: 0.3 }, rng.fork("leg1")), "centerline", "s-ink");
-  add(strokePath([{ x: 193, y: 183 }, { x: 195, y: 191 }], "centerline", { wobble: 0.3 }, rng.fork("leg2")), "centerline", "s-ink");
+  // a little dog eye near the upper horn, and a collar on the lower horn
+  add(strokePath(arc(195, 147, 1.5, 0, Math.PI * 2, 6), "centerline", { wobble: 0.2 }, rng.fork("moonEye")), "centerline", "s-ink");
+  add(strokePath([{ x: 182, y: 161 }, { x: 189, y: 165 }], "centerline", { wobble: 0.3 }, rng.fork("collar")), "centerline", "s-ink");
+  // faint float-ticks beneath — it hovers, dog-trot in spirit
+  add(strokePath([{ x: 183, y: 178 }, { x: 189, y: 178 }], "centerline", { wobble: 0.3 }, rng.fork("float1")), "centerline", "s-pencil");
+  add(strokePath([{ x: 195, y: 175 }, { x: 200, y: 175 }], "centerline", { wobble: 0.3 }, rng.fork("float2")), "centerline", "s-pencil");
 
-  // the leash from the Kid's hand to the moon's collar
-  add(strokePath([{ x: 133, y: 152 }, { x: 160, y: 152 }, { x: 189, y: 158 }], "centerline", { wobble: 0.5 }, rng.fork("leash")), "centerline", "s-ink");
+  // the leash, arcing UP from the Kid's hand to the moon's collar
+  add(strokePath([{ x: 131, y: 152 }, { x: 156, y: 143 }, { x: 184, y: 162 }], "centerline", { wobble: 0.5 }, rng.fork("leash")), "centerline", "s-ink");
 
   // the Kid, out for a walk. Drawn last.
   strokes.push(...kidStrokes("running", { x: 118, y: 178, scale: 0.95 }, rng.fork("kid"), order));

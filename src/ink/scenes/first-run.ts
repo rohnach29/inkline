@@ -40,8 +40,13 @@ export const scene: SceneFn = (_params, rng) => {
   add(strokePath([{ x: R + 15, y: T + 40 }, { x: R + 13, y: T + 50 }], "centerline", { wobble: 0.5 }, rng.fork("tick2")), "centerline", "s-pencil");
   add(strokePath([{ x: R + 22, y: T + 62 }, { x: R + 20, y: T + 72 }], "centerline", { wobble: 0.5 }, rng.fork("tick3")), "centerline", "s-pencil");
 
-  // the Kid, mid-stride off the top-right corner — back foot on the ledge,
-  // front foot already out over nothing. Drawn last.
-  strokes.push(...kidStrokes("running", { x: R, y: T, scale: 0.92 }, rng.fork("kid"), order));
+  // the Kid, tiptoeing at the top-right corner — the whole FRONT FOOT is
+  // cantilevered out past the edge into the void (back foot ends right at the
+  // brink), body leaning BACK in caution. Two faint tap-ticks under the
+  // hovering toe: testing the white. Drawn last.
+  strokes.push(...kidStrokes("looking-up", { x: R - 4, y: T, scale: 0.95, lean: -11 }, rng.fork("kid"), order));
+  order += 40; // tap-ticks sit above the Kid's strokes in order space
+  add(strokePath([{ x: R + 6, y: T + 5 }, { x: R + 10, y: T + 6 }], "centerline", { wobble: 0.3 }, rng.fork("tap1")), "centerline", "s-pencil");
+  add(strokePath([{ x: R + 4, y: T + 10 }, { x: R + 8, y: T + 11 }], "centerline", { wobble: 0.3 }, rng.fork("tap2")), "centerline", "s-pencil");
   return strokes;
 };
