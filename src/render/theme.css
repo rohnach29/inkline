@@ -431,3 +431,17 @@ body {
     transition: none !important;
   }
 }
+
+/* --- ink scenes (Plan G) ------------------------------------------- */
+.ink-scene { width: 100%; height: auto; color: var(--ink); }
+.ink-scene .s-ink { color: var(--ink); }
+.ink-scene .s-faint { color: var(--ink-faint); }
+.ink-scene .s-pencil { color: var(--pencil); }
+.ink-scene path[data-mode="centerline"] {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ink-scene path[data-mode="outline"] { fill: currentColor; stroke: none; }
