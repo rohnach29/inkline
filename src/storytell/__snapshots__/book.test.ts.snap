@@ -226,32 +226,48 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the dawn is beaten to the punch",
       "mapSpec": null,
       "poem": {
-        "form": "dialogue",
-        "id": "earliest-run/you-and-the-warm-bed",
+        "form": "concrete",
+        "id": "earliest-run/the-edge-of-the-light",
         "lines": [
           {
-            "text": "Stay, said the bed. I'm warm. It's still the night.",
-            "voice": 1,
+            "indent": 0,
+            "text": "dark",
           },
           {
-            "text": "It's technically the morning, you replied.",
-            "voice": 2,
+            "indent": 0,
+            "text": "still dark",
           },
           {
-            "text": "Technically, the bed scoffed, is a cold word.",
-            "voice": 1,
+            "indent": 1,
+            "text": "dark",
           },
           {
-            "text": "You'll be so tired. You'll regret this, it tried.",
-            "voice": 1,
+            "indent": 1,
+            "text": "a thread of gray",
           },
           {
-            "text": "I never have yet, you said, and found the floor.",
-            "voice": 2,
+            "indent": 2,
+            "text": "a seam of pink",
           },
           {
-            "text": "The bed stayed warm all day, to prove its point.",
-            "voice": 1,
+            "indent": 2,
+            "text": "the whole east",
+          },
+          {
+            "indent": 3,
+            "text": "coming apart",
+          },
+          {
+            "indent": 3,
+            "text": "quietly at first",
+          },
+          {
+            "indent": 3,
+            "text": "then all at once —",
+          },
+          {
+            "indent": 3,
+            "text": "and you already out in it.",
           },
         ],
       },
@@ -275,31 +291,20 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the mornings pile up",
       "mapSpec": null,
       "poem": {
-        "form": "list",
-        "id": "streak/terms-and-conditions",
+        "form": "quatrain",
+        "id": "streak/a-small-god",
         "lines": [
           {
-            "text": "Terms and conditions of the unbroken streak:",
+            "text": "The streak is a small god with a simple rule.",
           },
           {
-            "indent": 1,
-            "text": "one run a day, no smaller than a shrug;",
+            "text": "It does not care for reasons. It counts.",
           },
           {
-            "indent": 1,
-            "text": "holidays included, especially those;",
+            "text": "Miss one dawn and it forgets your name entirely,",
           },
           {
-            "indent": 1,
-            "text": "the run before the party, or after, but a run;",
-          },
-          {
-            "indent": 1,
-            "text": "no doctor's note accepted, ever, for any reason;",
-          },
-          {
-            "indent": 1,
-            "text": "and no discussion, none, of the word enough.",
+            "text": "and every day you gave it turns to smoke.",
           },
         ],
       },
@@ -328,17 +333,31 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "runId": "r12-quiet-end-fastest",
       },
       "poem": {
-        "form": "quip",
-        "id": "quiet/the-silence-earned-a-name",
+        "form": "list",
+        "id": "quiet/what-the-quiet-kept",
         "lines": [
           {
-            "text": "After 40 days, the silence earned a name.",
+            "text": "What the quiet kept while you were gone:",
           },
           {
-            "text": "You call it The Small Quiet",
+            "indent": 1,
+            "text": "the shape of you, pressed into the couch;",
           },
           {
-            "text": "which is how you make a monster into a guest.",
+            "indent": 1,
+            "text": "one resolution, folded very small;",
+          },
+          {
+            "indent": 1,
+            "text": "the shoes, in their patient, dog-like way;",
+          },
+          {
+            "indent": 1,
+            "text": "a Tuesday you had promised things to;",
+          },
+          {
+            "indent": 1,
+            "text": "and the door, still willing, still unlocked.",
           },
         ],
       },
@@ -489,32 +508,31 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "runId": "r17-hillroute-4",
       },
       "poem": {
-        "form": "letter",
-        "id": "hill-beast/felt-you-on-my-back",
+        "form": "list",
+        "id": "hill-beast/what-it-took-and-gave",
         "lines": [
           {
-            "text": "I felt you on my back this morning. All 60 meters.",
+            "text": "What the great hill took from you, and gave:",
           },
           {
-            "text": "",
+            "indent": 1,
+            "text": "took your breath, and gave it back in gulps;",
           },
           {
-            "text": "You may call me by the name you gave me:",
+            "indent": 1,
+            "text": "took your pace, and gave a slower, truer one;",
           },
           {
-            "text": "Mount Second Thoughts.",
+            "indent": 1,
+            "text": "took the easy story you told about yourself;",
           },
           {
-            "text": "I have thrown down stronger and prouder than you.",
+            "indent": 1,
+            "text": "gave a harder one, with better standing in it;",
           },
           {
-            "text": "Come in winter, if you dare. I am worse in winter.",
-          },
-          {
-            "text": "",
-          },
-          {
-            "text": "Grave respect — Mount Second Thoughts",
+            "indent": 1,
+            "text": "and kept, the way beasts do, the view up top.",
           },
         ],
       },
@@ -547,20 +565,31 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "runId": "r17-hillroute-4",
       },
       "poem": {
-        "form": "quatrain",
-        "id": "route-champion/no-longer-needs-directions",
+        "form": "list",
+        "id": "route-champion/what-it-still-hides",
         "lines": [
           {
-            "text": "There is a route that no longer needs directions.",
+            "text": "Things your oldest route is still hiding from you:",
           },
           {
-            "text": "Your feet could run it while the rest of you sleeps.",
+            "indent": 1,
+            "text": "a side street you have never once turned down;",
           },
           {
-            "text": "Every crack is a word in a poem you have learned",
+            "indent": 1,
+            "text": "the garden that blooms the weeks you're away;",
           },
           {
-            "text": "and never once grown tired of reciting.",
+            "indent": 1,
+            "text": "one bench it is saving for your slower years;",
+          },
+          {
+            "indent": 1,
+            "text": "a shortcut it has decided you don't need;",
+          },
+          {
+            "indent": 1,
+            "text": "and what it does at night, when no one's running.",
           },
         ],
       },
@@ -590,23 +619,32 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "runId": "r18-ghost-hilliest",
       },
       "poem": {
-        "form": "notice",
-        "id": "ghost-elevation/public-denial",
+        "form": "dialogue",
+        "id": "ghost-elevation/believe-your-feet",
         "lines": [
           {
-            "text": "PUBLIC DENIAL: no hill exists at that location.",
+            "text": "You gained elevation, the GPS announced, brightly.",
+            "voice": 1,
           },
           {
-            "text": "Surveyors were dispatched. Surveyors found flatness.",
+            "text": "On a flat loop? you said. Where? Show me the hill.",
+            "voice": 2,
           },
           {
-            "text": "And yet 300 meters of climb were logged, and stand.",
+            "text": "I cannot show you the hill, it admitted, softly.",
+            "voice": 1,
           },
           {
-            "text": "The Department cannot explain it and has stopped trying.",
+            "text": "The hill declines to appear on any map but mine.",
+            "voice": 1,
           },
           {
-            "text": "File it under: the ground was up to something.",
+            "text": "Then it isn't real, you said. It rose all the same.",
+            "voice": 2,
+          },
+          {
+            "text": "Believe the numbers, it whispered, or your feet.",
+            "voice": 1,
           },
         ],
       },
@@ -632,32 +670,32 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the year comes home",
       "mapSpec": null,
       "poem": {
-        "form": "dialogue",
-        "id": "last-run/one-more-you-said",
+        "form": "letter",
+        "id": "last-run/note-the-shoes-left",
         "lines": [
           {
-            "text": "One more, you said. There's room for one more yet.",
-            "voice": 1,
+            "text": "Dear feet, a note, left folded in the left shoe:",
           },
           {
-            "text": "The year is nearly spent, the calendar said.",
-            "voice": 2,
+            "text": "",
           },
           {
-            "text": "So am I, you said. That's never stopped us once.",
-            "voice": 1,
+            "text": "That was the last of the ones we counted this year.",
           },
           {
-            "text": "It looked at what was left and did the math.",
-            "voice": 2,
+            "text": "Don't read too much into a number stopping.",
           },
           {
-            "text": "Fine. One more, it said. But after that, you rest.",
-            "voice": 2,
+            "text": "We're by the door. We are always by the door.",
           },
           {
-            "text": "You ran it slow, on purpose, to make it last.",
-            "voice": 1,
+            "text": "The mud is just the year we didn't wash off.",
+          },
+          {
+            "text": "",
+          },
+          {
+            "text": "Whenever. No rush. We're patient. — the shoes",
           },
         ],
       },
@@ -683,56 +721,17 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the distance gets away from you",
       "mapSpec": null,
       "poem": {
-        "form": "narrative",
-        "id": "longest-run/what-the-shadow-saw",
+        "form": "quip",
+        "id": "longest-run/legs-filed-a-complaint",
         "lines": [
           {
-            "text": "The shadow had planned an ordinary day.",
+            "text": "Your legs filed a complaint with management.",
           },
           {
-            "text": "A little stretch of morning, then some shade,",
+            "text": "Management, it turns out, is also your legs.",
           },
           {
-            "text": "a nap beneath a bench at around eleven,",
-          },
-          {
-            "text": "the usual short loop, and home in time for lunch.",
-          },
-          {
-            "text": "Instead you turned left where you always turn back.",
-          },
-          {
-            "text": "The shadow, startled, lengthened to keep up.",
-          },
-          {
-            "text": "Past the school. Past the water tower. Past",
-          },
-          {
-            "text": "the point where roads stop bothering with sidewalks.",
-          },
-          {
-            "text": "It quit complaining somewhere near the river.",
-          },
-          {
-            "text": "It started, quietly, to keep you company.",
-          },
-          {
-            "text": "By the far turn it had given up on lunch.",
-          },
-          {
-            "text": "By the last hill it had given up on doubt.",
-          },
-          {
-            "text": "And when you finally, finally slowed to a walk,",
-          },
-          {
-            "text": "the shadow did not race ahead to rest.",
-          },
-          {
-            "text": "It stayed exactly your size, and matched your breath,",
-          },
-          {
-            "text": "and went the whole way home a step behind.",
+            "text": "The meeting ran long. So, memorably, did you.",
           },
         ],
       },

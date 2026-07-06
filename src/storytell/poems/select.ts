@@ -1,6 +1,6 @@
 import type { Rng } from "../rng";
 import type { StoryEvent, StoryEventType } from "../../analyze/types";
-import type { Band, ChapterPoem, PoemForm, PoemSpec } from "./forms";
+import type { Band, CastId, ChapterPoem, PoemSpec } from "./forms";
 import { fillLines, slotValues, type PoemContext } from "./slots";
 import { featuresFor } from "./features";
 import { realizeLines } from "./realize";
@@ -31,15 +31,26 @@ export function bandFor(event: StoryEvent): Band | null {
   return low ? "small" : high ? "large" : "medium";
 }
 
-/** Book-scoped selector: tracks which forms this book has used so no form
- *  repeats while unused forms remain; past that, least-recently-used wins. */
+/** At most this many callback codas fire per book — they stay special. */
+const CODA_CAP = 3;
+
+export interface Selection {
+  spec: PoemSpec;
+  codaActive: boolean;
+}
+
+/** Book-scoped selector. Tracks picked poem ids (no poem repeats within a
+ *  book), the cast introduced by earlier chapters, and how many callback
+ *  codas have fired. buildBook iterates chapters chronologically, so "earlier
+ *  chapter" is simply "an earlier call". */
 export class PoemSelector {
-  private readonly used = new Map<PoemForm, number>();
-  private seq = 0;
+  private readonly usedIds = new Set<string>();
+  private readonly cast = new Set<CastId>();
+  private codasActivated = 0;
 
   constructor(private readonly corpus: readonly PoemSpec[]) {}
 
-  select(event: StoryEvent, values: Record<string, string>, r: Rng): PoemSpec {
+  select(event: StoryEvent, values: Record<string, string>, r: Rng): Selection {
     const band = bandFor(event);
     const eligible = (anyBand: boolean) =>
       this.corpus.filter(
@@ -52,15 +63,28 @@ export class PoemSelector {
     if (cands.length === 0) cands = eligible(true);
     if (cands.length === 0) throw new Error(`poems: no candidate for "${event.type}"`);
 
-    const unused = cands.filter((p) => !this.used.has(p.form));
-    let pool = unused;
-    if (pool.length === 0) {
-      const oldest = Math.min(...cands.map((p) => this.used.get(p.form)!));
-      pool = cands.filter((p) => this.used.get(p.form) === oldest);
+    // no repeats within a book; if the pool empties, allow repeats over throwing
+    const fresh = cands.filter((p) => !this.usedIds.has(p.id));
+    let pool = fresh.length > 0 ? fresh : cands;
+
+    // prefer a poem whose callback can fire — the cast pays off
+    const activatable = (p: PoemSpec) =>
+      p.coda !== undefined && this.cast.has(p.coda.requires);
+    if (this.codasActivated < CODA_CAP) {
+      const codaTier = pool.filter(activatable);
+      if (codaTier.length > 0) pool = codaTier;
     }
+
     const pick = r.pick(pool);
-    this.used.set(pick.form, this.seq++);
-    return pick;
+    const codaActive = activatable(pick) && this.codasActivated < CODA_CAP;
+    if (codaActive) this.codasActivated++;
+
+    // register the pick BEFORE its introductions: a poem never satisfies
+    // its own coda, only a strictly earlier chapter can
+    this.usedIds.add(pick.id);
+    for (const c of pick.introduces ?? []) this.cast.add(c);
+
+    return { spec: pick, codaActive };
   }
 }
 
@@ -72,7 +96,13 @@ export function poemFor(
 ): ChapterPoem {
   const r = rng.fork(`poem:${event.type}:${event.atUtc}`);
   const values = slotValues(event, ctx);
-  const spec = selector.select(event, values, r);
+  const { spec, codaActive } = selector.select(event, values, r);
   const features = featuresFor(event, ctx, bandFor(event) ?? undefined);
-  return { id: spec.id, form: spec.form, lines: fillLines(realizeLines(spec.lines, features), values) };
+  const poem: ChapterPoem = {
+    id: spec.id,
+    form: spec.form,
+    lines: fillLines(realizeLines(spec.lines, features), values),
+  };
+  if (codaActive && spec.coda) poem.coda = fillLines(spec.coda.lines, values);
+  return poem;
 }

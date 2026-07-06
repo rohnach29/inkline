@@ -38,35 +38,81 @@ describe("bandFor", () => {
 });
 
 describe("PoemSelector", () => {
-  it("never repeats a form while unused forms remain", () => {
+  it("never repeats a poem id while fresh candidates remain", () => {
     const s = new PoemSelector(FIX);
     const r = new Rng(7);
-    const forms = [1, 2, 3, 4].map((t) => s.select(ev("longest-run", t, 10), {}, r.fork(`t${t}`)).form);
-    expect(new Set(forms).size).toBe(4);
+    const ids = [1, 2, 3, 4].map((t) => s.select(ev("longest-run", t, 10), {}, r.fork(`t${t}`)).spec.id);
+    expect(new Set(ids).size).toBe(4);
   });
-  it("falls back to least-recently-used form when all candidate forms are used", () => {
-    const s = new PoemSelector(FIX.slice(0, 2)); // quatrain + quip only
+  it("allows repeats rather than throwing when the pool empties", () => {
+    const s = new PoemSelector(FIX.slice(0, 2));
     const r = new Rng(7);
-    const first = s.select(ev("longest-run", 1, 10), {}, r.fork("1")).form;
-    s.select(ev("longest-run", 2, 10), {}, r.fork("2"));
-    expect(s.select(ev("longest-run", 3, 10), {}, r.fork("3")).form).toBe(first);
+    const seen = [1, 2, 3].map((t) => s.select(ev("longest-run", t, 10), {}, r.fork(`t${t}`)).spec.id);
+    expect(new Set(seen.slice(0, 2)).size).toBe(2);
+    expect(seen.slice(0, 2)).toContain(seen[2]);
   });
   it("routes a small event away from large-band poems", () => {
     const s = new PoemSelector(FIX);
     const r = new Rng(7);
     for (let t = 1; t <= 4; t++) {
-      expect(s.select(ev("longest-run", t, 5), {}, r.fork(`t${t}`)).id).not.toBe("longest-run/epic");
+      expect(s.select(ev("longest-run", t, 5), {}, r.fork(`t${t}`)).spec.id).not.toBe("longest-run/epic");
     }
   });
   it("relaxes band before giving up, throws only with zero candidates", () => {
     const s = new PoemSelector([mk("longest-run", "only", "quip", "large")]);
-    expect(s.select(ev("longest-run", 1, 5), {}, new Rng(1)).id).toBe("longest-run/only");
+    expect(s.select(ev("longest-run", 1, 5), {}, new Rng(1)).spec.id).toBe("longest-run/only");
     const empty = new PoemSelector([]);
     expect(() => empty.select(ev("longest-run", 1, 5), {}, new Rng(1))).toThrow(/no candidate/);
   });
   it("drops poems whose slots don't resolve (honesty)", () => {
     const s = new PoemSelector([mk("longest-run", "needy", "quip", "any", ["name"]), mk("longest-run", "safe", "list", "any")]);
-    expect(s.select(ev("longest-run", 1, 10), {}, new Rng(1)).id).toBe("longest-run/safe");
+    expect(s.select(ev("longest-run", 1, 10), {}, new Rng(1)).spec.id).toBe("longest-run/safe");
+  });
+});
+
+describe("cast & callback codas", () => {
+  const intro = (kind: string, slug: string, cast: PoemSpec["introduces"]): PoemSpec =>
+    ({ ...mk(kind, slug, "quip", "any"), introduces: cast });
+  const withCoda = (kind: string, slug: string, requires: "shadow" | "shoes"): PoemSpec =>
+    ({ ...mk(kind, slug, "quip", "any"), coda: { requires, lines: [{ text: "P.S. the coda line." }] } });
+
+  it("activates a coda only when its cast member arrived in an earlier chapter", () => {
+    const s = new PoemSelector([intro("first-run", "meet-shadow", ["shadow"]), withCoda("last-run", "bye", "shadow")]);
+    expect(s.select(ev("first-run", 1, 1), {}, new Rng(1)).codaActive).toBe(false);
+    expect(s.select(ev("last-run", 2, 1), {}, new Rng(1)).codaActive).toBe(true);
+  });
+  it("never lets a poem satisfy its own coda", () => {
+    const both: PoemSpec = { ...mk("first-run", "self", "quip", "any"), introduces: ["shadow"], coda: { requires: "shadow", lines: [{ text: "no." }] } };
+    expect(new PoemSelector([both]).select(ev("first-run", 1, 1), {}, new Rng(1)).codaActive).toBe(false);
+  });
+  it("prefers the activatable-coda tier when one exists", () => {
+    const s = new PoemSelector([
+      intro("first-run", "meet-shadow", ["shadow"]),
+      mk("last-run", "plain-a", "quip", "any"),
+      mk("last-run", "plain-b", "list", "any"),
+      withCoda("last-run", "callback", "shadow"),
+    ]);
+    s.select(ev("first-run", 1, 1), {}, new Rng(1));
+    for (let seed = 1; seed <= 5; seed++) {
+      const fresh = new PoemSelector([
+        intro("first-run", "meet-shadow", ["shadow"]),
+        mk("last-run", "plain-a", "quip", "any"),
+        mk("last-run", "plain-b", "list", "any"),
+        withCoda("last-run", "callback", "shadow"),
+      ]);
+      fresh.select(ev("first-run", 1, 1), {}, new Rng(seed));
+      expect(fresh.select(ev("last-run", 2, 1), {}, new Rng(seed)).spec.id).toBe("last-run/callback");
+    }
+  });
+  it("caps activated codas at 3 per book", () => {
+    const corpus: PoemSpec[] = [
+      intro("first-run", "meet-shoes", ["shoes"]),
+      ...[1, 2, 3, 4].map((i) => withCoda("month", `m${i}`, "shoes")),
+    ];
+    const s = new PoemSelector(corpus);
+    s.select(ev("first-run", 1, 1), {}, new Rng(1));
+    const fired = [2, 3, 4, 5].map((t) => s.select(ev("month", t, 50), {}, new Rng(t)).codaActive);
+    expect(fired.filter(Boolean).length).toBe(3);
   });
 });
 
