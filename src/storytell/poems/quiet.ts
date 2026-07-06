@@ -15,7 +15,7 @@ export const POEMS: readonly PoemSpec[] = [
     ],
   },
   {
-    id: "quiet/the-room-you-left-a-light-in",
+    id: "quiet/the-story-is-resting",
     kind: "quiet",
     form: "quatrain",
     band: "any",
@@ -24,8 +24,8 @@ export const POEMS: readonly PoemSpec[] = [
     lines: [
       { text: "The quiet is not empty; it is full." },
       { text: "It holds the shoes, the door, the good intention." },
-      { text: "It is a room you left a light on in." },
-      { text: "It has been keeping everything warm for you." },
+      { text: "It is a bookmark in a book laid gently down —" },
+      { text: "the story is not over. It is resting." },
     ],
   },
   {
@@ -86,7 +86,7 @@ export const POEMS: readonly PoemSpec[] = [
       { text: "When the quiet has a name, it can be answered." },
       { text: "Do not fight it; you can only open the door." },
       { text: "Say to {name}: I have come back." },
-      { text: "That is the whole spell. There is no second part." },
+      { text: "The spell ends there. It was never a long one." },
       { text: "Coming back is small. Coming back is also everything." },
       { text: "The shoes forgive the wait. Begin. They are ready." },
     ],
@@ -128,9 +128,9 @@ export const POEMS: readonly PoemSpec[] = [
       { text: "then a week of them", align: "center" },
       { text: "then it has a name:", align: "center" },
       { text: "{name}", align: "center" },
-      { text: "and a name is a thing", align: "center" },
-      { text: "you can finally", align: "center" },
-      { text: "answer.", align: "center" },
+      { text: "filling the hallway,", align: "center" },
+      { text: "sleeping on the stairs,", align: "center" },
+      { text: "wearing your slippers.", align: "center" },
     ],
   },
 ];
