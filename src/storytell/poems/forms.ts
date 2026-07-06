@@ -6,7 +6,7 @@ export const POEM_FORMS = [
 ] as const;
 export type PoemForm = (typeof POEM_FORMS)[number];
 
-/** Carried over from the retired fragments.ts — same union, new home. */
+/** Carried over from the retired couplet engine — same union, new home. */
 export type Mood = "triumphant" | "sheepish" | "nocturnal" | "quiet" | "absurd" | "steady";
 
 export interface PoemLine {

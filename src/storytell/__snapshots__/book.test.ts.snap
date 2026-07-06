@@ -44,6 +44,29 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "id": "first-run:1735865100000",
       "kicker": "in which the year begins",
       "mapSpec": null,
+      "poem": {
+        "form": "spell",
+        "lines": [
+          {
+            "text": "For the first step, when the whole thing seems too big:",
+          },
+          {
+            "text": "one shoe, and then, astonishingly, the other.",
+          },
+          {
+            "text": "One breath you keep. One breath you spend.",
+          },
+          {
+            "text": "Say the small true thing: I am going outside.",
+          },
+          {
+            "text": "Repeat it till the door begins to believe you.",
+          },
+          {
+            "text": "Repeat it till your own two feet do too.",
+          },
+        ],
+      },
       "stats": [
         {
           "label": "distance",
@@ -55,14 +78,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "Day One, More or Less",
-      "verse": [
-        "The morning laced its shoes before the sun,",
-        "and asked the road what needed to be done.",
-        "3.0 kilometers — measured, mapped, and true,",
-        "and every single one of them by you.",
-        "The first step's small — that's all a first step knows —",
-        "but this is where the whole long distance grows.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -73,6 +88,26 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "id": "false-starts:1735951800000",
       "kicker": "in which the shoes get put back on",
       "mapSpec": null,
+      "poem": {
+        "form": "notice",
+        "lines": [
+          {
+            "text": "NO FAULT FOUND, reads the report on 2 attempts.",
+          },
+          {
+            "text": "Each one got as far as intending, and stopped.",
+          },
+          {
+            "text": "Intending, the Department notes, is where runs are born.",
+          },
+          {
+            "text": "No run was harmed. Several were merely postponed.",
+          },
+          {
+            "text": "Case closed, with sympathy, and left slightly open.",
+          },
+        ],
+      },
       "stats": [
         {
           "label": "count",
@@ -84,14 +119,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "Two Steps and a Shrug",
-      "verse": [
-        "The bed brought up a very solid case,",
-        "and dawn slipped by without a second's grace.",
-        "2 runs that ended long before they should,",
-        "like pencils snapped while writing something good.",
-        "A false start's still a start; the shoes were there —",
-        "you laced them up; you carried them somewhere.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -100,6 +127,47 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "id": "latest-run:1737395100000",
       "kicker": "in which the day gets away first",
       "mapSpec": null,
+      "poem": {
+        "form": "concrete",
+        "lines": [
+          {
+            "align": "center",
+            "text": "the whole town dark",
+          },
+          {
+            "align": "center",
+            "text": "except",
+          },
+          {
+            "align": "center",
+            "text": "one window",
+          },
+          {
+            "align": "center",
+            "text": "one streetlight",
+          },
+          {
+            "align": "center",
+            "text": "and, under it,",
+          },
+          {
+            "align": "center",
+            "text": "one small",
+          },
+          {
+            "align": "center",
+            "text": "insistent",
+          },
+          {
+            "align": "center",
+            "text": "moving",
+          },
+          {
+            "align": "center",
+            "text": "warmth.",
+          },
+        ],
+      },
       "stats": [
         {
           "label": "time",
@@ -111,14 +179,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "Later Than Planned",
-      "verse": [
-        "The moon came out to check on who was out.",
-        "It found you, and it had its lamp about.",
-        "The clock said 23:15 in a doubtful tone,",
-        "as if the dark had left you all alone.",
-        "The dark and you have got an understanding:",
-        "you keep it company; it keeps you landing.",
-      ],
     },
     {
       "atmosphereTags": [
@@ -132,6 +192,23 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "id": "night-runs:1737395100000",
       "kicker": "in which the dark keeps you company",
       "mapSpec": null,
+      "poem": {
+        "form": "quatrain",
+        "lines": [
+          {
+            "text": "The dark is not as empty as they say.",
+          },
+          {
+            "text": "It's mostly full of people staying in.",
+          },
+          {
+            "text": "You were the one small motion in it, moving,",
+          },
+          {
+            "text": "and the dark, to its own surprise, made room.",
+          },
+        ],
+      },
       "stats": [
         {
           "label": "nights",
@@ -143,14 +220,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "The 00:45",
-      "verse": [
-        "The streetlights stood in one long yellow row,",
-        "and watched a person run where none should go.",
-        "The clock said 00:45 in a doubtful tone,",
-        "as if the dark had left you all alone.",
-        "The dark and you have got an understanding:",
-        "you keep it company; it keeps you landing.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -159,6 +228,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "id": "earliest-run:1737400500000",
       "kicker": "in which the dawn is beaten to the punch",
       "mapSpec": null,
+      "poem": {
+        "form": "dialogue",
+        "lines": [
+          {
+            "text": "Stay, said the bed. I'm warm. It's still the night.",
+            "voice": 1,
+          },
+          {
+            "text": "It's technically the morning, you replied.",
+            "voice": 2,
+          },
+          {
+            "text": "Technically, the bed scoffed, is a cold word.",
+            "voice": 1,
+          },
+          {
+            "text": "You'll be so tired. You'll regret this, it tried.",
+            "voice": 1,
+          },
+          {
+            "text": "I never have yet, you said, and found the floor.",
+            "voice": 2,
+          },
+          {
+            "text": "The bed stayed warm all day, to prove its point.",
+            "voice": 1,
+          },
+        ],
+      },
       "stats": [
         {
           "label": "time",
@@ -170,14 +268,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "Before the Rooster",
-      "verse": [
-        "You met the morning while it was still gray,",
-        "before it brushed its teeth and named the day.",
-        "The clock said 00:45 in a doubtful tone,",
-        "as if the dark had left you all alone.",
-        "You caught the day before it was awake,",
-        "and that's a quiet kind of gift to take.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -188,6 +278,34 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "id": "streak:1738373400000",
       "kicker": "in which the mornings pile up",
       "mapSpec": null,
+      "poem": {
+        "form": "list",
+        "lines": [
+          {
+            "text": "Terms and conditions of the unbroken streak:",
+          },
+          {
+            "indent": 1,
+            "text": "one run a day, no smaller than a shrug;",
+          },
+          {
+            "indent": 1,
+            "text": "holidays included, especially those;",
+          },
+          {
+            "indent": 1,
+            "text": "the run before the party, or after, but a run;",
+          },
+          {
+            "indent": 1,
+            "text": "no doctor's note accepted, ever, for any reason;",
+          },
+          {
+            "indent": 1,
+            "text": "and no discussion, none, of the word enough.",
+          },
+        ],
+      },
       "stats": [
         {
           "label": "length",
@@ -199,14 +317,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "The Stubborn Streak",
-      "verse": [
-        "A streak is just a stubbornness of days,",
-        "a habit wearing all its stubborn ways.",
-        "For 6 days running you refused to break,",
-        "a chain of dawns you strung for its own sake.",
-        "So count the chain, then let the counting rest —",
-        "your shoes did all the math; they know it best.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -220,6 +330,20 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "kind": "route",
         "runId": "r12-quiet-end-fastest",
       },
+      "poem": {
+        "form": "quip",
+        "lines": [
+          {
+            "text": "After 40 days, the silence earned a name.",
+          },
+          {
+            "text": "You call it The Small Quiet",
+          },
+          {
+            "text": "which is how you make a monster into a guest.",
+          },
+        ],
+      },
       "stats": [
         {
           "label": "silence",
@@ -231,14 +355,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "The Small Quiet",
-      "verse": [
-        "The last run tiptoed out and shut the gate,",
-        "and left the year to sit alone and wait.",
-        "For 40 whole days the pavement went unread,",
-        "and grass grew tall on every word it said.",
-        "But quiet isn't empty — ask the snow.",
-        "It's just the road rehearsing where you'll go.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -252,6 +368,26 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "kind": "route",
         "runId": "r12-quiet-end-fastest",
       },
+      "poem": {
+        "form": "spell",
+        "lines": [
+          {
+            "text": "To go fast, first agree to be a rumor.",
+          },
+          {
+            "text": "Let the ground hear you before it sees you coming.",
+          },
+          {
+            "text": "Spend the breath. Don't save it for the photo.",
+          },
+          {
+            "text": "Forget the arms; they will sort themselves out.",
+          },
+          {
+            "text": "Lean like you mean to fall, and simply don't.",
+          },
+        ],
+      },
       "stats": [
         {
           "label": "pace",
@@ -263,14 +399,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "Faster Than the Excuse",
-      "verse": [
-        "There is a speed that files the world to line,",
-        "where trees go blur and everything is fine.",
-        "5.0 kilometers — measured, mapped, and true,",
-        "and every single one of them by you.",
-        "The neighbors' dogs have given up the chase —",
-        "they just nod now, and let you have the place.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -295,6 +423,47 @@ exports[`buildBook > matches the golden snapshot 1`] = `
           "name": "Lafayette (Indiana)",
         },
       },
+      "poem": {
+        "form": "concrete",
+        "lines": [
+          {
+            "align": "center",
+            "text": "here",
+          },
+          {
+            "align": "center",
+            "text": "then a long",
+          },
+          {
+            "align": "center",
+            "text": "arcing",
+          },
+          {
+            "align": "center",
+            "text": "line",
+          },
+          {
+            "align": "center",
+            "text": "over the ocean",
+          },
+          {
+            "align": "center",
+            "text": "to there —",
+          },
+          {
+            "align": "center",
+            "text": "and then, absurdly,",
+          },
+          {
+            "align": "center",
+            "text": "a small loop",
+          },
+          {
+            "align": "center",
+            "text": "on foot.",
+          },
+        ],
+      },
       "stats": [
         {
           "label": "distance",
@@ -306,14 +475,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "A Very Large Commute",
-      "verse": [
-        "Your feet signed on to be a moving van,",
-        "and drove you further than you had a plan.",
-        "13077.1 kilometers — measured, mapped, and true,",
-        "and every single one of them by you.",
-        "You went so far the map ran out of ink,",
-        "and had to stop and take a breath, and think.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -326,6 +487,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "mapSpec": {
         "kind": "route",
         "runId": "r17-hillroute-4",
+      },
+      "poem": {
+        "form": "letter",
+        "lines": [
+          {
+            "text": "I felt you on my back this morning. All 60 meters.",
+          },
+          {
+            "text": "",
+          },
+          {
+            "text": "You may call me by the name you gave me:",
+          },
+          {
+            "text": "Mount Second Thoughts.",
+          },
+          {
+            "text": "I have thrown down stronger and prouder than you.",
+          },
+          {
+            "text": "Come in winter, if you dare. I am worse in winter.",
+          },
+          {
+            "text": "",
+          },
+          {
+            "text": "With grave respect — Mount Second Thoughts",
+          },
+        ],
       },
       "stats": [
         {
@@ -342,14 +532,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "Mount Second Thoughts",
-      "verse": [
-        "The mountain thought that no one would attend.",
-        "You climbed it, rude and cheerful, to the end.",
-        "60 meters of climb, collected like a debt,",
-        "and not one summit ready to forget.",
-        "You gave the sky some meters it forgot,",
-        "and pocketed the summit like a thought.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -360,6 +542,23 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "mapSpec": {
         "kind": "route",
         "runId": "r17-hillroute-4",
+      },
+      "poem": {
+        "form": "quatrain",
+        "lines": [
+          {
+            "text": "There is a route that no longer needs directions.",
+          },
+          {
+            "text": "Your feet could run it while the rest of you sleeps.",
+          },
+          {
+            "text": "Every crack is a word in a poem you have learned",
+          },
+          {
+            "text": "and never once grown tired of reciting.",
+          },
+        ],
       },
       "stats": [
         {
@@ -372,14 +571,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "The Short Way",
-      "verse": [
-        "You ran one route until it knew your face,",
-        "until the pavement kept you like a place.",
-        "3.2 kilometers — measured, mapped, and true,",
-        "and every single one of them by you.",
-        "You wore that route so smooth it knew your stride,",
-        "and took you in the way a home takes pride.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -393,6 +584,26 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "kind": "route",
         "runId": "r18-ghost-hilliest",
       },
+      "poem": {
+        "form": "notice",
+        "lines": [
+          {
+            "text": "PUBLIC DENIAL: no hill exists at that location.",
+          },
+          {
+            "text": "Surveyors were dispatched. Surveyors found flatness.",
+          },
+          {
+            "text": "And yet 300 meters of climb were logged, and stand.",
+          },
+          {
+            "text": "The Department cannot explain it and has stopped trying.",
+          },
+          {
+            "text": "File it under: the ground was up to something.",
+          },
+        ],
+      },
       "stats": [
         {
           "label": "climb",
@@ -404,14 +615,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "The Turnaround",
-      "verse": [
-        "The satellites got dreamy overhead,",
-        "and penciled mountains on the flat instead.",
-        "300 meters of climb, collected like a debt,",
-        "and not one summit ready to forget.",
-        "So thank your watch for hills it kindly threw.",
-        "Some gifts are made of nothing — good ones, too.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -420,6 +623,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "id": "last-run:1750417200000",
       "kicker": "in which the year comes home",
       "mapSpec": null,
+      "poem": {
+        "form": "dialogue",
+        "lines": [
+          {
+            "text": "One more, you said. There's room for one more yet.",
+            "voice": 1,
+          },
+          {
+            "text": "The year is nearly spent, the calendar said.",
+            "voice": 2,
+          },
+          {
+            "text": "So am I, you said. That's never stopped us once.",
+            "voice": 1,
+          },
+          {
+            "text": "It looked at what was left and did the math.",
+            "voice": 2,
+          },
+          {
+            "text": "Fine. One more, it said. But after that, you rest.",
+            "voice": 2,
+          },
+          {
+            "text": "You ran it slow, on purpose, to make it last.",
+            "voice": 1,
+          },
+        ],
+      },
       "stats": [
         {
           "label": "distance",
@@ -431,14 +663,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "One More, For the Road",
-      "verse": [
-        "The very first step doesn't know its name.",
-        "It thinks that every morning runs the same.",
-        "21.1 kilometers — measured, mapped, and true,",
-        "and every single one of them by you.",
-        "So close the year the way you'd close a book —",
-        "with one last fond, unhurried, backward look.",
-      ],
     },
     {
       "atmosphereTags": [],
@@ -449,6 +673,59 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "id": "longest-run:1750417200000",
       "kicker": "in which the distance gets away from you",
       "mapSpec": null,
+      "poem": {
+        "form": "narrative",
+        "lines": [
+          {
+            "text": "The shadow had planned an ordinary day.",
+          },
+          {
+            "text": "A little stretch of morning, then some shade,",
+          },
+          {
+            "text": "a nap beneath a bench at around eleven,",
+          },
+          {
+            "text": "the usual short loop, and home in time for lunch.",
+          },
+          {
+            "text": "Instead you turned left where you always turn back.",
+          },
+          {
+            "text": "The shadow, startled, lengthened to keep up.",
+          },
+          {
+            "text": "Past the school. Past the water tower. Past",
+          },
+          {
+            "text": "the point where roads stop bothering with sidewalks.",
+          },
+          {
+            "text": "It quit complaining somewhere near the river.",
+          },
+          {
+            "text": "It started, quietly, to keep you company.",
+          },
+          {
+            "text": "By the far turn it had given up on lunch.",
+          },
+          {
+            "text": "By the last hill it had given up on doubt.",
+          },
+          {
+            "text": "And when you finally, finally slowed to a walk,",
+          },
+          {
+            "text": "the shadow did not race ahead to rest.",
+          },
+          {
+            "text": "It stayed exactly your size, and matched your breath,",
+          },
+          {
+            "text": "and went the whole way home a step behind.",
+          },
+        ],
+      },
       "stats": [
         {
           "label": "distance",
@@ -460,14 +737,6 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       ],
       "title": "A Distance With No Ending",
-      "verse": [
-        "Some runs go long the way a river goes,",
-        "past every reason anybody knows.",
-        "21.1 kilometers — measured, mapped, and true,",
-        "and every single one of them by you.",
-        "The long ones teach a patience of the feet,",
-        "a lesson only distance can complete.",
-      ],
     },
   ],
   "colophon": {

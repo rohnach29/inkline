@@ -16,7 +16,7 @@ export function fillSlots(line: string, values: Record<string, string>): string 
   return line.replace(/\{(\w+)\}/g, (_match, key: string) => {
     const value = values[key];
     if (value === undefined) {
-      throw new Error(`verse: unresolved slot {${key}}`);
+      throw new Error(`poems: unresolved slot {${key}}`);
     }
     return value;
   });
@@ -40,7 +40,7 @@ function formatPace(minPerKm: number): string {
 /**
  * Resolve the slot vocabulary from an event's data and the render context.
  * A slot key is present in the result ONLY when its source is present, so the
- * honesty filter in verseFor can drop couplets whose slots cannot be filled.
+ * honesty filter in the selector can drop poems whose slots cannot be filled.
  */
 export function slotValues(
   event: StoryEvent,

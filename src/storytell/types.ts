@@ -1,4 +1,5 @@
 import type { StoryEventType } from "../analyze/types";
+import type { ChapterPoem } from "./poems/forms";
 
 /** Everything Plan C renders. Deterministic, serializable, no functions. */
 export interface Book {
@@ -15,7 +16,7 @@ export interface Chapter {
   id: string; // `${event.type}:${event.atUtc}`
   kicker: string; // e.g. "in which the year begins"
   title: string;
-  verse: string[];
+  poem: ChapterPoem;
   stats: ChapterStat[]; // honest numbers, already formatted
   mapSpec: MapSpec | null;
   doodleTags: string[];

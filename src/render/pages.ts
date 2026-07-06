@@ -139,7 +139,9 @@ function renderDedication(book: Book): string {
 
 function renderChapter(chapter: Chapter, index: number, year: Year): string {
   const atmosphere = esc(chapter.atmosphereTags.join(" "));
-  const verseHtml = chapter.verse.map((line) => `<div class="verse">${esc(line)}</div>`).join("");
+  const verseHtml = chapter.poem.lines
+    .map((l) => (l.text === "" ? `<div class="poem-gap"></div>` : `<div class="verse">${esc(l.text)}</div>`))
+    .join("");
   const mapArea = renderMapArea(chapter.mapSpec, chapter.doodleTags, year);
   const statsRows = chapter.stats
     .map((s) => `<dt>${esc(s.label)}</dt><dd>${esc(s.value)}</dd>`)

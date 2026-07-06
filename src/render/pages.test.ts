@@ -61,7 +61,10 @@ function baseChapter(overrides: Partial<Chapter>): Chapter {
     id: "test:1",
     kicker: "in which we test",
     title: "Plain Title",
-    verse: ["one", "two", "three", "four"],
+    poem: {
+      form: "quatrain",
+      lines: [{ text: "one" }, { text: "two" }, { text: "three" }, { text: "four" }],
+    },
     stats: [{ label: "distance", value: "5.0 km" }],
     mapSpec: null,
     doodleTags: [],
@@ -140,13 +143,14 @@ describe("renderBook", () => {
     expect(html).not.toContain("Outrun the Quiet");
   });
 
-  it("includes every chapter title (reconstructed from tilt spans) and every verse line", () => {
+  it("includes every chapter title (reconstructed from tilt spans) and every poem line", () => {
     const html = renderBook(book, year);
     const plain = unescapeAll(stripTags(html));
     for (const chapter of book.chapters) {
       expect(plain).toContain(chapter.title);
-      for (const line of chapter.verse) {
-        expect(html).toContain(esc(line));
+      for (const line of chapter.poem.lines) {
+        if (line.text === "") continue;
+        expect(html).toContain(esc(line.text));
       }
     }
   });
@@ -230,7 +234,10 @@ describe("renderBook", () => {
           id: "route:1",
           kicker: "in which the map is lost",
           title: "Nowhere Found",
-          verse: ["one line", "two line", "three line", "four line"],
+          poem: {
+            form: "quatrain",
+            lines: [{ text: "one line" }, { text: "two line" }, { text: "three line" }, { text: "four line" }],
+          },
           stats: [{ label: "distance", value: "5.0 km" }],
           mapSpec: { kind: "route", runId: "does-not-exist" },
           doodleTags: ["shoes"],

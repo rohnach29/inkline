@@ -3,7 +3,8 @@ import type { StoryEvent, StoryEventType, Story } from "../analyze/types";
 import { nearestCity } from "../analyze/cities";
 import { Rng, seedFromYear } from "./rng";
 import { nameHill, nameRoute, nameQuiet, nameGhost, nameNightBeast, bookTitle } from "./names";
-import { verseFor } from "./verse";
+import { PoemSelector, poemFor } from "./poems/select";
+import { CORPUS } from "./poems";
 import type { Book, Chapter, MapSpec, ChapterStat, BeastEntry, Colophon, LatLonName } from "./types";
 
 const MAX_CHAPTERS = 14;
@@ -535,6 +536,7 @@ export function buildBook(year: Year, story: Story): Book {
   const chapters: Chapter[] = [];
   const beasts: BeastEntry[] = [];
   const usedNames = new Set<string>();
+  const poems = new PoemSelector(CORPUS);
 
   for (const event of selected) {
     const id = `${event.type}:${event.atUtc}`;
@@ -544,13 +546,13 @@ export function buildBook(year: Year, story: Story): Book {
     const place = evidenceRun?.placeId ? placeById.get(evidenceRun.placeId) : undefined;
     const placeName = place ? nearestCity(place.lat, place.lon)?.name : undefined;
 
-    const verse = verseFor(event, { name, place: placeName }, rng);
+    const poem = poemFor(poems, event, { name, place: placeName }, rng);
 
     const chapter: Chapter = {
       id,
       kicker: KICKER[event.type],
       title: chapterTitle,
-      verse,
+      poem,
       stats: statsFor(event, runById),
       mapSpec: computeMapSpec(event, runById),
       doodleTags: DOODLE_TAGS[event.type],

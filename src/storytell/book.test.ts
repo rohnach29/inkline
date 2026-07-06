@@ -70,14 +70,15 @@ describe("buildBook", () => {
     expect(quiet!.title).toContain("Quiet");
   });
 
-  it("gives every chapter a 4-6 line verse with no unresolved slots", () => {
+  it("gives every chapter a poem with a form, and no form repeats", () => {
     const book = buildBook(year, story);
-    for (const chapter of book.chapters) {
-      expect(chapter.verse.length).toBeGreaterThanOrEqual(4);
-      expect(chapter.verse.length).toBeLessThanOrEqual(6);
-      for (const line of chapter.verse) {
-        expect(line).not.toContain("{");
-      }
+    const forms = book.chapters.map((c) => c.poem.form);
+    expect(forms.length).toBeGreaterThan(0);
+    // only 9 forms exist; a book with more chapters than forms must still use all 9 before repeating
+    expect(new Set(forms).size).toBe(Math.min(forms.length, 9));
+    for (const c of book.chapters) {
+      expect(c.poem.lines.length).toBeGreaterThan(0);
+      for (const l of c.poem.lines) expect(l.text).not.toContain("{");
     }
   });
 
