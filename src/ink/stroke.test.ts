@@ -62,4 +62,9 @@ describe("strokePath", () => {
     const xs = coords(d).map((p) => p.x);
     expect(Math.max(...xs)).toBeGreaterThan(103);
   });
+  it("degenerate inputs return empty path data", () => {
+    expect(strokePath([], "outline", {}, new Rng(1).fork("e"))).toBe("");
+    expect(strokePath([{ x: 5, y: 5 }], "outline", {}, new Rng(1).fork("e"))).toBe("");
+    expect(strokePath([], "centerline", {}, new Rng(1).fork("e"))).toBe("");
+  });
 });

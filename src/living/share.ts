@@ -102,6 +102,27 @@ function collectStylesheetText(): string {
   return css;
 }
 
+/** Force-completes every in-progress ink draw-in on a CLONE (never the live
+ *  DOM): a share/print capture taken mid-animation would otherwise clone
+ *  whatever half-drawn `stroke-dasharray`/`stroke-dashoffset`/`opacity`/
+ *  `transition` inline styles scene-reveal.ts (per-stroke scene draw-in) or
+ *  reveal.ts (route draw-in) happened to have set at the moment of capture,
+ *  baking a half-finished stroke into the kept PNG. Clearing these four
+ *  inline properties (empty string resets to the path's authored/CSS
+ *  default — fully drawn, fully opaque, no transition) makes the capture
+ *  always look like the finished page regardless of when it was taken. */
+function completeInkInClone(clone: HTMLElement): void {
+  const selectors = ["svg.ink-scene path", ".ink-route, .ink-arc"];
+  for (const selector of selectors) {
+    clone.querySelectorAll<SVGElement>(selector).forEach((el) => {
+      el.style.strokeDasharray = "";
+      el.style.strokeDashoffset = "";
+      el.style.opacity = "";
+      el.style.transition = "";
+    });
+  }
+}
+
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -128,6 +149,7 @@ async function rasterizeSection(section: HTMLElement): Promise<Blob> {
   // .ink-flight-dot (both .no-print, like the button itself), and none of
   // that belongs in the kept PNG any more than in the printed book.
   clone.querySelectorAll(".no-print").forEach((el) => el.remove());
+  completeInkInClone(clone);
   const tokenStyle = inlineTokens(readTokens(section));
   const existingStyle = clone.getAttribute("style") ?? "";
   clone.setAttribute("style", `${tokenStyle}${existingStyle}`);

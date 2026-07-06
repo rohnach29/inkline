@@ -112,6 +112,7 @@ export function strokePath(
   rng: Rng,
 ): string {
   let pts = resample(points);
+  if (pts.length < 2) return "";
   const over = opts.overshoot ?? 0;
   if (over > 0 && pts.length >= 2) {
     const a = pts[pts.length - 2]!;
