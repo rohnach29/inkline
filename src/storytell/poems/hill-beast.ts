@@ -9,7 +9,7 @@ export const POEMS: readonly PoemSpec[] = [
     mood: "absurd",
     slots: ["name"],
     lines: [
-      { text: "You trained all year. {name}" },
+      { text: "You put in a year. {name}" },
       { text: "has never trained a day. It doesn't stretch." },
       { text: "It is simply uphill, always, and it is winning." },
     ],
@@ -52,7 +52,7 @@ export const POEMS: readonly PoemSpec[] = [
     mood: "steady",
     slots: ["gain", "name"],
     lines: [
-      { text: "TERMS, as posted by {name}:" },
+      { text: "TERMS, posted by {name}:" },
       { text: "I am {gain} meters. I do not negotiate the number." },
       { text: "You may pass, on foot, and spend your breath to do it." },
       { text: "I keep no scores and hand out no medals." },
@@ -90,7 +90,7 @@ export const POEMS: readonly PoemSpec[] = [
       { text: "I have thrown down stronger and prouder than you." },
       { text: "Come in winter, if you dare. I am worse in winter." },
       { text: "" },
-      { text: "With grave respect — {name}" },
+      { text: "Grave respect — {name}" },
     ],
   },
   {

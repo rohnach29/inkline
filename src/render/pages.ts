@@ -155,7 +155,7 @@ function renderPoem(poem: ChapterPoem): string {
 
 function renderChapter(chapter: Chapter, index: number, year: Year): string {
   const atmosphere = esc(chapter.atmosphereTags.join(" "));
-  const verseHtml = renderPoem(chapter.poem);
+  const poemHtml = renderPoem(chapter.poem);
   const mapArea = renderMapArea(chapter.mapSpec, chapter.doodleTags, year);
   const statsRows = chapter.stats
     .map((s) => `<dt>${esc(s.label)}</dt><dd>${esc(s.value)}</dd>`)
@@ -173,7 +173,7 @@ function renderChapter(chapter: Chapter, index: number, year: Year): string {
     `<section class="page page-chapter" data-page="ch-${index}" data-event="${esc(chapter.eventType)}" data-atmosphere="${atmosphere}">`,
     `<div class="kicker">${esc(chapter.kicker)}</div>`,
     `<h2 class="chapter-title">${tiltSpan(chapter.title)}</h2>`,
-    verseHtml,
+    poemHtml,
     `<div class="map-area">${mapArea.html}</div>`,
     `<dl class="stats">${statsRows}</dl>`,
     strip ? `<div class="doodle-strip">${strip}</div>` : "",

@@ -513,7 +513,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
             "text": "",
           },
           {
-            "text": "With grave respect — Mount Second Thoughts",
+            "text": "Grave respect — Mount Second Thoughts",
           },
         ],
       },

@@ -85,7 +85,7 @@ export const POEMS: readonly PoemSpec[] = [
     lines: [
       { text: "When the quiet has a name, it can be answered." },
       { text: "Do not fight it; you can only open the door." },
-      { text: "Say to {name}: I have come back." },
+      { text: "I have come back, {name}." },
       { text: "The spell ends there. It was never a long one." },
       { text: "Coming back is small. Coming back is also everything." },
       { text: "The shoes forgive the wait. Begin. They are ready." },
@@ -107,7 +107,7 @@ export const POEMS: readonly PoemSpec[] = [
       { text: "We told her you'd be back. She laughed." },
       { text: "" },
       { text: "We are not angry. Shoes are built for patience." },
-      { text: "But {name} waits with us out here," },
+      { text: "But {name} waits too," },
       { text: "and it is getting large." },
       { text: "" },
       { text: "Yours truly,", align: "right" },

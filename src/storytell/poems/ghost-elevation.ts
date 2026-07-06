@@ -10,7 +10,7 @@ export const POEMS: readonly PoemSpec[] = [
     slots: ["gain", "name"],
     lines: [
       { text: "The watch swears you climbed {gain} meters today," },
-      { text: "up a phantom hill it named {name}." },
+      { text: "a phantom hill: {name}." },
       { text: "The route was flat as a rumor. The watch insists." },
     ],
   },

@@ -66,5 +66,3 @@ npm run build
 ## The whole book
 
 The pages aren't static once they're drawn. Routes trace themselves in on scroll, weather rides in on your actual data for that run, and the beasts wiggle like they're still out there.
-
-And the back of the book plays. It's a one-button runner — you outrun The Quiet across your own year's elevation, the hills you actually ran turned into the hills you have to jump. When it finally catches you (it always does), you get a score card, honest numbers and all, that you can keep.

@@ -86,7 +86,7 @@ export const WORST_CASE: Record<SlotName, string> = {
   pace: "12:59 /km",
   time: "23:59",
   gain: "9999",
-  name: "The Everlasting Quiet Returns",
+  name: "The Hill That Lied About Its Size (Again)",
   place: "West Lafayette",
   year: "2026",
 };
