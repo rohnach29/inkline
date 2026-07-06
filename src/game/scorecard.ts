@@ -25,7 +25,7 @@ function esc(s: string): string {
  * written for that ending: nightfall, not failure. Concrete, wry, kid-serious,
  * with real feeling sitting right under the joke.
  */
-const CARD_LINES: readonly string[] = [
+export const CARD_LINES: readonly string[] = [
   "You outran it for a while. That counts. It always counted.",
   "The Quiet always wins the last mile. You won every mile before it.",
   "Nightfall isn't a defeat. It's just the day, done being polite about ending.",
@@ -48,6 +48,31 @@ export function cardLine(rng: Rng, kmSurvived: number): string {
   return cardRng.pick(CARD_LINES);
 }
 
+/** Poem lines longer than this wrap onto a second <text> row. At 17px italic
+ *  serif (~7.5px average advance) 55 chars is ~410px — right at the edge of
+ *  the card's usable width, so anything longer must break. */
+const POEM_WRAP_THRESHOLD = 55;
+
+/** Split a poem line for the card: one segment when it fits on a single row,
+ *  two segments broken at the space nearest the midpoint when it doesn't.
+ *  A single unbroken word longer than the threshold (no space to split at)
+ *  is returned whole — there is no good break, and the bank contains none.
+ *  Balanced halves keep the longest bank line (104 chars → ~50/53) inside
+ *  the card border at 17px. The tuple return type encodes "one or two
+ *  segments" so callers can narrow without assertions. */
+export function wrapPoemLine(line: string): [string] | [string, string] {
+  if (line.length <= POEM_WRAP_THRESHOLD) return [line];
+  const mid = line.length / 2;
+  let breakAt = -1;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === " " && (breakAt === -1 || Math.abs(i - mid) < Math.abs(breakAt - mid))) {
+      breakAt = i;
+    }
+  }
+  if (breakAt === -1) return [line];
+  return [line.slice(0, breakAt), line.slice(breakAt + 1)];
+}
+
 const WOBBLE_FILTER =
   '<filter id="wobble-card"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter>';
 
@@ -63,7 +88,7 @@ const WOBBLE_FILTER =
  *  light-theme fill values as the single source of truth. */
 const CARD_STYLE =
   "<style>" +
-  '.ink-card-title{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:30px;font-weight:bold;letter-spacing:2px;}' +
+  '.ink-card-title{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:26px;font-weight:bold;letter-spacing:2px;}' +
   '.ink-card-stat{font-family:"Bradley Hand","Segoe Print","Comic Sans MS",cursive;font-size:19px;}' +
   '.ink-card-poem{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:17px;font-style:italic;}' +
   "</style>";
@@ -90,15 +115,30 @@ const DOODLES = [
  *  480x300, paper background, an inline wobble-filter def scoped to this card
  *  (id "wobble-card", distinct from the book's shared "wobble" filter so the
  *  two never collide when both are present in a page), a hand-drawn border,
- *  the title, the two honest stat lines, the authored poem line, and a couple
- *  of doodle strokes. All data-derived text is esc()'d; colors are literal
- *  light-theme values so the exported PNG reads correctly regardless of the
- *  viewer's theme. */
+ *  the title, the two honest stat lines, the authored poem line (wrapped onto
+ *  two centered rows when it is too long for one), and a couple of doodle
+ *  strokes. All data-derived text is esc()'d; colors are literal light-theme
+ *  values so the exported PNG reads correctly regardless of the viewer's
+ *  theme. */
 export function scoreCardSvg(facts: ScoreFacts, line: string): string {
   const outranLine = `you outran The Quiet for ${facts.kmSurvived.toFixed(1)} km`;
   const realLine = `real-you ran ${facts.realKm.toFixed(1)} km that year`;
   const beastLine =
     facts.furthestBeast !== null ? `it got past ${facts.furthestBeast} to catch you` : "";
+
+  // Single-row poems keep the original y=220 baseline; two-row poems center
+  // the pair around it (206/228) so the block stays clear of the beast stat
+  // line above and the bottom-left doodle scribble below.
+  const [firstSegment, secondSegment] = wrapPoemLine(line);
+  const poemTexts =
+    secondSegment === undefined
+      ? [
+          `<text x="240" y="220" text-anchor="middle" class="ink-card-poem" fill="${INK}">${esc(firstSegment)}</text>`,
+        ]
+      : [
+          `<text x="240" y="206" text-anchor="middle" class="ink-card-poem" fill="${INK}">${esc(firstSegment)}</text>`,
+          `<text x="240" y="228" text-anchor="middle" class="ink-card-poem" fill="${INK}">${esc(secondSegment)}</text>`,
+        ];
 
   return [
     `<svg viewBox="0 0 480 300" width="480" height="300" class="ink-scorecard" xmlns="http://www.w3.org/2000/svg">`,
@@ -112,7 +152,7 @@ export function scoreCardSvg(facts: ScoreFacts, line: string): string {
     beastLine
       ? `<text x="240" y="168" text-anchor="middle" class="ink-card-stat" fill="${PENCIL}">${esc(beastLine)}</text>`
       : "",
-    `<text x="240" y="220" text-anchor="middle" class="ink-card-poem" fill="${INK}">${esc(line)}</text>`,
+    ...poemTexts,
     ...DOODLES,
     `</svg>`,
   ]
