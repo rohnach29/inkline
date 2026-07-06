@@ -538,7 +538,13 @@ export function buildBook(year: Year, story: Story): Book {
     const place = evidenceRun?.placeId ? placeById.get(evidenceRun.placeId) : undefined;
     const placeName = place ? nearestCity(place.lat, place.lon)?.name : undefined;
 
-    const poem = poemFor(poems, event, { name, place: placeName }, rng);
+    const poem = poemFor(poems, event, {
+      name,
+      place: placeName,
+      placeLat: place?.lat,
+      placeLon: place?.lon,
+      startLocal: evidenceRun?.startLocal,
+    }, rng);
 
     const chapter: Chapter = {
       id,

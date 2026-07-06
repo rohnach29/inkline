@@ -1,5 +1,6 @@
 import type { StoryEvent } from "../../analyze/types";
 import type { PoemLine } from "./forms";
+import { localStampFor, weekdayOf } from "./features";
 
 export interface PoemContext {
   name?: string;
@@ -69,6 +70,15 @@ export function slotValues(
 
   if ("localTime" in d) v.time = String(d.localTime);
   else if ("latestLocalTime" in d) v.time = String(d.latestLocalTime);
+
+  const stamp = localStampFor(event, ctx);
+  if (stamp.hm !== undefined) {
+    const hour = Number(stamp.hm.slice(0, 2));
+    v.clock = `${hour % 12 || 12}:${stamp.hm.slice(3, 5)}`;
+  }
+  if (stamp.date !== undefined) v.weekday = weekdayOf(stamp.date);
+
+  if ("times" in d) v.times = String(Math.round(num(d.times)));
 
   if ("gainM" in d) v.gain = String(Math.round(num(d.gainM)));
   else if ("elevationGainM" in d) v.gain = String(Math.round(num(d.elevationGainM)));

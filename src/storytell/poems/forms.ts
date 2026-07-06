@@ -64,7 +64,8 @@ export type CastId = (typeof CAST_IDS)[number];
 
 export type SlotName =
   | "km" | "days" | "count" | "month" | "pace"
-  | "time" | "gain" | "name" | "place" | "year";
+  | "time" | "gain" | "name" | "place" | "year"
+  | "clock" | "weekday" | "times";
 
 export type Band = "small" | "medium" | "large";
 
@@ -102,22 +103,22 @@ export const FORM_RULES: Record<PoemForm, { min: number; max: number }> = {
  *  + book.ts naming: `name` is set exactly for NAMED_ENTITY_TYPES). A poem
  *  whose slots ⊆ SAFE_SLOTS[kind] can never be filtered out by honesty. */
 export const SAFE_SLOTS: Record<StoryEventType, readonly SlotName[]> = {
-  "first-run": ["km", "year"],
-  "last-run": ["km", "year"],
-  "longest-run": ["km", "year"],
-  "fastest-run": ["pace", "km", "year"],
-  "hilliest-run": ["gain", "year"],
-  "earliest-run": ["time", "year"],
-  "latest-run": ["time", "year"],
-  "night-runs": ["count", "time", "name"],
-  "false-starts": ["count"],
-  quiet: ["days", "year", "name"],
-  streak: ["days", "year"],
+  "first-run": ["km", "year", "clock", "weekday"],
+  "last-run": ["km", "year", "clock", "weekday"],
+  "longest-run": ["km", "year", "clock", "weekday"],
+  "fastest-run": ["pace", "km", "year", "clock", "weekday"],
+  "hilliest-run": ["gain", "year", "clock", "weekday"],
+  "earliest-run": ["time", "year", "clock", "weekday"],
+  "latest-run": ["time", "year", "clock", "weekday"],
+  "night-runs": ["count", "time", "name", "clock", "weekday"],
+  "false-starts": ["count", "clock", "weekday"],
+  quiet: ["days", "year", "name", "clock", "weekday"],
+  streak: ["days", "year", "weekday"],
   journey: ["km"],
   month: ["month", "km", "year"],
   "route-champion": ["count", "km", "name"],
-  "hill-beast": ["gain", "name"],
-  "ghost-elevation": ["gain", "name"],
+  "hill-beast": ["gain", "name", "times"],
+  "ghost-elevation": ["gain", "name", "clock", "weekday"],
 };
 
 /** Longest plausible fill per slot — the lint suite renders every line with
@@ -133,4 +134,7 @@ export const WORST_CASE: Record<SlotName, string> = {
   name: "The Hill That Lied About Its Size (Again)",
   place: "West Lafayette",
   year: "2026",
+  clock: "12:59",
+  weekday: "Wednesday",
+  times: "99",
 };
