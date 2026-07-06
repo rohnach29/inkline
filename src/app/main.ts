@@ -12,8 +12,6 @@ import { routeFiles, gpxToRaw } from "./files";
 import { rejectionPage, brokenZipPage, stuckPage } from "./errors";
 import { initLivingBook, wireCover3d, attachSound, soundLabel } from "../living";
 import type { LivingBookHandle } from "../living";
-import { initGame } from "../game";
-import type { GameHandle } from "../game";
 
 // ---------------------------------------------------------------------
 // Root + small shared state
@@ -28,10 +26,6 @@ let pageIndex = 0;
 /** Teardown for the currently-active living-book layer (self-drawing ink +
  *  runner), if any. Non-null only while a book is on screen. */
 let livingBookHandle: LivingBookHandle | null = null;
-
-/** Teardown for the back-matter game ("Outrun the Quiet"), if any. Non-null
- *  only while a book (with a game page) is on screen. */
-let gameHandle: GameHandle | null = null;
 
 /** The one pencil-sound instance for the whole app session — created once
  *  at boot (cheap: reads the persisted preference, touches no AudioContext
@@ -201,34 +195,13 @@ function showBook(bookHtml: string, year: Year, book: Book): void {
     livingBookHandle = null;
   }
 
-  gameHandle?.teardown();
-  gameHandle = null;
-  const gameMount = bookRoot.querySelector<HTMLElement>(".page-game .game-mount");
-  if (gameMount) {
-    try {
-      gameHandle = initGame(gameMount, year, book);
-    } catch (err) {
-      console.error("game layer failed to init; static book unaffected", err);
-      gameHandle = null;
-    }
-  }
-
-  // `#game` on the cover screen jumps straight to the demo book, scrolled to
-  // the game page (see the boot section at the bottom of this file).
-  if (window.location.hash === "#game") {
-    const gamePageEl = bookRoot.querySelector<HTMLElement>('.page[data-page="game"]');
-    gamePageEl?.scrollIntoView({ behavior: "auto" });
-  }
 }
 
-/** Tears down the living-book layer and the game (if any) and returns to
- *  the cover — the one choke point every "start over" affordance routes
- *  through. */
+/** Tears down the living-book layer and returns to the cover — the one
+ *  choke point every "start over" affordance routes through. */
 function startOver(): void {
   livingBookHandle?.teardown();
   livingBookHandle = null;
-  gameHandle?.teardown();
-  gameHandle = null;
   renderCover();
 }
 
@@ -404,11 +377,3 @@ async function runDemo(): Promise<void> {
 
 applyTheme(loadTheme());
 renderCover();
-
-// `#game` on the cover screen: skip straight to the demo book, scrolled to
-// the game page (showBook does the actual scroll once the book exists) —
-// a quick way in for anyone (reviewer, acceptance harness) who just wants
-// to reach "Outrun the Quiet" without dropping a real export first.
-if (window.location.hash === "#game") {
-  void runDemo();
-}

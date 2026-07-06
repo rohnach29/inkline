@@ -111,41 +111,33 @@ describe("renderBook", () => {
     expect(matches.length).toBe(1);
   });
 
-  it("emits one <section> per cover + dedication + game + colophon + chapters/empty-page + beasts(optional)", () => {
+  it("emits one <section> per cover + dedication + colophon + chapters/empty-page + beasts(optional)", () => {
     const html = renderBook(book, year);
     const sectionCount = (html.match(/<section/g) ?? []).length;
     // A zero-chapter book still renders exactly one body section (the
     // authored empty-year page), hence max(chapters, 1) rather than a bare
     // chapters term.
     const expected =
-      4 + Math.max(book.chapters.length, 1) + (book.beasts.length > 0 ? 1 : 0);
+      3 + Math.max(book.chapters.length, 1) + (book.beasts.length > 0 ? 1 : 0);
     expect(book.beasts.length).toBeGreaterThan(0); // fixture guard: beasts page must be exercised
     expect(sectionCount).toBe(expected);
   });
 
-  it("emits exactly 5 sections for an empty-year book (cover, dedication, empty page, game, colophon)", () => {
+  it("emits exactly 4 sections for an empty-year book (cover, dedication, empty page, colophon)", () => {
     const y = emptyYear();
     const s = analyzeYear(y);
     const emptyBook = buildBook(y, s);
     expect(emptyBook.chapters.length).toBe(0); // fixture guard
     expect(emptyBook.beasts.length).toBe(0); // fixture guard: no beasts page
     const html = renderBook(emptyBook, y);
-    expect((html.match(/<section/g) ?? []).length).toBe(5);
+    expect((html.match(/<section/g) ?? []).length).toBe(4);
   });
 
-  it("renders the game page between the beasts index and the colophon, with its kicker, title, how-to line, and mount div", () => {
+  it("renders no game page", () => {
     const html = renderBook(book, year);
-    const section = sectionFor(html, "game");
-    expect(section).toContain('class="game-mount"');
-    expect(unescapeAll(stripTags(section))).toContain("in which you are given one more chance");
-    expect(unescapeAll(stripTags(section))).toContain("Outrun the Quiet");
-    expect(section).toContain(esc("press space, or tap — the fog is patient but you are faster"));
-
-    const beastsAt = html.indexOf('data-page="beasts"');
-    const gameAt = html.indexOf('data-page="game"');
-    const colophonAt = html.indexOf('data-page="colophon"');
-    expect(beastsAt).toBeLessThan(gameAt);
-    expect(gameAt).toBeLessThan(colophonAt);
+    expect(html).not.toContain("page-game");
+    expect(html).not.toContain("game-mount");
+    expect(html).not.toContain("Outrun the Quiet");
   });
 
   it("includes every chapter title (reconstructed from tilt spans) and every verse line", () => {
