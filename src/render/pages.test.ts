@@ -170,6 +170,19 @@ describe("renderBook", () => {
     expect(html).toContain("indent-2");
   });
 
+  it("renders a coda block only when the poem carries one", () => {
+    const base = baseChapter({});
+    const withCoda = {
+      ...base,
+      poem: { ...base.poem, coda: [{ text: "P.S. the shadow says hi." }] },
+    };
+    const html = renderBook({ ...book, chapters: [withCoda] }, year);
+    expect(html).toContain('<div class="poem-coda">');
+    expect(html).toContain("P.S. the shadow says hi.");
+    const plain = renderBook({ ...book, chapters: [base] }, year);
+    expect(plain).not.toContain("poem-coda");
+  });
+
   it("tilt-spans a title containing '&' into &amp; entities with no raw ampersand left over", () => {
     const minimal: Book = {
       seed: 1,

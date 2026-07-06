@@ -111,19 +111,22 @@ function renderDedication(book: Book): string {
   return `<section class="page page-dedication" data-page="dedication">${lines}</section>`;
 }
 
+function renderPoemLine(l: ChapterPoem["lines"][number]): string {
+  if (l.text === "") return `<div class="poem-gap"></div>`;
+  const cls = ["verse", "poem-line"];
+  if (l.voice !== undefined) cls.push(`voice-${l.voice}`);
+  if (l.indent) cls.push(`indent-${l.indent}`);
+  if (l.align !== undefined && l.align !== "left") cls.push(`align-${l.align}`);
+  if (l.size !== undefined && l.size !== "normal") cls.push(`size-${l.size}`);
+  return `<div class="${cls.join(" ")}">${esc(l.text)}</div>`;
+}
+
 function renderPoem(poem: ChapterPoem): string {
-  const lines = poem.lines
-    .map((l) => {
-      if (l.text === "") return `<div class="poem-gap"></div>`;
-      const cls = ["verse", "poem-line"];
-      if (l.voice !== undefined) cls.push(`voice-${l.voice}`);
-      if (l.indent) cls.push(`indent-${l.indent}`);
-      if (l.align !== undefined && l.align !== "left") cls.push(`align-${l.align}`);
-      if (l.size !== undefined && l.size !== "normal") cls.push(`size-${l.size}`);
-      return `<div class="${cls.join(" ")}">${esc(l.text)}</div>`;
-    })
-    .join("");
-  return `<div class="poem poem-${poem.form}">${lines}</div>`;
+  const lines = poem.lines.map(renderPoemLine).join("");
+  const coda = poem.coda
+    ? `<div class="poem-coda">${poem.coda.map(renderPoemLine).join("")}</div>`
+    : "";
+  return `<div class="poem poem-${poem.form}">${lines}${coda}</div>`;
 }
 
 function renderChapter(chapter: Chapter, index: number, year: Year, rng: Rng): string {

@@ -122,6 +122,14 @@ body {
 }
 .poem-letter .poem-line:first-child { font-style: italic; }
 .poem-spell .poem-line { line-height: 2.05; }
+.poem-coda {
+  margin-top: 0.9em;
+  padding-top: 0.55em;
+  border-top: 1px solid var(--ink-faint);
+  max-width: 24em;
+  font-style: italic;
+  color: var(--ink-faint);
+}
 
 .book-title {
   font-size: 3rem;
