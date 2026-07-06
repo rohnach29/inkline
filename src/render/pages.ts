@@ -1,4 +1,5 @@
 import type { Book, Chapter, MapSpec } from "../storytell";
+import type { ChapterPoem } from "../storytell";
 import type { Year } from "../ingest";
 import { routeSvg, flightSvg, esc, drawDurationMs } from "./svg";
 import { doodleFor } from "./doodles";
@@ -137,11 +138,24 @@ function renderDedication(book: Book): string {
   return `<section class="page page-dedication" data-page="dedication">${lines}</section>`;
 }
 
+function renderPoem(poem: ChapterPoem): string {
+  const lines = poem.lines
+    .map((l) => {
+      if (l.text === "") return `<div class="poem-gap"></div>`;
+      const cls = ["verse", "poem-line"];
+      if (l.voice !== undefined) cls.push(`voice-${l.voice}`);
+      if (l.indent) cls.push(`indent-${l.indent}`);
+      if (l.align !== undefined && l.align !== "left") cls.push(`align-${l.align}`);
+      if (l.size !== undefined && l.size !== "normal") cls.push(`size-${l.size}`);
+      return `<div class="${cls.join(" ")}">${esc(l.text)}</div>`;
+    })
+    .join("");
+  return `<div class="poem poem-${poem.form}">${lines}</div>`;
+}
+
 function renderChapter(chapter: Chapter, index: number, year: Year): string {
   const atmosphere = esc(chapter.atmosphereTags.join(" "));
-  const verseHtml = chapter.poem.lines
-    .map((l) => (l.text === "" ? `<div class="poem-gap"></div>` : `<div class="verse">${esc(l.text)}</div>`))
-    .join("");
+  const verseHtml = renderPoem(chapter.poem);
   const mapArea = renderMapArea(chapter.mapSpec, chapter.doodleTags, year);
   const statsRows = chapter.stats
     .map((s) => `<dt>${esc(s.label)}</dt><dd>${esc(s.value)}</dd>`)

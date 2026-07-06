@@ -155,6 +155,24 @@ describe("renderBook", () => {
     }
   });
 
+  it("renders poem form class and line modifiers", () => {
+    const poem = { form: "dialogue" as const, lines: [
+      { text: "Who goes there?", voice: 1 as const },
+      { text: "Me. Again. Still.", voice: 2 as const },
+      { text: "", },
+      { text: "CLOSED", align: "center" as const, size: "large" as const },
+      { text: "step two,", indent: 2 as const },
+    ]};
+    const html = renderBook({ ...book, chapters: [{ ...book.chapters[0]!, poem }] }, year);
+    expect(html).toContain('class="poem poem-dialogue"');
+    expect(html).toContain('class="verse poem-line voice-1"');
+    expect(html).toContain('class="verse poem-line voice-2"');
+    expect(html).toContain('<div class="poem-gap"></div>');
+    expect(html).toContain("align-center");
+    expect(html).toContain("size-large");
+    expect(html).toContain("indent-2");
+  });
+
   it("tilt-spans a title containing '&' into &amp; entities with no raw ampersand left over", () => {
     const minimal: Book = {
       seed: 1,
