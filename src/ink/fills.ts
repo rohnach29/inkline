@@ -49,10 +49,10 @@ function rows(
   const y1 = Math.max(...ys);
   const out: Array<Array<[Pt, Pt]>> = [];
   for (let y = y0 + spacing / 2; y < y1; y += spacing * (0.8 + rng.next() * 0.4)) {
+    const jy = y + (rng.next() - 0.5) * spacing * 0.2;
     const row: Array<[Pt, Pt]> = [];
-    for (const [xa, xb] of spans(rot, y)) {
+    for (const [xa, xb] of spans(rot, jy)) {
       if (xb - xa < inset * 2) continue;
-      const jy = y + (rng.next() - 0.5) * spacing * 0.2;
       row.push([rotate({ x: xa + inset, y: jy }, angle), rotate({ x: xb - inset, y: jy }, angle)]);
     }
     if (row.length > 0) out.push(row);
