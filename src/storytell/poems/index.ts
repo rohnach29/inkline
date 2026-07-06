@@ -37,3 +37,5 @@ export const COVERED_KINDS: readonly StoryEventType[] = [
 export * from "./forms";
 export * from "./slots";
 export * from "./select";
+export * from "./features";
+export * from "./realize";

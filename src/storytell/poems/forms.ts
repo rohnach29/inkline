@@ -1,8 +1,9 @@
 import type { StoryEventType } from "../../analyze/types";
+import type { HourBand, Season, Weekday } from "./features";
 
 export const POEM_FORMS = [
   "quatrain", "quip", "list", "dialogue", "letter",
-  "notice", "spell", "concrete", "narrative",
+  "notice", "spell", "concrete", "narrative", "verse",
 ] as const;
 export type PoemForm = (typeof POEM_FORMS)[number];
 
@@ -19,9 +20,47 @@ export interface PoemLine {
 }
 
 export interface ChapterPoem {
+  /** the picked PoemSpec's id — render ignores it, tests key on it */
+  id: string;
   form: PoemForm;
   lines: PoemLine[];
+  /** callback couplet, present only when its cast member arrived earlier */
+  coda?: PoemLine[];
 }
+
+/** A branch condition: every listed key must match the computed feature.
+ *  A missing feature never matches, so the branch falls to its default. */
+export interface FeatureCond {
+  hourBand?: readonly HourBand[];
+  weekday?: readonly Weekday[];
+  season?: readonly Season[];
+  band?: readonly Band[];
+}
+
+export interface PoemVariant {
+  when: FeatureCond;
+  /** an authored couplet/quatrain written FOR this poem, not a slot fill */
+  lines: readonly PoemLine[];
+}
+
+/** A planned branch point inside a poem; first matching variant wins,
+ *  otherwise the (required) default lines. */
+export interface PoemBranch {
+  branch: {
+    variants: readonly PoemVariant[];
+    default: readonly PoemLine[];
+  };
+}
+
+export type PoemUnit = PoemLine | PoemBranch;
+
+/** The recurring cast a book can assemble; poems introduce members and
+ *  later chapters may call back to them via codas. */
+export const CAST_IDS = [
+  "shadow", "shoes", "the-hill", "the-dog", "the-moon",
+  "the-mailbox", "the-watch", "the-quiet",
+] as const;
+export type CastId = (typeof CAST_IDS)[number];
 
 export type SlotName =
   | "km" | "days" | "count" | "month" | "pace"
@@ -36,9 +75,13 @@ export interface PoemSpec {
   form: PoemForm;
   band: Band | "any";
   mood: Mood;
-  /** exactly the slots the lines reference — no more, no less */
+  /** union of slots referenced across base lines, variants, defaults, coda */
   slots: readonly SlotName[];
-  lines: PoemLine[];
+  lines: readonly PoemUnit[];
+  /** cast members this poem brings on stage */
+  introduces?: readonly CastId[];
+  /** callback couplet, appended only if `requires` arrived in an earlier chapter */
+  coda?: { requires: CastId; lines: readonly PoemLine[] };
 }
 
 /** Bounds on NON-EMPTY line count per form. */
@@ -52,6 +95,7 @@ export const FORM_RULES: Record<PoemForm, { min: number; max: number }> = {
   spell: { min: 5, max: 12 },
   concrete: { min: 5, max: 16 },
   narrative: { min: 12, max: 20 },
+  verse: { min: 4, max: 16 },
 };
 
 /** Slots guaranteed resolvable for each event type (from analyze data shapes

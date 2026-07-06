@@ -38,6 +38,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "mapSpec": null,
       "poem": {
         "form": "spell",
+        "id": "first-run/spell-to-begin",
         "lines": [
           {
             "text": "For the first step, when the whole thing seems too big:",
@@ -82,6 +83,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "mapSpec": null,
       "poem": {
         "form": "notice",
+        "id": "false-starts/no-fault-found",
         "lines": [
           {
             "text": "NO FAULT FOUND, reads the report on 2 attempts.",
@@ -123,6 +125,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "mapSpec": null,
       "poem": {
         "form": "concrete",
+        "id": "latest-run/one-light-left-on",
         "lines": [
           {
             "align": "center",
@@ -185,6 +188,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "mapSpec": null,
       "poem": {
         "form": "quatrain",
+        "id": "night-runs/the-dark-made-room",
         "lines": [
           {
             "text": "The dark is not as empty as they say.",
@@ -223,6 +227,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "mapSpec": null,
       "poem": {
         "form": "dialogue",
+        "id": "earliest-run/you-and-the-warm-bed",
         "lines": [
           {
             "text": "Stay, said the bed. I'm warm. It's still the night.",
@@ -271,6 +276,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "mapSpec": null,
       "poem": {
         "form": "list",
+        "id": "streak/terms-and-conditions",
         "lines": [
           {
             "text": "Terms and conditions of the unbroken streak:",
@@ -323,6 +329,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       },
       "poem": {
         "form": "quip",
+        "id": "quiet/the-silence-earned-a-name",
         "lines": [
           {
             "text": "After 40 days, the silence earned a name.",
@@ -361,6 +368,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       },
       "poem": {
         "form": "spell",
+        "id": "fastest-run/spell-for-going-fast",
         "lines": [
           {
             "text": "To go fast, first agree to be a rumor.",
@@ -416,6 +424,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       },
       "poem": {
         "form": "concrete",
+        "id": "journey/the-long-arc",
         "lines": [
           {
             "align": "center",
@@ -481,6 +490,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       },
       "poem": {
         "form": "letter",
+        "id": "hill-beast/felt-you-on-my-back",
         "lines": [
           {
             "text": "I felt you on my back this morning. All 60 meters.",
@@ -538,6 +548,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       },
       "poem": {
         "form": "quatrain",
+        "id": "route-champion/no-longer-needs-directions",
         "lines": [
           {
             "text": "There is a route that no longer needs directions.",
@@ -580,6 +591,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       },
       "poem": {
         "form": "notice",
+        "id": "ghost-elevation/public-denial",
         "lines": [
           {
             "text": "PUBLIC DENIAL: no hill exists at that location.",
@@ -621,6 +633,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "mapSpec": null,
       "poem": {
         "form": "dialogue",
+        "id": "last-run/one-more-you-said",
         "lines": [
           {
             "text": "One more, you said. There's room for one more yet.",
@@ -671,6 +684,7 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "mapSpec": null,
       "poem": {
         "form": "narrative",
+        "id": "longest-run/what-the-shadow-saw",
         "lines": [
           {
             "text": "The shadow had planned an ordinary day.",

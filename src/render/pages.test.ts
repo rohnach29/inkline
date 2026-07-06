@@ -51,6 +51,7 @@ function baseChapter(overrides: Partial<Chapter>): Chapter {
     kicker: "in which we test",
     title: "Plain Title",
     poem: {
+      id: "first-run/test-poem",
       form: "quatrain",
       lines: [{ text: "one" }, { text: "two" }, { text: "three" }, { text: "four" }],
     },
@@ -152,7 +153,7 @@ describe("renderBook", () => {
   });
 
   it("renders poem form class and line modifiers", () => {
-    const poem = { form: "dialogue" as const, lines: [
+    const poem = { id: "first-run/modifier-fixture", form: "dialogue" as const, lines: [
       { text: "Who goes there?", voice: 1 as const },
       { text: "Me. Again. Still.", voice: 2 as const },
       { text: "", },
@@ -249,6 +250,7 @@ describe("renderBook", () => {
           kicker: "in which the map is lost",
           title: "Nowhere Found",
           poem: {
+            id: "first-run/missing-map-fixture",
             form: "quatrain",
             lines: [{ text: "one line" }, { text: "two line" }, { text: "three line" }, { text: "four line" }],
           },

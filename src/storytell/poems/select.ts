@@ -1,7 +1,9 @@
 import type { Rng } from "../rng";
 import type { StoryEvent, StoryEventType } from "../../analyze/types";
 import type { Band, ChapterPoem, PoemForm, PoemSpec } from "./forms";
-import { fillPoemLines, slotValues, type PoemContext } from "./slots";
+import { fillLines, slotValues, type PoemContext } from "./slots";
+import { featuresFor } from "./features";
+import { realizeLines } from "./realize";
 
 /** magnitude bounds per banded type; `invert` = lower magnitude is the
  *  bigger feat (pace). small: m < lo · medium: lo ≤ m ≤ hi · large: m > hi */
@@ -71,5 +73,6 @@ export function poemFor(
   const r = rng.fork(`poem:${event.type}:${event.atUtc}`);
   const values = slotValues(event, ctx);
   const spec = selector.select(event, values, r);
-  return { form: spec.form, lines: fillPoemLines(spec, values) };
+  const features = featuresFor(event, ctx, bandFor(event) ?? undefined);
+  return { id: spec.id, form: spec.form, lines: fillLines(realizeLines(spec.lines, features), values) };
 }

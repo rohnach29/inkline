@@ -1,9 +1,13 @@
 import type { StoryEvent } from "../../analyze/types";
-import type { PoemLine, PoemSpec } from "./forms";
+import type { PoemLine } from "./forms";
 
 export interface PoemContext {
   name?: string;
   place?: string;
+  placeLat?: number;
+  placeLon?: number;
+  /** first evidence run's local stamp — feature fallback for date-less events */
+  startLocal?: string;
 }
 
 const MONTH_NAMES = [
@@ -84,11 +88,11 @@ export function slotValues(
 
 /** Fill every line's {slot} tokens, preserving line modifiers. Empty lines
  *  (stanza gaps) pass through untouched. */
-export function fillPoemLines(
-  spec: PoemSpec,
+export function fillLines(
+  lines: readonly PoemLine[],
   values: Record<string, string>,
 ): PoemLine[] {
-  return spec.lines.map((l) =>
+  return lines.map((l) =>
     l.text === "" ? { ...l } : { ...l, text: fillSlots(l.text, values) },
   );
 }
