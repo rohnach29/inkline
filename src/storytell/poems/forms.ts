@@ -124,7 +124,7 @@ export const SAFE_SLOTS: Record<StoryEventType, readonly SlotName[]> = {
 /** Longest plausible fill per slot — the lint suite renders every line with
  *  these and enforces the 60-char layout bound. */
 export const WORST_CASE: Record<SlotName, string> = {
-  km: "999.9",
+  km: "99999.9",
   days: "365",
   count: "99",
   month: "September",

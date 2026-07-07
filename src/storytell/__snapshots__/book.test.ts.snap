@@ -479,44 +479,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         },
       },
       "poem": {
-        "form": "concrete",
-        "id": "journey/the-long-arc",
+        "form": "verse",
+        "id": "journey/half-the-map",
         "lines": [
           {
-            "align": "center",
-            "text": "here",
+            "text": "13077.1 kilometers. HALF THE MAP.",
           },
           {
-            "align": "center",
-            "text": "then a long",
+            "text": "The plane had three dinners, two movies, one nap.",
           },
           {
-            "align": "center",
-            "text": "arcing",
+            "text": "I stepped out the airport, all noodle and yawn,",
           },
           {
-            "align": "center",
-            "text": "line",
+            "text": "and the very next morning, I ran on a foreign dawn.",
           },
           {
-            "align": "center",
-            "text": "over the ocean",
+            "text": "",
           },
           {
-            "align": "center",
-            "text": "to there —",
+            "text": "The other side of Earth! Where the drains swirl reversed!",
           },
           {
-            "align": "center",
-            "text": "and then, absurdly,",
+            "text": "Where my winter is summer! Where dessert can come first!",
           },
           {
-            "align": "center",
-            "text": "a small loop",
+            "text": "And yet when I ran there, the feeling was plain:",
           },
           {
-            "align": "center",
-            "text": "on foot.",
+            "text": "(you can flip the whole planet. The kid stays the same.)",
           },
         ],
       },
@@ -545,31 +536,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "runId": "r17-hillroute-4",
       },
       "poem": {
-        "form": "list",
-        "id": "hill-beast/what-it-took-and-gave",
+        "form": "verse",
+        "id": "hill-beast/my-coach-the-landform",
         "lines": [
           {
-            "text": "What the great hill took from you, and gave:",
+            "text": "My coach is a landform. I pay it in sweat.",
           },
           {
-            "indent": 1,
-            "text": "took your breath, and gave it back in gulps;",
+            "text": "It's mean and it's steady and doesn't forget.",
           },
           {
-            "indent": 1,
-            "text": "took your pace, and gave a slower, truer one;",
+            "text": "It never says "nice one." It never says "rest."",
           },
           {
-            "indent": 1,
-            "text": "took the easy story you told about yourself;",
+            "text": "It just stands there, slanted, suggesting the test.",
           },
           {
-            "indent": 1,
-            "text": "gave a harder one, with better standing in it;",
+            "text": "",
           },
           {
-            "indent": 1,
-            "text": "and kept, the way beasts do, the view up top.",
+            "text": "60 meters, 4 sessions to date,",
+          },
+          {
+            "text": "and I hate it the way that you love something great.",
+          },
+          {
+            "text": "One day I'll charge up and it won't feel tall.",
+          },
+          {
+            "text": "(Don't tell it, but that day I'll miss it. That's all.)",
           },
         ],
       },
@@ -602,31 +597,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "runId": "r17-hillroute-4",
       },
       "poem": {
-        "form": "list",
-        "id": "route-champion/what-it-still-hides",
+        "form": "verse",
+        "id": "route-champion/the-block-is-talking",
         "lines": [
           {
-            "text": "Things your oldest route is still hiding from you:",
+            "text": "4 times around the same block.",
           },
           {
-            "indent": 1,
-            "text": "a side street you have never once turned down;",
+            "text": "The block has started to talk.",
           },
           {
-            "indent": 1,
-            "text": "the garden that blooms the weeks you're away;",
+            "text": "Not loudly. It mutters. A curb-to-curb hum:",
           },
           {
-            "indent": 1,
-            "text": "one bench it is saving for your slower years;",
+            "text": ""Here comes our kid. Right on time. Here they come."",
           },
           {
-            "indent": 1,
-            "text": "a shortcut it has decided you don't need;",
+            "text": "",
           },
           {
-            "indent": 1,
-            "text": "and what it does at night, when no one's running.",
+            "text": "The fences all know me. The gates never squeak.",
+          },
+          {
+            "text": "The puddles reflect me my best twice a week.",
+          },
+          {
+            "text": "A stranger once shortcut my loop on a jog.",
+          },
+          {
+            "text": "(The block tripped him gently. You're welcome. — The Dog)",
           },
         ],
       },
