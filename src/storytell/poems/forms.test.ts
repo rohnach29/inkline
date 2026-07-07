@@ -88,15 +88,11 @@ describe("corpus structure", () => {
       }
     }
   });
-  it("voice only in dialogue (both voices present); size only in concrete", () => {
+  it("size modifiers only in concrete", () => {
     for (const p of CORPUS) {
+      if (p.form === "concrete") continue;
       const lines = nonEmpty(allLines(p));
-      const voices = new Set(lines.map((l) => l.voice).filter((v) => v !== undefined));
-      if (p.form === "dialogue") expect([...voices].sort(), p.id).toEqual([1, 2]);
-      else expect(voices.size, p.id).toBe(0);
-      if (p.form !== "concrete") {
-        expect(lines.every((l) => l.size === undefined || l.size === "normal"), p.id).toBe(true);
-      }
+      expect(lines.every((l) => l.size === undefined || l.size === "normal"), p.id).toBe(true);
     }
   });
   it("no line text (>12 chars) repeats corpus-wide", () => {
@@ -110,19 +106,11 @@ describe("corpus structure", () => {
   });
 });
 
-/** Kinds already rewritten to the Silverstein corpus (Rebirth v2). Batch
- *  membership grows as corpus batches land; Task 7 requires all 16. */
-const MIGRATED = new Set<string>([
-  "first-run", "longest-run", "fastest-run", "last-run",
-  "quiet", "streak", "false-starts", "month",
-  "earliest-run", "latest-run", "night-runs", "ghost-elevation",
-  "hilliest-run", "hill-beast", "route-champion", "journey",
-]);
 /** Per-kind selection caps from book.ts — a book can hold this many chapters
  *  of the kind, so this many always-eligible poems must exist. */
 const REPEAT_CAPS: Record<string, number> = { quiet: 3, month: 3, streak: 2, journey: 2 };
 
-describe.each([...COVERED_KINDS].filter((k) => MIGRATED.has(k)))("corpus floors (v2): %s", (kind) => {
+describe.each([...COVERED_KINDS])("corpus floors: %s", (kind) => {
   it("has ≥6 poems", () => expect(byKind(kind).length).toBeGreaterThanOrEqual(6));
   it("has enough always-eligible poems (band any + safe slots)", () => {
     const floor = Math.max(2, REPEAT_CAPS[kind] ?? 1);
@@ -138,27 +126,8 @@ describe.each([...COVERED_KINDS].filter((k) => MIGRATED.has(k)))("corpus floors 
   });
 });
 
-describe.each([...COVERED_KINDS].filter((k) => !MIGRATED.has(k)))("corpus floors (v1): %s", (kind) => {
-  it("has ≥8 poems", () => expect(byKind(kind).length).toBeGreaterThanOrEqual(8));
-  it("has ≥2 safe poems (slots ⊆ SAFE_SLOTS)", () => {
-    const safe = byKind(kind).filter((p) => p.slots.every((s) => SAFE_SLOTS[kind].includes(s)));
-    expect(safe.length).toBeGreaterThanOrEqual(2);
-  });
-  it("covers bands/forms deeply enough for the no-repeat selector", () => {
-    if (BANDED.has(kind)) {
-      for (const b of BANDS) {
-        const pool = bandEligible(kind, b);
-        expect(pool.length, `${kind}/${b}`).toBeGreaterThanOrEqual(3);
-        expect(new Set(pool.map((p) => p.form)).size, `${kind}/${b} forms`).toBeGreaterThanOrEqual(3);
-      }
-    } else {
-      expect(new Set(byKind(kind).map((p) => p.form)).size).toBeGreaterThanOrEqual(4);
-    }
-  });
-});
-
-describe("corpus totals (all kinds migrated)", () => {
-  it.runIf(COVERED_KINDS.every((k) => MIGRATED.has(k)))("≥96 poems, only v2 forms, every coda reachable", () => {
+describe("corpus totals", () => {
+  it("has ≥96 poems across only the v2 forms, with every coda reachable", () => {
     expect(CORPUS.length).toBeGreaterThanOrEqual(96);
     const forms = new Set<string>(CORPUS.map((p) => p.form));
     expect([...forms].sort()).toEqual(["concrete", "list", "verse"].filter((f) => forms.has(f)));

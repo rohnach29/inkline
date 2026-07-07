@@ -52,7 +52,7 @@ function baseChapter(overrides: Partial<Chapter>): Chapter {
     title: "Plain Title",
     poem: {
       id: "first-run/test-poem",
-      form: "quatrain",
+      form: "verse",
       lines: [{ text: "one" }, { text: "two" }, { text: "three" }, { text: "four" }],
     },
     stats: [{ label: "distance", value: "5.0 km" }],
@@ -153,17 +153,15 @@ describe("renderBook", () => {
   });
 
   it("renders poem form class and line modifiers", () => {
-    const poem = { id: "first-run/modifier-fixture", form: "dialogue" as const, lines: [
-      { text: "Who goes there?", voice: 1 as const },
-      { text: "Me. Again. Still.", voice: 2 as const },
+    const poem = { id: "first-run/modifier-fixture", form: "concrete" as const, lines: [
+      { text: "Who goes there?" },
+      { text: "Me. Again. Still." },
       { text: "", },
       { text: "CLOSED", align: "center" as const, size: "large" as const },
       { text: "step two,", indent: 2 as const },
     ]};
     const html = renderBook({ ...book, chapters: [{ ...book.chapters[0]!, poem }] }, year);
-    expect(html).toContain('class="poem poem-dialogue"');
-    expect(html).toContain('class="verse poem-line voice-1"');
-    expect(html).toContain('class="verse poem-line voice-2"');
+    expect(html).toContain('class="poem poem-concrete"');
     expect(html).toContain('<div class="poem-gap"></div>');
     expect(html).toContain("align-center");
     expect(html).toContain("size-large");
@@ -264,7 +262,7 @@ describe("renderBook", () => {
           title: "Nowhere Found",
           poem: {
             id: "first-run/missing-map-fixture",
-            form: "quatrain",
+            form: "verse",
             lines: [{ text: "one line" }, { text: "two line" }, { text: "three line" }, { text: "four line" }],
           },
           stats: [{ label: "distance", value: "5.0 km" }],

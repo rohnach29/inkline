@@ -13,12 +13,12 @@ const ev = (type: string, atUtc: number, magnitude: number, data: StoryEvent["da
   ({ type: type as StoryEvent["type"], runIds: [], atUtc, magnitude, data });
 
 const FIX: PoemSpec[] = [
-  mk("longest-run", "a", "quatrain", "any"),
-  mk("longest-run", "b", "quip", "any"),
+  mk("longest-run", "a", "verse", "any"),
+  mk("longest-run", "b", "verse", "any"),
   mk("longest-run", "c", "list", "any"),
-  mk("longest-run", "d", "letter", "any"),
-  mk("longest-run", "epic", "narrative", "large"),
-  mk("quiet", "e", "quatrain", "any"),
+  mk("longest-run", "d", "list", "any"),
+  mk("longest-run", "epic", "verse", "large"),
+  mk("quiet", "e", "verse", "any"),
 ];
 
 describe("bandFor", () => {
@@ -59,22 +59,22 @@ describe("PoemSelector", () => {
     }
   });
   it("relaxes band before giving up, throws only with zero candidates", () => {
-    const s = new PoemSelector([mk("longest-run", "only", "quip", "large")]);
+    const s = new PoemSelector([mk("longest-run", "only", "verse", "large")]);
     expect(s.select(ev("longest-run", 1, 5), {}, new Rng(1)).spec.id).toBe("longest-run/only");
     const empty = new PoemSelector([]);
     expect(() => empty.select(ev("longest-run", 1, 5), {}, new Rng(1))).toThrow(/no candidate/);
   });
   it("drops poems whose slots don't resolve (honesty)", () => {
-    const s = new PoemSelector([mk("longest-run", "needy", "quip", "any", ["name"]), mk("longest-run", "safe", "list", "any")]);
+    const s = new PoemSelector([mk("longest-run", "needy", "verse", "any", ["name"]), mk("longest-run", "safe", "list", "any")]);
     expect(s.select(ev("longest-run", 1, 10), {}, new Rng(1)).spec.id).toBe("longest-run/safe");
   });
 });
 
 describe("cast & callback codas", () => {
   const intro = (kind: string, slug: string, cast: PoemSpec["introduces"]): PoemSpec =>
-    ({ ...mk(kind, slug, "quip", "any"), introduces: cast });
+    ({ ...mk(kind, slug, "verse", "any"), introduces: cast });
   const withCoda = (kind: string, slug: string, requires: "shadow" | "shoes"): PoemSpec =>
-    ({ ...mk(kind, slug, "quip", "any"), coda: { requires, lines: [{ text: "P.S. the coda line." }] } });
+    ({ ...mk(kind, slug, "verse", "any"), coda: { requires, lines: [{ text: "P.S. the coda line." }] } });
 
   it("activates a coda only when its cast member arrived in an earlier chapter", () => {
     const s = new PoemSelector([intro("first-run", "meet-shadow", ["shadow"]), withCoda("last-run", "bye", "shadow")]);
@@ -82,13 +82,13 @@ describe("cast & callback codas", () => {
     expect(s.select(ev("last-run", 2, 1), {}, new Rng(1)).codaActive).toBe(true);
   });
   it("never lets a poem satisfy its own coda", () => {
-    const both: PoemSpec = { ...mk("first-run", "self", "quip", "any"), introduces: ["shadow"], coda: { requires: "shadow", lines: [{ text: "no." }] } };
+    const both: PoemSpec = { ...mk("first-run", "self", "verse", "any"), introduces: ["shadow"], coda: { requires: "shadow", lines: [{ text: "no." }] } };
     expect(new PoemSelector([both]).select(ev("first-run", 1, 1), {}, new Rng(1)).codaActive).toBe(false);
   });
   it("prefers the activatable-coda tier when one exists", () => {
     const s = new PoemSelector([
       intro("first-run", "meet-shadow", ["shadow"]),
-      mk("last-run", "plain-a", "quip", "any"),
+      mk("last-run", "plain-a", "verse", "any"),
       mk("last-run", "plain-b", "list", "any"),
       withCoda("last-run", "callback", "shadow"),
     ]);
@@ -96,7 +96,7 @@ describe("cast & callback codas", () => {
     for (let seed = 1; seed <= 5; seed++) {
       const fresh = new PoemSelector([
         intro("first-run", "meet-shadow", ["shadow"]),
-        mk("last-run", "plain-a", "quip", "any"),
+        mk("last-run", "plain-a", "verse", "any"),
         mk("last-run", "plain-b", "list", "any"),
         withCoda("last-run", "callback", "shadow"),
       ]);
@@ -119,7 +119,7 @@ describe("cast & callback codas", () => {
 describe("poemFor", () => {
   it("is deterministic and fills every slot", () => {
     const e = ev("longest-run", 99, 21, { km: 21.4, startLocal: "2025-10-27T10:49:00" });
-    const run = () => poemFor(new PoemSelector([mk("longest-run", "k", "quip", "any", ["km"])]), e, {}, new Rng(42));
+    const run = () => poemFor(new PoemSelector([mk("longest-run", "k", "verse", "any", ["km"])]), e, {}, new Rng(42));
     const a = run();
     expect(a).toEqual(run());
     expect(a.lines[0]!.text).toContain("21.4");

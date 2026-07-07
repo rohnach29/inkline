@@ -114,7 +114,6 @@ function renderDedication(book: Book): string {
 function renderPoemLine(l: ChapterPoem["lines"][number]): string {
   if (l.text === "") return `<div class="poem-gap"></div>`;
   const cls = ["verse", "poem-line"];
-  if (l.voice !== undefined) cls.push(`voice-${l.voice}`);
   if (l.indent) cls.push(`indent-${l.indent}`);
   if (l.align !== undefined && l.align !== "left") cls.push(`align-${l.align}`);
   if (l.size !== undefined && l.size !== "normal") cls.push(`size-${l.size}`);

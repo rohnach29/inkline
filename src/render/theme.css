@@ -110,18 +110,6 @@ body {
 .poem-line.align-right { text-align: right; }
 .poem-concrete .size-large { font-size: 1.35em; line-height: 1.5; }
 .poem-concrete .size-small { font-size: 0.82em; }
-.poem-dialogue .voice-2 {
-  font-family: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
-  color: var(--pencil);
-  padding-left: 1.6em;
-}
-.poem-notice .poem-line {
-  text-align: center;
-  font-variant-caps: small-caps;
-  letter-spacing: 0.07em;
-}
-.poem-letter .poem-line:first-child { font-style: italic; }
-.poem-spell .poem-line { line-height: 2.05; }
 .poem-coda {
   margin-top: 0.9em;
   padding-top: 0.55em;

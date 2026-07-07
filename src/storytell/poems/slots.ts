@@ -68,9 +68,6 @@ export function slotValues(
 
   if ("paceMinPerKm" in d) v.pace = formatPace(num(d.paceMinPerKm));
 
-  if ("localTime" in d) v.time = String(d.localTime);
-  else if ("latestLocalTime" in d) v.time = String(d.latestLocalTime);
-
   const stamp = localStampFor(event, ctx);
   if (stamp.hm !== undefined) {
     const hour = Number(stamp.hm.slice(0, 2));

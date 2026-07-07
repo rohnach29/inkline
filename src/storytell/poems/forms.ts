@@ -1,10 +1,7 @@
 import type { StoryEventType } from "../../analyze/types";
 import type { HourBand, Season, Weekday } from "./features";
 
-export const POEM_FORMS = [
-  "quatrain", "quip", "list", "dialogue", "letter",
-  "notice", "spell", "concrete", "narrative", "verse",
-] as const;
+export const POEM_FORMS = ["verse", "list", "concrete"] as const;
 export type PoemForm = (typeof POEM_FORMS)[number];
 
 /** Carried over from the retired couplet engine — same union, new home. */
@@ -13,7 +10,6 @@ export type Mood = "triumphant" | "sheepish" | "nocturnal" | "quiet" | "absurd" 
 export interface PoemLine {
   /** may contain {slot} tokens in a PoemSpec; empty string = stanza gap */
   text: string;
-  voice?: 1 | 2;                        // dialogue only
   indent?: 0 | 1 | 2 | 3;               // hanging/stepped indentation
   align?: "left" | "center" | "right";  // default left
   size?: "small" | "normal" | "large";  // concrete only; default normal
@@ -64,7 +60,7 @@ export type CastId = (typeof CAST_IDS)[number];
 
 export type SlotName =
   | "km" | "days" | "count" | "month" | "pace"
-  | "time" | "gain" | "name" | "place" | "year"
+  | "gain" | "name" | "place" | "year"
   | "clock" | "weekday" | "times";
 
 export type Band = "small" | "medium" | "large";
@@ -87,16 +83,9 @@ export interface PoemSpec {
 
 /** Bounds on NON-EMPTY line count per form. */
 export const FORM_RULES: Record<PoemForm, { min: number; max: number }> = {
-  quatrain: { min: 4, max: 12 },
-  quip: { min: 2, max: 4 },
-  list: { min: 5, max: 12 },
-  dialogue: { min: 6, max: 14 },
-  letter: { min: 6, max: 14 },
-  notice: { min: 4, max: 10 },
-  spell: { min: 5, max: 12 },
-  concrete: { min: 5, max: 16 },
-  narrative: { min: 12, max: 20 },
   verse: { min: 4, max: 16 },
+  list: { min: 5, max: 12 },
+  concrete: { min: 5, max: 16 },
 };
 
 /** Slots guaranteed resolvable for each event type (from analyze data shapes
@@ -108,9 +97,9 @@ export const SAFE_SLOTS: Record<StoryEventType, readonly SlotName[]> = {
   "longest-run": ["km", "year", "clock", "weekday"],
   "fastest-run": ["pace", "km", "year", "clock", "weekday"],
   "hilliest-run": ["gain", "year", "clock", "weekday"],
-  "earliest-run": ["time", "year", "clock", "weekday"],
-  "latest-run": ["time", "year", "clock", "weekday"],
-  "night-runs": ["count", "time", "name", "clock", "weekday"],
+  "earliest-run": ["year", "clock", "weekday"],
+  "latest-run": ["year", "clock", "weekday"],
+  "night-runs": ["count", "name", "clock", "weekday"],
   "false-starts": ["count", "clock", "weekday"],
   quiet: ["days", "year", "name", "clock", "weekday"],
   streak: ["days", "year", "weekday"],
@@ -129,7 +118,6 @@ export const WORST_CASE: Record<SlotName, string> = {
   count: "99",
   month: "September",
   pace: "12:59 /km",
-  time: "23:59",
   gain: "9999",
   name: "The Hill That Lied About Its Size (Again)",
   place: "West Lafayette",
