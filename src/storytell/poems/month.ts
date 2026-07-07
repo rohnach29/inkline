@@ -161,7 +161,7 @@ export const POEMS: readonly PoemSpec[] = [
       { text: "The town's out of sidewalk. The dog's out of zen." },
       { text: "" },
       { text: "They'll study my sneakers. They'll graph every street." },
-      { text: "They'll ask, \"How'd this happen?\" I'll shrug: \"I've got feet," },
+      { text: "They'll ask, \"How'd this happen?\" I'll shrug: \"Feet," },
       { text: "and mornings kept coming, so I kept on spending 'em.\"" },
       { text: "(Science writes: \"Subject just... ran.\" — addendum.)" },
     ],
