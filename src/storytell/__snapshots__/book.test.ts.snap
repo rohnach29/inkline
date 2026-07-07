@@ -37,26 +37,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the year begins",
       "mapSpec": null,
       "poem": {
-        "form": "spell",
-        "id": "first-run/spell-to-begin",
+        "form": "verse",
+        "id": "first-run/the-hardest-part",
         "lines": [
           {
-            "text": "For the first step, when the whole thing seems too big:",
+            "text": "The hardest part of any run",
           },
           {
-            "text": "one shoe, and then, astonishingly, the other.",
+            "text": "is not the hills. It's not the sun.",
           },
           {
-            "text": "One breath you keep. One breath you spend.",
+            "text": "It's not the dog on Baxter Street.",
           },
           {
-            "text": "Say the small true thing: I am going outside.",
+            "text": "It's not your lungs. It's not your feet.",
           },
           {
-            "text": "Repeat it till the door begins to believe you.",
+            "text": "",
           },
           {
-            "text": "Repeat it till your own two feet do too.",
+            "text": "It's seven steps from couch to door.",
+          },
+          {
+            "text": "I trained a month for those. Maybe more.",
+          },
+          {
+            "text": "The other 3.0 kilometers? Free.",
+          },
+          {
+            "text": "(The couch still hasn't forgiven me.)",
           },
         ],
       },
@@ -386,23 +395,29 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "runId": "r12-quiet-end-fastest",
       },
       "poem": {
-        "form": "spell",
-        "id": "fastest-run/spell-for-going-fast",
+        "form": "verse",
+        "id": "fastest-run/downhill-confession",
         "lines": [
           {
-            "text": "To go fast, first agree to be a rumor.",
+            "text": "The block declared me fastest kid.",
           },
           {
-            "text": "Let the ground hear you before it sees you coming.",
+            "text": "I let them cheer. I never hid.",
           },
           {
-            "text": "Spend the breath. Don't save it for the photo.",
+            "text": "The record's real. The legs are true.",
           },
           {
-            "text": "Forget the arms; they will sort themselves out.",
+            "text": "And yet, a fact I'll share with you:",
           },
           {
-            "text": "Lean like you mean to fall, and simply don't.",
+            "text": "",
+          },
+          {
+            "text": "the whole way back was down a hill.",
+          },
+          {
+            "text": "A big one. And I'm counting it still.",
           },
         ],
       },
@@ -670,32 +685,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the year comes home",
       "mapSpec": null,
       "poem": {
-        "form": "letter",
-        "id": "last-run/note-the-shoes-left",
+        "form": "verse",
+        "id": "last-run/dear-next-year",
         "lines": [
           {
-            "text": "Dear feet, a note, left folded in the left shoe:",
+            "text": "Dear Next Year — quick, before you start:",
+          },
+          {
+            "text": "bring hills. I've grown to like the hard part.",
+          },
+          {
+            "text": "Bring rain. I have a hood. Bring cold.",
+          },
+          {
+            "text": "Bring mornings made of dark and gold.",
           },
           {
             "text": "",
           },
           {
-            "text": "That was the last of the ones we counted this year.",
+            "text": "Don't change the dog. Don't change the bend",
           },
           {
-            "text": "Don't read too much into a number stopping.",
+            "text": "where the puddle lives. And don't pretend",
           },
           {
-            "text": "We're by the door. We are always by the door.",
+            "text": "you're new. You're just the old year, dressed.",
           },
           {
-            "text": "The mud is just the year we didn't wash off.",
-          },
-          {
-            "text": "",
-          },
-          {
-            "text": "Whenever. No rush. We're patient. — the shoes",
+            "text": "(I liked the old year. Do your best.)",
           },
         ],
       },
@@ -721,17 +739,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the distance gets away from you",
       "mapSpec": null,
       "poem": {
-        "form": "quip",
-        "id": "longest-run/legs-filed-a-complaint",
+        "form": "verse",
+        "id": "longest-run/the-hero-and-the-car",
         "lines": [
           {
-            "text": "Your legs filed a complaint with management.",
+            "text": "I ran past the mailbox, I ran past the school,",
           },
           {
-            "text": "Management, it turns out, is also your legs.",
+            "text": "I ran past the sign that says DON'T RUN (a rule),",
           },
           {
-            "text": "The meeting ran long. So, memorably, did you.",
+            "text": "I ran out of sidewalk, I ran out of street,",
+          },
+          {
+            "text": "I ran out of everything — except for feet.",
+          },
+          {
+            "text": "",
+          },
+          {
+            "text": "21.1 kilometers! I finished! I win!",
+          },
+          {
+            "text": "The town ought to carve me in bronze, or in tin.",
+          },
+          {
+            "text": "How did your hero get home from so far?",
+          },
+          {
+            "text": "...The hero would rather not talk about the car.",
           },
         ],
       },

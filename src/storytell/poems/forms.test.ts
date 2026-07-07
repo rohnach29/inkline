@@ -110,7 +110,32 @@ describe("corpus structure", () => {
   });
 });
 
-describe.each([...COVERED_KINDS])("corpus floors: %s", (kind) => {
+/** Kinds already rewritten to the Silverstein corpus (Rebirth v2). Batch
+ *  membership grows as corpus batches land; Task 7 requires all 16. */
+const MIGRATED = new Set<string>([
+  "first-run", "longest-run", "fastest-run", "last-run",
+]);
+/** Per-kind selection caps from book.ts — a book can hold this many chapters
+ *  of the kind, so this many always-eligible poems must exist. */
+const REPEAT_CAPS: Record<string, number> = { quiet: 3, month: 3, streak: 2, journey: 2 };
+
+describe.each([...COVERED_KINDS].filter((k) => MIGRATED.has(k)))("corpus floors (v2): %s", (kind) => {
+  it("has ≥6 poems", () => expect(byKind(kind).length).toBeGreaterThanOrEqual(6));
+  it("has enough always-eligible poems (band any + safe slots)", () => {
+    const floor = Math.max(2, REPEAT_CAPS[kind] ?? 1);
+    const safe = byKind(kind).filter(
+      (p) => p.band === "any" && p.slots.every((s) => SAFE_SLOTS[kind].includes(s)),
+    );
+    expect(safe.length).toBeGreaterThanOrEqual(floor);
+  });
+  it.runIf(BANDED.has(kind))("has ≥3 candidates in every band", () => {
+    for (const b of BANDS) {
+      expect(bandEligible(kind, b).length, `${kind}/${b}`).toBeGreaterThanOrEqual(3);
+    }
+  });
+});
+
+describe.each([...COVERED_KINDS].filter((k) => !MIGRATED.has(k)))("corpus floors (v1): %s", (kind) => {
   it("has ≥8 poems", () => expect(byKind(kind).length).toBeGreaterThanOrEqual(8));
   it("has ≥2 safe poems (slots ⊆ SAFE_SLOTS)", () => {
     const safe = byKind(kind).filter((p) => p.slots.every((s) => SAFE_SLOTS[kind].includes(s)));
@@ -129,9 +154,21 @@ describe.each([...COVERED_KINDS])("corpus floors: %s", (kind) => {
   });
 });
 
-describe("corpus totals (all kinds covered)", () => {
-  it.runIf(COVERED_KINDS.length === 16)("≥128 poems and every form used somewhere", () => {
-    expect(CORPUS.length).toBeGreaterThanOrEqual(128);
-    expect(new Set(CORPUS.map((p) => p.form)).size).toBe(POEM_FORMS.length - 1);
+describe("corpus totals (all kinds migrated)", () => {
+  it.runIf(COVERED_KINDS.every((k) => MIGRATED.has(k)))("≥96 poems, only v2 forms, every coda reachable", () => {
+    expect(CORPUS.length).toBeGreaterThanOrEqual(96);
+    const forms = new Set<string>(CORPUS.map((p) => p.form));
+    expect([...forms].sort()).toEqual(["concrete", "list", "verse"].filter((f) => forms.has(f)));
+    const introduced = new Map<string, Set<string>>();
+    for (const p of CORPUS) for (const c of p.introduces ?? []) {
+      if (!introduced.has(c)) introduced.set(c, new Set());
+      introduced.get(c)!.add(p.kind);
+    }
+    for (const p of CORPUS) {
+      if (!p.coda) continue;
+      const kinds = introduced.get(p.coda.requires) ?? new Set();
+      const others = [...kinds].filter((k) => k !== p.kind);
+      expect(others.length, `${p.id} coda requires ${p.coda.requires}`).toBeGreaterThan(0);
+    }
   });
 });
