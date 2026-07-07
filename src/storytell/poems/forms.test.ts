@@ -115,6 +115,7 @@ describe("corpus structure", () => {
 const MIGRATED = new Set<string>([
   "first-run", "longest-run", "fastest-run", "last-run",
   "quiet", "streak", "false-starts", "month",
+  "earliest-run", "latest-run", "night-runs", "ghost-elevation",
 ]);
 /** Per-kind selection caps from book.ts — a book can hold this many chapters
  *  of the kind, so this many always-eligible poems must exist. */

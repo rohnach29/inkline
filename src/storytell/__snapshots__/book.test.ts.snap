@@ -145,44 +145,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the day gets away first",
       "mapSpec": null,
       "poem": {
-        "form": "concrete",
-        "id": "latest-run/one-light-left-on",
+        "form": "verse",
+        "id": "latest-run/note-for-morning-me",
         "lines": [
           {
-            "align": "center",
-            "text": "the whole town dark",
+            "text": "Morning-me won't believe what the night-me has done.",
           },
           {
-            "align": "center",
-            "text": "except",
+            "text": "Morning-me will wake yawning, the sleepiest one.",
           },
           {
-            "align": "center",
-            "text": "one window",
+            "text": "So I'm leaving a note by the bed, in my shoe:",
           },
           {
-            "align": "center",
-            "text": "one streetlight",
+            "text": ""The 11:15 run happened. Signed: you."",
           },
           {
-            "align": "center",
-            "text": "and, under it,",
+            "text": "",
           },
           {
-            "align": "center",
-            "text": "one small",
+            "text": "Because nights disappear like a coin in a well,",
           },
           {
-            "align": "center",
-            "text": "insistent",
+            "text": "and legs remember what mouths never tell,",
           },
           {
-            "align": "center",
-            "text": "moving",
+            "text": "and when morning-me stretches and wonders why",
           },
           {
-            "align": "center",
-            "text": "warmth.",
+            "text": "the sneakers are warm... there's the note. (That's my guy.)",
           },
         ],
       },
@@ -208,20 +199,32 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the dark keeps you company",
       "mapSpec": null,
       "poem": {
-        "form": "quatrain",
-        "id": "night-runs/the-dark-made-room",
+        "form": "verse",
+        "id": "night-runs/the-dark-door",
         "lines": [
           {
-            "text": "The dark is not as empty as they say.",
+            "text": "Daytime running is public. You wave.",
           },
           {
-            "text": "It's mostly full of people staying in.",
+            "text": "You dodge all the strollers. You mind and behave.",
           },
           {
-            "text": "You were the one small motion in it, moving,",
+            "text": "But nighttime running is running UNBOUND:",
           },
           {
-            "text": "and the dark, to its own surprise, made room.",
+            "text": "no audience, no traffic, just you and the sound",
+          },
+          {
+            "text": "of two quiet sneakers applauding the ground.",
+          },
+          {
+            "text": "",
+          },
+          {
+            "text": "2 times I chose the dark door.",
+          },
+          {
+            "text": "(The day thinks I'm lazy. The night knows the score.)",
           },
         ],
       },
@@ -247,48 +250,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the dawn is beaten to the punch",
       "mapSpec": null,
       "poem": {
-        "form": "concrete",
-        "id": "earliest-run/the-edge-of-the-light",
+        "form": "verse",
+        "id": "earliest-run/the-secret-town",
         "lines": [
           {
-            "indent": 0,
-            "text": "dark",
+            "text": "There's a secret town underneath this one.",
           },
           {
-            "indent": 0,
-            "text": "still dark",
+            "text": "It only exists before the day's begun:",
           },
           {
-            "indent": 1,
-            "text": "dark",
+            "text": "the bakery breathing its first warm bread,",
           },
           {
-            "indent": 1,
-            "text": "a thread of gray",
+            "text": "the streetlights bowing as they go off to bed,",
           },
           {
-            "indent": 2,
-            "text": "a seam of pink",
+            "text": "a cat on patrol with a clipboard stare,",
           },
           {
-            "indent": 2,
-            "text": "the whole east",
+            "text": "and nobody — nobody — no one else there.",
           },
           {
-            "indent": 3,
-            "text": "coming apart",
+            "text": "",
           },
           {
-            "indent": 3,
-            "text": "quietly at first",
+            "text": "I'd tell you what time it unlocks... but then",
           },
           {
-            "indent": 3,
-            "text": "then all at once —",
-          },
-          {
-            "indent": 3,
-            "text": "and you already out in it.",
+            "text": "you'd be there. At 12:45. And it's mine till ten.",
           },
         ],
       },
@@ -666,32 +656,30 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "runId": "r18-ghost-hilliest",
       },
       "poem": {
-        "form": "dialogue",
-        "id": "ghost-elevation/believe-your-feet",
+        "form": "verse",
+        "id": "ghost-elevation/entered-in-the-record",
         "lines": [
           {
-            "text": "You gained elevation, the GPS announced, brightly.",
-            "voice": 1,
+            "text": "A mountain that vanishes still needs a name —",
           },
           {
-            "text": "On a flat loop? you said. Where? Show me the hill.",
-            "voice": 2,
+            "text": "or how would you prove that it ever became?",
           },
           {
-            "text": "I cannot show you the hill, it admitted, softly.",
-            "voice": 1,
+            "text": "So, entered in the record, in permanent pen:",
           },
           {
-            "text": "The hill declines to appear on any map but mine.",
-            "voice": 1,
+            "align": "center",
+            "text": "The Turnaround.",
           },
           {
-            "text": "Then it isn't real, you said. It rose all the same.",
-            "voice": 2,
+            "text": "Elevation: 300. Location: gone. When:",
           },
           {
-            "text": "Believe the numbers, it whispered, or your feet.",
-            "voice": 1,
+            "text": "one run, one witness. (The witness was me.)",
+          },
+          {
+            "text": "Some mountains live only in legs. Let them be.",
           },
         ],
       },
