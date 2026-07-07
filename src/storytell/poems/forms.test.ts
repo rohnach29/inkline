@@ -114,6 +114,7 @@ describe("corpus structure", () => {
  *  membership grows as corpus batches land; Task 7 requires all 16. */
 const MIGRATED = new Set<string>([
   "first-run", "longest-run", "fastest-run", "last-run",
+  "quiet", "streak", "false-starts", "month",
 ]);
 /** Per-kind selection caps from book.ts — a book can hold this many chapters
  *  of the kind, so this many always-eligible poems must exist. */

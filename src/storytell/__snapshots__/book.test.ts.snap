@@ -91,23 +91,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the shoes get put back on",
       "mapSpec": null,
       "poem": {
-        "form": "notice",
-        "id": "false-starts/no-fault-found",
+        "form": "verse",
+        "id": "false-starts/shortest-epic",
         "lines": [
           {
-            "text": "NO FAULT FOUND, reads the report on 2 attempts.",
+            "text": "The bards sing of marathons. Fine. Let them sing.",
           },
           {
-            "text": "Each one got as far as intending, and stopped.",
+            "text": "My epic is shorter. My epic's a spring:",
           },
           {
-            "text": "Intending, the Department notes, is where runs are born.",
+            "text": "one leap off the porch — form! majesty! grace! —",
           },
           {
-            "text": "No run was harmed. Several were merely postponed.",
+            "text": "and a landing (the sprinkler was on) in first place.",
           },
           {
-            "text": "Case closed, with sympathy, and left slightly open.",
+            "text": "",
+          },
+          {
+            "text": "Some medals take hours. Mine took one bound.",
+          },
+          {
+            "text": "The judges (two squirrels) said I "stuck it, then drowned."",
+          },
+          {
+            "text": "An epic's an epic, whatever the length.",
+          },
+          {
+            "text": "(Mine's just very... concentrated. Like strength.)",
           },
         ],
       },
@@ -300,20 +312,35 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the mornings pile up",
       "mapSpec": null,
       "poem": {
-        "form": "quatrain",
-        "id": "streak/a-small-god",
+        "form": "verse",
+        "id": "streak/the-rain-test",
         "lines": [
           {
-            "text": "The streak is a small god with a simple rule.",
+            "text": "One morning the rain came in curtains and sheets.",
           },
           {
-            "text": "It does not care for reasons. It counts.",
+            "text": "The gutters were bragging. The puddles claimed streets.",
           },
           {
-            "text": "Miss one dawn and it forgets your name entirely,",
+            "text": "The couch cleared its throat and said, "Stay! I'm so soft!"",
           },
           {
-            "text": "and every day you gave it turns to smoke.",
+            "text": "The streak grabbed my laces and hauled me aloft.",
+          },
+          {
+            "text": "",
+          },
+          {
+            "text": "So we went, streak and me, through the wet and the roar,",
+          },
+          {
+            "text": "and came home like something the sea spat ashore.",
+          },
+          {
+            "text": "The couch was still talking. The streak shut the door:",
+          },
+          {
+            "text": ""He's mine until further notice. Don't call anymore."",
           },
         ],
       },
@@ -342,31 +369,36 @@ exports[`buildBook > matches the golden snapshot 1`] = `
         "runId": "r12-quiet-end-fastest",
       },
       "poem": {
-        "form": "list",
-        "id": "quiet/what-the-quiet-kept",
+        "form": "verse",
+        "id": "quiet/naming-the-beast",
         "lines": [
           {
-            "text": "What the quiet kept while you were gone:",
+            "text": "Every long silence deserves its own name,",
           },
           {
-            "indent": 1,
-            "text": "the shape of you, pressed into the couch;",
+            "text": "like storms do, like ships do. This one became:",
           },
           {
-            "indent": 1,
-            "text": "one resolution, folded very small;",
+            "align": "center",
+            "text": "The Small Quiet.",
           },
           {
-            "indent": 1,
-            "text": "the shoes, in their patient, dog-like way;",
+            "text": "Say it out loud. Feel the weight of the blame.",
           },
           {
-            "indent": 1,
-            "text": "a Tuesday you had promised things to;",
+            "text": "",
           },
           {
-            "indent": 1,
-            "text": "and the door, still willing, still unlocked.",
+            "text": "It measured 40 days, end to end.",
+          },
+          {
+            "text": "It swallowed my sneakers. It bored my best friend.",
+          },
+          {
+            "text": "But naming a thing makes it yours — that's the art.",
+          },
+          {
+            "text": "It's mine now. It sits. It rolls over. (Smart.)",
           },
         ],
       },
@@ -685,35 +717,43 @@ exports[`buildBook > matches the golden snapshot 1`] = `
       "kicker": "in which the year comes home",
       "mapSpec": null,
       "poem": {
+        "coda": [
+          {
+            "text": "P.S. The Quiet showed up as I got to my door —",
+          },
+          {
+            "text": "not to take back the street. Just to hear one run more.",
+          },
+        ],
         "form": "verse",
-        "id": "last-run/dear-next-year",
+        "id": "last-run/noise-for-the-winter",
         "lines": [
           {
-            "text": "Dear Next Year — quick, before you start:",
+            "text": "I ran the last one nice and loud —",
           },
           {
-            "text": "bring hills. I've grown to like the hard part.",
+            "text": "big breaths, big steps — I hummed, I bowed,",
           },
           {
-            "text": "Bring rain. I have a hood. Bring cold.",
+            "text": "I smacked the stop sign, slapped the rail,",
           },
           {
-            "text": "Bring mornings made of dark and gold.",
+            "text": "and left a racket on the trail,",
           },
           {
             "text": "",
           },
           {
-            "text": "Don't change the dog. Don't change the bend",
+            "text": "because the street will stand out there",
           },
           {
-            "text": "where the puddle lives. And don't pretend",
+            "text": "all winter, in the quiet air,",
           },
           {
-            "text": "you're new. You're just the old year, dressed.",
+            "text": "with nothing to listen to. Streets can't sing.",
           },
           {
-            "text": "(I liked the old year. Do your best.)",
+            "text": "So I left it enough noise to last until spring.",
           },
         ],
       },
