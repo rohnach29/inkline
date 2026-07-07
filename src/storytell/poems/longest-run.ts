@@ -60,7 +60,7 @@ export const POEMS: readonly PoemSpec[] = [
           default: [{ text: "where the sidewalk gives up and the houses calm down:" }],
         },
       },
-      { text: "when you run out {km} — you brave little dot —" },
+      { text: "when you run out {km} K — you brave little dot —" },
       { text: "the run home is exactly as long. I forgot." },
     ],
   },
